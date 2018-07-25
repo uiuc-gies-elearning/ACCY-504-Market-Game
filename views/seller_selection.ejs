@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Seller Selection
+		</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	</head>
+
+	<body onload="loadPrices()">
+		<div class="container">
+			<div class="page-header">
+				<h1>Seller Selection Interface</h1>
+			</div>
+			<div class="jumbotron">
+				<form>
+					<div class="radio-inline">
+						<label><input type="radio" name="qualityselect" id="LQ">Low Quality</label>
+					</div>
+					<div class="radio-inline">
+						<label><input type="radio" name="qualityselect" id="MQ">Medium Quality</label>
+					</div>
+					<div class="radio-inline">
+						<label><input type="radio" name="qualityselect" id="HQ">High Quality</label>
+					</div>
+				</form>
+				<form>
+					<div class="checkbox">
+					  <label><input type="checkbox" value="" id="secondSale">Sell a Second Product ($1 higher production cost for the second item)?</label>
+					</div>
+				</form>
+		   		<br>
+			  	<form class="form-inline" id="price">
+					<div class="form-group">
+						<label>What price do you want to sell for?</label><br>
+					    <div class="input-group">
+					    	<div class="input-group-addon">$</div>
+					    	<input type="number" min="0.00" step="0.01" value="0.00" id="price-input" class="form-control" placeholder="Price" onkeypress="return inputKeyPress(event)"/>
+					    </div>
+					</div>
+				</form>
+		   		<br>
+		   		<button type="button" class="btn btn-success" onclick="submitQuality()">Submit</button>
+		   		<br><br>
+		   		<pr id="low-quality-price"></pr><br>
+		   		<pr id="med-quality-price"></pr><br>
+		   		<pr id="high-quality-price"></pr>
+			</div>
+
+			<script src="/socket.io/socket.io.js"></script>
+			<script>
+				var countDecimals = function(value) {
+				    if (Math.floor(value) !== value)
+				        return value.toString().split(".")[1].length || 0;
+				    return 0;
+				}
+				function inputKeyPress(e){
+					e=e||window.event;
+					var key = e.keyCode;
+					if(key==13)
+					{
+						return false;
+					}
+				}
+			</script>
+			<script>
+				var socket = io.connect();
+				function loadPrices(){
+					socket.emit('loadPrices');
+				};
+
+				function submitQuality(){
+					var second;
+					var price = document.getElementById("price-input").value;
+
+					if(countDecimals(price)>2){
+						alert("Please select a dollar amount");
+						return;
+					}
+
+					if(document.getElementById("secondSale").checked){
+						second = 1;
+					} else{
+						second = 0;
+					}
+
+					if(price == 0 || isNaN(price)){
+						alert("Please pick a price to sell at");
+						return;
+					}
+
+
+					if(document.getElementById("LQ").checked){
+						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 1});
+					} else if(document.getElementById("MQ").checked){
+						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 2});
+					} else if(document.getElementById("HQ").checked){
+						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 3});
+					} else {
+						alert("Please pick a product quality to sell");
+						return;
+					}
+				};
+
+				socket.on('pricesLoaded', function(data){
+					console.log('prices received');
+					document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $" + data.price_low;
+					document.getElementById("med-quality-price").innerHTML = "The cost for producing a medium quality good is $" + data.price_med;
+					document.getElementById("high-quality-price").innerHTML = "The cost for producing a high quality good is $" + data.price_high;
+				});
+
+				socket.on('offerSubmitted', function(data){
+					alert("Offer has been submitted!");
+				})
+			</script>
+		</div>
+		
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</body>
+</html>

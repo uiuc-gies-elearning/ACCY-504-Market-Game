@@ -35,7 +35,7 @@ var admin_control = function(){
 	    	});
 
 		    client.on('updatePeriod', function(data) {
-	    		var curPeriod = serverfile.connection.query('SELECT cur_period FROM history ORDER BY history_id DESC LIMIT 1;', function(err, result){
+	    		var curPeriod = serverfile.connection.query('SELECT cur_phase, cur_period FROM history ORDER BY history_id DESC LIMIT 1;', function(err, result){
 		    		if (err) {
 						console.error(err);
 						return;
@@ -44,6 +44,7 @@ var admin_control = function(){
 					console.log(result[0]["cur_period"]);
 					var newPeriod = ++result[0]["cur_period"];
 					var newHistory = {
+						cur_phase : result[0]["cur_phase"],
 						cur_period : newPeriod
 					};
 					var newQuery = serverfile.connection.query('INSERT INTO history SET ?', newHistory, function(err, result){
@@ -55,6 +56,31 @@ var admin_control = function(){
 						console.log("New history record created");
 					});
 		    		client.emit("periodUpdate", newPeriod);
+		    	});
+	    	});
+
+	    	client.on('updatePhase', function(data) {
+	    		serverfile.connection.query('SELECT cur_phase, cur_period FROM history ORDER BY history_id DESC LIMIT 1;', function(err, result){
+		    		if (err) {
+						console.error(err);
+						return;
+					}
+					var newPhase = ++result[0]["cur_phase"];
+					var newPeriod = ++result[0]["cur_period"];
+					var newHistory = {
+						cur_phase : newPhase,
+						cur_period : newPeriod
+					};
+					var newQuery = serverfile.connection.query('INSERT INTO history SET ?', newHistory, function(err, result){
+						if (err) {
+							console.error(err);
+							return;
+						}
+						console.log(newQuery.sql);
+						console.log("New history record created");
+					});
+		    		client.emit("periodUpdate", newPeriod);
+		    		client.emit("phaseUpdate", newPhase);
 		    	});
 	    	});
 

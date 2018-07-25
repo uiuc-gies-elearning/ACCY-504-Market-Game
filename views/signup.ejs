@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Signup
+		</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Signup</h1>
+			</div>
+			<div class="jumbotron">
+				<% if (message.length > 0) { %>
+					<div class="alert alert-danger"><%= message %></div>
+				<% } %>
+				<div id="error"></div>
+				<form action="/signup" method="post">
+					<div class="form-group">
+						<label>Teamname</label>
+						<input type="text" class="form-control" name="username" id="username">
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="password" id="password">
+					</div>
+					<div class="radio-inline">
+						<label><input type="radio" name="role" value="1">Buyer</label>
+					</div>
+					<div class="radio-inline">
+						<label><input type="radio" name="role" value="2">Seller</label>
+					</div>
+					<div class="radio-inline">
+						<label><input type="radio" name="role" value="3">Admin</label>
+					</div><br>
+					<input type="submit" class="btn btn-warning" onclick="return empty()"/>
+				</form>
+			</div>
+			<p>Already have an account? <a href="/login">Login</a></p>
+			<p>Or go <a href="/">home</a>.</p>
+		</div>
+
+		<script>
+			function empty() {
+				var x,y;
+				x = document.getElementById("username").value;
+				y = document.getElementById("password").value;
+				if (x == "") {
+					document.getElementById("error").classList.add("alert alert-danger");
+					document.getElementById("error").innerHTML = "Please enter a teamname.";
+					return false;
+				};
+				else if (y == "") {
+					document.getElementById("error").classList.add("alert alert-danger");
+					document.getElementById("error").innerHTML = "Please enter a password.";
+					return false;
+				};
+				return false;
+			}
+		</script>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</body>
+</html>
