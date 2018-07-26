@@ -5,7 +5,8 @@
 var serverfile = require('./server.js');
 
 var load_history = function(){
-	serverfile.connection.query('SELECT * FROM history', function(err, result){
+
+	serverfile.connection.query('SELECT * FROM history WHERE game_id = 1', function(err, result){
 		if (err) {
 			console.error(err);
 			return;
@@ -25,38 +26,45 @@ var load_history = function(){
 			seller3units: []
 		};
 
-		for(i = 0; i<results.length; i++){
-			history.phase.push(results[i]["cur_phase"]);
-			history.period.push(results[i]["cur_period"]);
-			history_id = results[i]["history_id"];
+		serverfile.connection.query('SELECT `sale history`.history_id, `seller list`.seller_number, `sale history`.units_sold, `sale history`.price_sold, `sale history`.quality_id FROM `sale history` INNER JOIN `seller list` on `sale history`.seller_id = `seller list`.seller_id ORDER BY `sale history`.history_id ASC', function(err, rows){
+			if (err) {
+				console.error(err);
+				return;
+			}
 
-			serverfile.connection.query('SELECT `seller list`.seller_number, `sale history`.units_sold, `sale history`.price_sold, `sale history`.quality_id FROM `sale history` INNER JOIN `seller list` on `sale history`.seller_id = `seller list`.seller_id WHERE `sale history`.history_id = ?', history_id, function(err, rows){
-				if (err) {
-					console.error(err);
-					return;
+			for(i = 0; i<result.length; i++){
+				history.phase.push(result[i]["cur_phase"]);
+				history.period.push(result[i]["cur_period"]);
+				cur_history = result[i]["history_id"];
+				for(n = 0; n<rows.length; n++){
+					if(rows[n]["history_id"] == cur_history){
+						seller = rows[n]["seller_number"];
+						if(seller==1){
+							history.seller1quality.push(rows[n]["quality_id"]);
+							history.seller1price.push(rows[n]["price_sold"]);
+							history.seller1units.push(rows[n]["units_sold"]);
+						}
+						else if(seller==2){
+							history.seller2quality.push(rows[n]["quality_id"]);
+							history.seller2price.push(rows[n]["price_sold"]);
+							history.seller2units.push(rows[n]["units_sold"]);
+						}
+						else if(seller==3){
+							history.seller3quality.push(rows[n]["quality_id"]);
+							history.seller3price.push(rows[n]["price_sold"]);
+							history.seller3units.push(rows[n]["units_sold"]);
+						}
+						else{
+							console.log("ERROR: Extraneous Seller");
+						}
+					}
 				}
-				for(i = 0; rows.length ;i++){
-					seller = rows[i][seller_number];
-					if(seller==1){
-						history.seller1quality.push(rows[i]["quality_id"]);
-						history.seller1price.push(rows[i]["price_sold"]);
-						history.seller1units.push(rows[i]["units_sold"]);
-					}
-					else if(seller==2){
-						history.seller2quality.push(rows[i]["quality_id"]);
-						history.seller2price.push(rows[i]["price_sold"]);
-						history.seller2units.push(rows[i]["units_sold"]);
-					}
-					else{
-						history.seller3quality.push(rows[i]["quality_id"]);
-						history.seller3price.push(rows[i]["price_sold"]);
-						history.seller3units.push(rows[i]["units_sold"]);
-					}
-				}
+			}
+			serverfile.app.io.route('loadHistory', function(req) {
+				req.io.emit("historyLoaded", history);
 			});
-		}
-		console.log("This is the history: " + history);
-		return history;
+
+		});
 	});
 };
 

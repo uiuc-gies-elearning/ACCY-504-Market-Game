@@ -2,22 +2,66 @@
 <html>
 	<head>
 		<title>
-			Market Game
+			Seller Wait
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	</head>
 
-	<body>
+	<body onload="start()">
 		<div class="container">
 			<div class="page-header">
-				<h1>Market Game Home Page</h1>
+				<h1>Seller Wait Screen</h1>
 			</div>
 			<div class="jumbotron">
-				<a href="/login" class="btn btn-primary">Login</a>
-				<a href="/signup" class="btn btn-primary">Signup</a>
+				<h2>Sale History</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Phase and Period</th>
+							<th scope="col">Seller 1</th>
+							<th scope="col">Seller 2</th>
+							<th scope="col">Seller 3</th>
+						</tr>
+					</thead>
+						<tbody id="tbody">
+					</tbody>
+				</table>
+				<script src="/socket.io/socket.io.js"></script>
+				<script>
+					var socket = io.connect();
+					function start(){
+						socket.emit('loadHistory');
+					}
+
+					socket.on('historyLoaded', function(data) {
+						var tbody = document.getElementById('tbody');
+						for(i=0; i<data.phase.length; i++){
+							var row = tbody.insertRow();
+							var th = document.createElement('th');
+							th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+							row.appendChild(th);
+
+							var cell1 = row.insertCell();
+							cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+							var cell2 = row.insertCell();
+							cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+							var cell3 = row.insertCell();
+							cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+						}
+					});
+					function parseQuality(quality){
+						if(quality == 1)
+							return "Low Quality";
+						else if(quality == 2)
+							return "Medium Quality";
+						else if(quality == 3)
+							return "High Quality";
+						else
+							return "Error";
+					}
+				</script>
 			</div>
 		</div>
-
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>

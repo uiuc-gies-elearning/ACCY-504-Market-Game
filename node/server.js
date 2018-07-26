@@ -1,12 +1,27 @@
-//Variable to allow connection to database
+//=================================================================================================================================
+//Contains all dependency requirements and setup for MySQL DB Querying, http hosting, express sessions, and passport logins.
+//Also contains all express routing. Socket IO (express.io) is used for the majority of front-end to back-end communication
+//using sockets, however socket listening and emittion is almost entirely contained in seperate JS files that are called within
+//the routes.
+//==================================================================================================================================
+
+
+//======================
+//DEPENDENCIES==========
+//======================
+
+//Variable for connection to the MySQL database
 var mysql = require('mysql');
 
-//Variables for socket io connections and express routing
-var express = require('express');
+//Variables for socket io (express.io) connections and express routing
+var express = require('express.io');
 var session = require('express-session');
 var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server); 
+
+//HTTP connection with express.io
+app.http().io();
+
+//
 var passport = require('passport');
 var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
@@ -48,18 +63,14 @@ connection.connect(function(err) {
 
 //Export variables for connected JS files
 
-//exports.express = express;
-//exports.app = app;
-exports.server = server;
-exports.io = io;
+exports.app = app;
 exports.mysql = mysql;
 exports.connection = connection;
 
 
-//start our web server and socket.io server listening
-server.listen(3000, function(){
+app.listen(3000, function(){
     console.log('listening on *:3000');
-}); 
+});
 
 
 //========================
@@ -108,69 +119,74 @@ app.post('/signup', passport.authenticate('local-signup', {
     failureFlash : true // allow flash messages
 }));
 
-app.get('/redirect', function(req, res, next) {
-    if(req.user.role_id == 1){
-        res.redirect('buyer');
-    }
-    else if(req.user.role_id == 2){
-        res.redirect('seller');
-    }
-    else if(req.user.role_id == 3){
-        var gameExistence;
-        connection.query("SELECT COUNT(*) FROM 'game';", function(err, result){
-            if (err) {
-                console.error(err);
-                return;
-            }
-            if(result == 0)
-                gameExistence = false;
+app.get('/redirect', isLoggedIn, function(req, res, next) {
+
+    connection.query("SELECT stage_id FROM game WHERE game_id = 1", function(err, result){
+        if (err) {
+            console.error(err);
+            return;
+        }
+        stage = result[0]["stage_id"];
+        if(req.user.role_id == 1){
+            if(req.user.buy_pos == stage)
+                res.redirect('buyer_selection');
             else
-                gameExistence = true;
-        });
-        if(gameExistence)
-            res.redirect('admin_control');
-        else
-            res.redirect('game_initialization');
-    }
+                res.redirect('buyer_wait');
+        }
+        else if(req.user.role_id == 2){
+            if(stage == 0)
+                res.redirect('seller_selection');
+            else
+                res.redirect('seller_wait');
+        }
+        else if(req.user.role_id == 3){
+            var gameExistence;
+            connection.query("SELECT COUNT(*) FROM game;", function(err, result){
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                if(result[0] == 0)
+                    gameExistence = false;
+                else
+                    gameExistence = true;
+                if(gameExistence)
+                    res.redirect('admin_control');
+                else
+                    res.redirect('game_initialization');
+            });
+        }
+    });
 });
 
-app.get('/buyer', isLoggedIn, function(req, res, next) { 
-    res.render(path.join(__dirname, '..', 'views/buyer.ejs'));
-});
-
-app.get('/seller', isLoggedIn, function(req, res, next) {
-    res.render(path.join(__dirname, '..', 'views/seller.ejs'));
-});
-
-app.get('/admin_control', isLoggedIn, function(req, res, next) {
+app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/admin_control.ejs'));
     admin_control.admin_control();
 });
 
-app.get('/game_initialization', isLoggedIn, function(req, res, next) {
+app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_initialization.ejs'));
     game_initialization.game_initialization();
 });
 
-app.get('/seller_selection', isLoggedIn, function(req, res, next) {
+app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_selection.ejs'));
     seller_selection.seller_select(req);
 });
 
-app.get('/buyer_selection', isLoggedIn, function(req, res, next) {
+app.get('/buyer_selection', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_selection.ejs'));
     buyer_selection.buyer_select(req);
 });
 
-app.get('/buyer_wait', function(req, res, next) {
+app.get('/buyer_wait', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_wait.ejs'));
-    io.on('connection', function(client) {
-        console.log('Client connected...');
-        client.on('loadHistory', function(data) {
-            var history = load_history.load_history();
-            client.emit('historyLoaded', history);
-        });
-    });
+    load_history.load_history();
+});
+
+app.get('/seller_wait', isLoggedIn, isSeller, function(req, res, next) {
+    res.render(path.join(__dirname, '..', 'views/seller_wait.ejs'));
+    load_history.load_history();
 });
 
 
@@ -182,6 +198,29 @@ function isLoggedIn(req, res, next) {
 
     // if they aren't redirect them to the home page
     res.redirect('/');
+}
+
+function isBuyer(req, res, next) {
+
+    if (req.user.role_id == 1){
+        return next();
+    }
+    res.redirect('/redirect');
+}
+
+function isSeller(req, res, next) {
+    if (req.user.role_id == 2){
+        return next();
+    }
+    res.redirect('/redirect');
+}
+
+function isAdmin(req, res, next) {
+
+    if (req.user.role_id == 3){
+        return next();
+    }
+    res.redirect('/redirect');
 }
 
 //connection.end(); ?????????????????????????????

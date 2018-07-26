@@ -100,20 +100,6 @@
 				function start(){
 					socket.emit('loadOffers');
 					socket.emit('loadResale');
-					//===========
-					//TEST=======
-					//===========
-					var tbody = document.getElementById('tbody');
-					for(n=0; n<2; n++){
-						var row = tbody.insertRow();
-						var th = document.createElement('th');
-						th.innerHTML = "Head";
-						row.appendChild(th);
-						for(i=0; i<2; i++){
-							var cell = row.insertCell();
-							cell.innerHTML = i + "<br>" + i;
-						}
-					}
 				}
 
 				function submitBuy(){

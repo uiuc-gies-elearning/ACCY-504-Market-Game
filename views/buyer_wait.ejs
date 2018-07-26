@@ -23,13 +23,7 @@
 							<th scope="col">Seller 3</th>
 						</tr>
 					</thead>
-					<tbody id="tbody">
-						<tr>
-							<th scope="row"></th>
-							<td>Mark</td>
-							<td>Otto</td>
-							<td>@mdo</td>
-						</tr>
+						<tbody id="tbody">
 					</tbody>
 				</table>
 				<script src="/socket.io/socket.io.js"></script>
@@ -60,8 +54,10 @@
 							return "Low Quality";
 						else if(quality == 2)
 							return "Medium Quality";
-						else
+						else if(quality == 3)
 							return "High Quality";
+						else
+							return "Error";
 					}
 				</script>
 			</div>

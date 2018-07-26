@@ -64,12 +64,14 @@ module.exports = function(passport) {
                     var newUserMysql = {
                         teamname: username,
                         password: password,
-                        role_id: req.body.role
+                        role_id: req.body.role,
+                        profits: 0,
+                        game_id: 1
                     };
 
-                    var insertQuery = "INSERT INTO user ( teamname, password, role_id ) values (?,?,?)";
+                    var insertQuery = "INSERT INTO user ( teamname, password, role_id, profits, game_id ) values (?,?,?,?,?)";
 
-                    connection.query(insertQuery,[newUserMysql.teamname, newUserMysql.password, newUserMysql.role_id],function(err, rows) {
+                    connection.query(insertQuery,[newUserMysql.teamname, newUserMysql.password, newUserMysql.role_id, newUserMysql.profits, newUserMysql.game_id],function(err, rows) {
                         newUserMysql.user_id = rows.insertId;
 
                         return done(null, newUserMysql);
