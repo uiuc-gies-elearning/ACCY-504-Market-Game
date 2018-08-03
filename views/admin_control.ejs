@@ -14,49 +14,84 @@
 			</div>
 			<div class="jumbotron">
 			   	<div class="form-group">
-			   		<button type="button" class="btn btn-info">Open Buys</button>
-			   		<button type="button" class="btn btn-info">Close Buys</button><br>
+			   		<h4 id="message" class="alert alert-success"></h4>
+			   		<h4 id="sellers"></h4>
+			   		<h4 id="buyers"></h4>
 			   		<br>
-			   		<button type="button" class="btn btn-success" onclick="updatePeriod()">Next Period</button>
+			   		<button type="button" class="btn btn-success" onclick="updatePeriod()" id="periodButton">Next Period (Ends results)</button>
 			   		<p id="period"></p>
-			   		<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton">Next Phase</button>
+		   			<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton">Next Phase (Ends results and goes to next period)</button>
 			   		<p id="phase"></p>
 			  	</div>
-
-		   		<script src="/socket.io/socket.io.js"></script>
-		   		<script>
-		   			var socket = io.connect();
-		   			function statLoad(){
-		   				socket.emit('statLoad');
-		   			}
-					function updatePeriod(){
-						socket.emit('updatePeriod');
-					};
-					function updatePhase(){
-						socket.emit('updatePhase');
-					};
-
-					socket.on('periodUpdate', function(data){
-						document.getElementById("period").innerHTML = "The Current Period is " + data;
-					});
-					socket.on('phaseUpdate', function(data){
-						document.getElementById("phase").innerHTML = "The Current Phase is " + data;
-						if(data == 3){
-							document.getElementById("phaseButton").disabled = true; 
-						}
-					});
-
-					socket.on('stats', function(data){
-						document.getElementById("period").innerHTML = "The Current Period is " + data.period;
-						document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
-						if(data.phase == 3){
-							document.getElementById("phaseButton").disabled = true; 
-						}
-					});
-		   		</script>
 			</div>
 		</div>
 		
+   		<script src="/socket.io/socket.io.js"></script>
+   		<script>
+   			var socket = io.connect();
+   			var curPhase;
+   			function statLoad(){
+   				socket.emit('statLoad');
+   				socket.emit('sellerUpdate');
+   				socket.emit('buyerUpdate');
+   				socket.emit('stageUpdate')
+   			}
+			function updatePeriod(){
+				socket.emit('updatePeriod');
+				document.getElementById("periodButton").disabled = true; 
+				document.getElementById("phaseButton").disabled = true;
+			};
+			function updatePhase(){
+				socket.emit('updatePhase');
+				document.getElementById("phaseButton").disabled = true;
+				document.getElementById("periodButton").disabled = true;  
+			};
+
+			socket.on('periodUpdate', function(data){
+				document.getElementById("period").innerHTML = "The Current Period is " + data;
+			});
+			socket.on('phaseUpdate', function(data){
+				document.getElementById("phase").innerHTML = "The Current Phase is " + data;
+				if(data == 3){
+					document.getElementById("phaseButton").disabled = true;
+				}
+			});
+
+			socket.on('stats', function(data){
+				document.getElementById("period").innerHTML = "The Current Period is " + data.period;
+				document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
+				if(data.phase == 3){
+					document.getElementById("phaseButton").disabled = true;
+				}
+				if(data.stage!=6){
+					document.getElementById("periodButton").disabled = true;
+					document.getElementById("phaseButton").disabled = true;
+				}
+				curPhase = data.phase;
+			});
+
+			socket.on('sellerUpdated', function(data){
+				document.getElementById("sellers").innerHTML = "<strong>Offers submitted:</strong> " + data + "/3";
+			});
+			socket.on('buyerUpdated', function(data){
+				document.getElementById("buyers").innerHTML = "<strong>Bids submitted:</strong> " + data + "/4";
+			});
+
+			socket.on('stageUpdated', function(data){
+				if(data == 0)
+					document.getElementById("message").innerHTML = "Sellers are currently submitting their offers."
+				else if(data == 5)
+					document.getElementById("message").innerHTML = "The auditor is currently being bid on."
+				else if(data == 6){
+					document.getElementById("message").innerHTML = "Results are being shown."
+					document.getElementById("periodButton").disabled = false;
+					if(curPhase != 3)
+						document.getElementById("periodButton").disabled = false;  
+				}
+				else
+					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their buy order."
+			});
+   		</script>
 
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

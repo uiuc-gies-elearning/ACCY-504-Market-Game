@@ -2,6 +2,7 @@
 //Query's database to get history of all seller offers and sales for every period and returns as a JSON Object
 //============================================================================================================
 
+//Import express app and mysql connection
 var serverfile = require('./server.js');
 
 var load_history = function(){
@@ -26,12 +27,15 @@ var load_history = function(){
 			seller3units: []
 		};
 
+		//Query grabs history id, seller number, units sold, price sold, and quality sold
 		serverfile.connection.query('SELECT `sale history`.history_id, `seller list`.seller_number, `sale history`.units_sold, `sale history`.price_sold, `sale history`.quality_id FROM `sale history` INNER JOIN `seller list` on `sale history`.seller_id = `seller list`.seller_id ORDER BY `sale history`.history_id ASC', function(err, rows){
 			if (err) {
 				console.error(err);
 				return;
 			}
 
+			//Loops through all history id's, pushes in the corresponding phase/period, then matches the
+			//history in the joined table, where there should be 3 corresponding seller entries
 			for(i = 0; i<result.length; i++){
 				history.phase.push(result[i]["cur_phase"]);
 				history.period.push(result[i]["cur_period"]);
@@ -60,10 +64,9 @@ var load_history = function(){
 					}
 				}
 			}
-			serverfile.app.io.route('loadHistory', function(req) {
+			serverfile.app.io.route('loadHistory', function(req){
 				req.io.emit("historyLoaded", history);
 			});
-
 		});
 	});
 };

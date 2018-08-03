@@ -7,12 +7,13 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	</head>
 
-	<body onload="loadPrices()">
+	<body onload="start()">
 		<div class="container">
 			<div class="page-header">
 				<h1>Seller Selection Interface</h1>
 			</div>
 			<div class="jumbotron">
+				<h4 hidden id="message" class="alert alert-success"></h4>
 				<form>
 					<div class="radio-inline">
 						<label><input type="radio" name="qualityselect" id="LQ">Low Quality</label>
@@ -65,8 +66,9 @@
 			</script>
 			<script>
 				var socket = io.connect();
-				function loadPrices(){
+				function start(){
 					socket.emit('loadPrices');
+					socket.emit('checkAudit');
 				};
 
 				function submitQuality(){
@@ -102,6 +104,16 @@
 					}
 				};
 
+				socket.on('auditChecked', function(data){
+					if(data.phase == 3){
+						document.getElementById("message").removeAttribute("hidden");	
+						if(data.audited == 1)
+							document.getElementById("message").innerHTML = "You have won the auditor bid! The auditor will now <i>verify</i> your product quality, meaning buyers will see it"
+						else
+							document.getElementById("message").innerHTML = "You have lost the auditor bid :(. Your product will be <i>unverified</i>. Buyers will still be unable to see your product quality"
+					}
+				});
+
 				socket.on('pricesLoaded', function(data){
 					console.log('prices received');
 					document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $" + data.price_low;
@@ -110,8 +122,9 @@
 				});
 
 				socket.on('offerSubmitted', function(data){
-					alert("Offer has been submitted!");
-				})
+ 					window.location.replace('/seller_wait');
+				});
+				
 			</script>
 		</div>
 		

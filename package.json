@@ -12,12 +12,12 @@
     "express.io": "^1.1.13",
     "mysql": "^2.15.0",
     "node-mysql": "^0.4.2",
-    "npm": "^6.2.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
+    "npm": "^6.2.0",
     "coffeescript": "^2.3.1",
     "connect": "^3.6.6"
   }

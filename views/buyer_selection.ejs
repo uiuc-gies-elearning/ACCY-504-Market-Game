@@ -5,6 +5,11 @@
 			Buyer Selection
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			.jumbotron {
+			    background-color:#e6f7ff !important; 
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -13,7 +18,9 @@
 				<h1>Buyer Selection Interface</h1>
 			</div>
 			<div class="jumbotron">
+				<h4 hidden id="message" class="alert alert-success"></h4>
 				<h2>Available Offers</h2>
+				<h4 id="position"></h4>
 				<table class="table">
 					<thead>
 						<tr>
@@ -65,15 +72,16 @@
 					</tbody>
 				</table>
 
+				<h2>Buy Selection</h2>
 				<form>
 					<div class="radio-inline">
-						<label><input type="radio" name="sellerSelect" id="Seller1">Seller 1</label>
+						<input type="radio" name="sellerSelect" id="Seller1"><label for="Seller1" id = "SellerLabel1">Seller 1</label>
 					</div>
 					<div class="radio-inline">
-						<label><input type="radio" name="sellerSelect" id="Seller2">Seller 2</label>
+						<input type="radio" name="sellerSelect" id="Seller2"><label for="Seller2" id = "SellerLabel2">Seller 2</label>
 					</div>
 					<div class="radio-inline">
-						<label><input type="radio" name="sellerSelect" id="Seller3">Seller 3</label>
+						<input type="radio" name="sellerSelect" id="Seller3"><label for="Seller3" id = "SellerLabel3">Seller 3</label>
 					</div>
 					<div class="radio-inline">
 						<label><input type="radio" name="sellerSelect" id="NoBuy">No Buy</label>
@@ -95,10 +103,11 @@
 				}
 			</script>
 			<script>
+				var pos, phase, audited, sellerAudit, sellerDisable;
 				var socket = io.connect();
 
 				function start(){
-					socket.emit('loadOffers');
+					socket.emit('getGameInfo');
 					socket.emit('loadResale');
 				}
 
@@ -111,7 +120,7 @@
 					}
 					else if(document.getElementById("Seller3").checked){
 						socket.emit('buy', 3);
-					}                    
+					}
 					else if(document.getElementById("NoBuy").checked){
 						socket.emit('buy', 0);
 					}
@@ -119,15 +128,55 @@
 						alert("Please select a buy option");
 						return;
 					}
+					window.location.replace('/buyer_wait');
 				}
+
+				socket.on('receivedInfo', function(data){
+					pos = data.pos;
+					phase = data.phase;
+					audited = data.audited;
+					sellerAudit = data.sellerAudit;
+					sellerDisable = data.sellerDisable;
+					for(var i = 0; i < 3; i++){	
+						if(sellerDisable[i]){
+							var selNum = i + 1;
+							var seller = document.getElementById("Seller" + selNum);
+							var sellerLabel = document.getElementById("SellerLabel" + selNum);
+							var att = document.createAttribute("disabled");
+							seller.setAttributeNode(att);
+							sellerLabel.innerHTML = "Seller " + selNum + ": Sold Out!";
+						}
+					}
+					document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+
+					if(phase == 3){
+						document.getElementById("message").removeAttribute("hidden");	
+						if(audited == 1)
+							document.getElementById("message").innerHTML = "You have won the auditor bid! You will now be able to see Seller product qualites"
+						else
+							document.getElementById("message").innerHTML = "You have lost the auditor bid :(. You will continue to be unable to see Seller product qualities"
+					}
+
+					socket.emit('loadOffers');
+				});
 
 				socket.on('offersLoaded', function(data){
 					document.getElementById("seller1Name").innerHTML = "Seller 1: " + data.seller1.name;
 					document.getElementById("seller2Name").innerHTML = "Seller 2: " + data.seller2.name;
 					document.getElementById("seller3Name").innerHTML = "Seller 3: " + data.seller3.name;
-					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
-					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
-					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					
+					if(phase == 1 || (phase == 3 && audited == 1)){
+						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					}
+					else if(sellerAudit == 1)
+						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+					else if(sellerAudit == 2)
+						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+					else if(sellerAudit == 3)
+						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					
 					document.getElementById("seller1Price").innerHTML = "$" + data.seller1.price;
 					document.getElementById("seller2Price").innerHTML = "$" + data.seller2.price;
 					document.getElementById("seller3Price").innerHTML = "$" + data.seller3.price;
@@ -138,7 +187,6 @@
 					document.getElementById("MQSale").innerHTML = "$" + data.resale2;
 					document.getElementById("HQSale").innerHTML = "$" + data.resale3;
 				});
-
 			</script>
 		</div>
 		

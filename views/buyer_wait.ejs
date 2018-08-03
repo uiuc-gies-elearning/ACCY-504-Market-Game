@@ -14,6 +14,8 @@
 			</div>
 			<div class="jumbotron">
 				<h2>Sale History</h2>
+				<h4 id="message" class="alert alert-success"></h4>
+				<h4 id="position"></h4>
 				<table class="table">
 					<thead>
 						<tr>
@@ -26,42 +28,64 @@
 						<tbody id="tbody">
 					</tbody>
 				</table>
-				<script src="/socket.io/socket.io.js"></script>
-				<script>
-					var socket = io.connect();
-					function start(){
-						socket.emit('loadHistory');
-					}
-
-					socket.on('historyLoaded', function(data) {
-						var tbody = document.getElementById('tbody');
-						for(i=0; i<data.phase.length; i++){
-							var row = tbody.insertRow();
-							var th = document.createElement('th');
-							th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
-							row.appendChild(th);
-
-							var cell1 = row.insertCell();
-							cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
-							var cell2 = row.insertCell();
-							cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
-							var cell3 = row.insertCell();
-							cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
-						}
-					});
-					function parseQuality(quality){
-						if(quality == 1)
-							return "Low Quality";
-						else if(quality == 2)
-							return "Medium Quality";
-						else if(quality == 3)
-							return "High Quality";
-						else
-							return "Error";
-					}
-				</script>
 			</div>
 		</div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect();
+			var pos, stage;
+
+			function start(){
+				socket.emit('loadHistory');
+				socket.emit('loadWaitInfo');
+			}
+
+			socket.on('historyLoaded', function(data) {
+				var tbody = document.getElementById('tbody');
+				for(i=0; i<data.phase.length-1; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					var cell3 = row.insertCell();
+					cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+				}
+			});
+
+			socket.on('waitInfo', function(data) {
+				pos = data.buyPos;
+				stage = data.stage;
+				document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+				if(stage == 0)
+					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their offers.";
+				else if(stage == 6)
+					window.location.replace('/results');
+				else if(stage == 5 || stage == pos)
+					window.location.replace('/redirect');
+				else
+					document.getElementById("message").innerHTML = "Please wait for Buyer <strong>" + stage + "</strong> to finish their buy order.";
+			});
+
+			socket.on('stageUpdated', function(data){
+				window.location.replace('/redirect');
+			});
+
+			function parseQuality(quality){
+				if(quality == 1)
+					return "Low Quality";
+				else if(quality == 2)
+					return "Medium Quality";
+				else if(quality == 3)
+					return "High Quality";
+				else
+					return "Error";
+			}
+		</script>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>

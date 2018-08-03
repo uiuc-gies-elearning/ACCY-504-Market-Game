@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Auditor Bid
+		</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Auditor Bid</h1>
+			</div>
+			<div class="jumbotron">
+				<div class="form-group" onsubmit="submitBid()">
+		   			<label>How much do you want to bid for the auditor?</label>
+				    <input class="form-control" id="bid" type="text"><br>
+				    <button type="submit" class="btn btn-success" onclick="submitBid()">Submit</button>
+				</div>
+			</div>
+		</div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect();
+
+			//TODO: Check if user has already submitted bid and redirect
+			function submitBid(){
+				var bid = document.getElementById("bid").value;
+				socket.emit('bidSubmitted', bid);
+			}
+
+			socket.on('bidWait', function(data) {
+				if(data == 1)
+					window.location.replace('/buyer_wait');
+				else
+					window.location.replace('/seller_wait')
+			});
+
+			socket.on('stageUpdated', function(data) {
+				window.location.replace('/redirect');
+			});
+
+		</script>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</body>
+</html>

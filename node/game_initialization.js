@@ -1,6 +1,13 @@
+//========================================================================================
+//Backend functionality for the admin game initialization page. Holds a singular function
+//that takes in inputs from the frontend page a simply creates a new instance of a game
+//in the game table, and submits all the specified prices.
+//========================================================================================
+
+//Import express app and mysql connection
 var serverfile = require('./server.js');
 
-var game_initialization = function(){
+var game_initialization = function(request){
 
     serverfile.app.io.route('gameSubmit', function(req) {
     	var game = {
@@ -11,7 +18,7 @@ var game_initialization = function(){
     		resale_low : req.data.resaleLQ, 
     		resale_med : req.data.resaleMQ, 
     		resale_high : req.data.resaleHQ,
-    		stage_id : 1
+    		stage_id : 0
     	};
 
     	var query = serverfile.connection.query('INSERT INTO game SET ?', game, function(err, result){
@@ -19,8 +26,13 @@ var game_initialization = function(){
 				console.error(err);
 				return;
 			}
-			console.log(query.sql);
-			console.log(result);
+			var game_id = result.insertId;
+			serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, request.user.user_id], function(err, result){
+				if (err) {
+					console.error(err);
+					return;
+				}
+			});
 			var currGameState = serverfile.connection.query('SELECT game_id FROM game ORDER BY game_id DESC LIMIT 1', function(err, result){
 				var history = {
 		    		game_id : result[0]["game_id"],
@@ -35,10 +47,20 @@ var game_initialization = function(){
 					console.log(historyInitialization.sql);
 					console.log(result);
 		    	});
+				
+				var auditor = {
+					game_id : result[0]["game_id"],
+					customer_id : req.data.customer
+				}
+				serverfile.connection.query('INSERT INTO auditor SET ?', auditor, function(err, result){
+
+				});
 	    	});
+
     	});
 
     	req.io.emit('submitted');
+    	
 	});
 
 };
