@@ -11,11 +11,23 @@ var wait = function(request){
 	serverfile.app.io.route('loadWaitInfo', function(req) {
 		var waitInfo = {
 			buyPos : request.user.buy_pos, 
-			stage : null
+			stage : null,
+			auditCustomer : null
 		};
 		serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = 1', function(err, result) {
+			if (err) {
+                console.error(err);
+                return;
+            }
 			waitInfo.stage = result[0]['stage_id'];
-			req.io.emit('waitInfo', waitInfo);
+			serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result) {
+				if (err) {
+                    console.error(err);
+                    return;
+                }
+				waitInfo.auditCustomer = result[0]['customer_id'];
+				req.io.emit('waitInfo', waitInfo);
+			});
 		});
 	});
 };

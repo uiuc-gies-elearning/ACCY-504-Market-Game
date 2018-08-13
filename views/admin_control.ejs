@@ -10,6 +10,11 @@
 	<body onload="statLoad()">
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Admin Control Interface</h1>
 			</div>
 			<div class="jumbotron">
@@ -18,23 +23,76 @@
 			   		<h4 id="sellers"></h4>
 			   		<h4 id="buyers"></h4>
 			   		<br>
-			   		<button type="button" class="btn btn-success" onclick="updatePeriod()" id="periodButton">Next Period (Ends results)</button>
+			   		<button type="button" class="btn btn-success" onclick="updatePeriod()" id="periodButton"><strong>Next Period</strong> (Ends results)</button>
 			   		<p id="period"></p>
-		   			<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton">Next Phase (Ends results and goes to next period)</button>
+		   			<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
 			   		<p id="phase"></p>
 			  	</div>
+			  	<h2>Submitted Purchases</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Buyer</th>
+							<th scope="col">Seller Purchase</th>
+						</tr>
+					</thead>
+						<tbody id="bids">
+					</tbody>
+				</table>
+				<h2>Current Offers</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Seller</th>
+							<th>Quality</th>
+							<th>Price</th>
+						</tr>
+					</thead>
+					<tbody id="Offers">
+						<tr>
+							<th id="seller1Name"></th>
+							<td id="seller1Quality"></td>
+							<td id="seller1Price"></td>
+						</tr>
+						<tr>
+							<th id="seller2Name"></th>
+							<td id="seller2Quality"></td>
+							<td id="seller2Price"></td>
+						</tr>
+						<tr>
+							<th id="seller3Name"></th>
+							<td id="seller3Quality"></td>
+							<td id="seller3Price"></td>
+						</tr>
+					</tbody>
+				</table>
+				<h2>Leaderboard</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Teamname</th>
+							<th scope="col">Role</th>
+							<th scope="col">Profits</th>
+						</tr>
+					</thead>
+						<tbody id="leaderboard">
+					</tbody>
+				</table>
 			</div>
 		</div>
 		
    		<script src="/socket.io/socket.io.js"></script>
    		<script>
    			var socket = io.connect();
-   			var curPhase;
+   			var curPhase, sellerAudit;
    			function statLoad(){
    				socket.emit('statLoad');
    				socket.emit('sellerUpdate');
    				socket.emit('buyerUpdate');
-   				socket.emit('stageUpdate')
+   				socket.emit('stageUpdate');
+				socket.emit('loadBids');
+				socket.emit('getAuditInfo');
+				socket.emit('loadLeaderboard');
    			}
 			function updatePeriod(){
 				socket.emit('updatePeriod');
@@ -48,13 +106,10 @@
 			};
 
 			socket.on('periodUpdate', function(data){
-				document.getElementById("period").innerHTML = "The Current Period is " + data;
+				document.location.reload();
 			});
 			socket.on('phaseUpdate', function(data){
-				document.getElementById("phase").innerHTML = "The Current Phase is " + data;
-				if(data == 3){
-					document.getElementById("phaseButton").disabled = true;
-				}
+				document.location.reload();
 			});
 
 			socket.on('stats', function(data){
@@ -68,6 +123,65 @@
 					document.getElementById("phaseButton").disabled = true;
 				}
 				curPhase = data.phase;
+			});
+
+			socket.on('bidsLoaded', function(data) {
+				var tbody = document.getElementById('bids');
+				for(var i = 0; i < data.buyer_number.length; i++){
+					var row = tbody.insertRow();
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
+
+					var cell2 = row.insertCell();
+					var seller = data.seller_number[i];
+					if(seller == null)
+						cell2.innerHTML = "No Buy";
+					else
+						cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
+				}
+			});
+
+			socket.on('auditInfo', function(data) {
+				sellerAudit = data.sellerAudit;
+				socket.emit('loadOffers');
+			});
+
+			socket.on('offersLoaded', function(data){
+				var seller1loaded = false;
+				var seller2loaded = false;
+				var seller3loaded = false;
+				if(data.seller1 != null)
+					seller1loaded = true
+				if(data.seller2 != null)
+					seller2loaded = true
+				if(data.seller3 != null)
+					seller3loaded = true
+
+				if(seller1loaded){
+					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
+					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
+				}
+				if(seller2loaded){
+					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
+					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
+				}
+				if(seller3loaded){
+					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
+					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
+				}
+
+				if(phase == 3){	
+					if(sellerAudit == 1 && seller1loaded)
+						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
+					else if(sellerAudit == 2 && seller2loaded)
+						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
+					else if(sellerAudit == 3 && seller3loaded)
+						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
+				}
 			});
 
 			socket.on('sellerUpdated', function(data){
@@ -86,11 +200,59 @@
 					document.getElementById("message").innerHTML = "Results are being shown."
 					document.getElementById("periodButton").disabled = false;
 					if(curPhase != 3)
-						document.getElementById("periodButton").disabled = false;  
+						document.getElementById("phaseButton").disabled = false;  
 				}
-				else
+				else if(data == 1){
 					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their buy order."
+				}
+				else{
+					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their buy order."
+				}
+				socket.emit('loadOffers');
 			});
+
+			socket.on('leaderboardLoaded', function(data) {
+				var tbody = document.getElementById('leaderboard');
+				for(i=0; i<data.teamname.length; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = data.teamname[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = parseRole(data.role_id[i]);
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "$" + parsePrice(data.profits[i]);
+				}
+			});
+
+			socket.on('updateOffers', function(data) {
+				document.loaction.reload();
+			});
+
+			function parsePrice(price) {
+				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+			}
+
+			function parseQuality(quality){
+				if(quality == 1)
+					return "Low Quality";
+				else if(quality == 2)
+					return "Medium Quality";
+				else if(quality == 3)
+					return "High Quality";
+				else
+					return "Error";
+			}
+
+			function parseRole(role_id){
+				if(role_id == 1)
+					return "Buyer";
+				else if(role_id == 2)
+					return "Seller";
+				else
+					return "Error";
+			}
    		</script>
 
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>

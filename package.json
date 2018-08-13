@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "A web app version of an in-class market simulation",
   "dependencies": {
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",

@@ -10,6 +10,11 @@
 	<body onload="start()">
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Seller Wait Screen</h1>
 			</div>
 			<div class="jumbotron">
@@ -27,61 +32,168 @@
 						<tbody id="tbody">
 					</tbody>
 				</table>
-				<script src="/socket.io/socket.io.js"></script>
-				<script>
-					var socket = io.connect();
-					function start(){
-						socket.emit('loadHistory');
-						socket.emit('loadWaitInfo');
-					}
-
-					socket.on('historyLoaded', function(data) {
-						var tbody = document.getElementById('tbody');
-						for(i=0; i<data.phase.length-1; i++){
-							var row = tbody.insertRow();
-							var th = document.createElement('th');
-							th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
-							row.appendChild(th);
-
-							var cell1 = row.insertCell();
-							cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
-							var cell2 = row.insertCell();
-							cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
-							var cell3 = row.insertCell();
-							cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
-						}
-					});
-
-					socket.on('waitInfo', function(data) {
-						stage = data.stage;
-						if(stage == 0)
-							document.getElementById("message").innerHTML = "Please wait for the other sellers to finish submitting their offers";
-						else if(stage == 6)
-							window.location.replace('/results');
-						else if(stage == 5){
-							document.getElementById("message").innerHTML = "Please wait for the other players to finish submitting their auditor bids";
-						}
-						else
-							document.getElementById("message").innerHTML = "Please wait for buyers to finish their buy order. The current buyer is buyer <strong>" + stage + "</strong>";
-					});
-
-					socket.on('stageUpdated', function(data) {
-						window.location.reload(true);
-					});
-
-					function parseQuality(quality){
-						if(quality == 1)
-							return "Low Quality";
-						else if(quality == 2)
-							return "Medium Quality";
-						else if(quality == 3)
-							return "High Quality";
-						else
-							return "Error";
-					}
-				</script>
+				<h2>Current Offers</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Seller</th>
+							<th>Quality</th>
+							<th>Price</th>
+						</tr>
+					</thead>
+					<tbody id="Offers">
+						<tr>
+							<th id="seller1Name"></th>
+							<td id="seller1Quality"></td>
+							<td id="seller1Price"></td>
+						</tr>
+						<tr>
+							<th id="seller2Name"></th>
+							<td id="seller2Quality"></td>
+							<td id="seller2Price"></td>
+						</tr>
+						<tr>
+							<th id="seller3Name"></th>
+							<td id="seller3Quality"></td>
+							<td id="seller3Price"></td>
+						</tr>
+					</tbody>
+				</table>
+				<h2>Submitted Purchases</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Buyer</th>
+							<th scope="col">Seller Purchase</th>
+						</tr>
+					</thead>
+						<tbody id="bids">
+					</tbody>
+				</table>
 			</div>
 		</div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect();
+			var phase, sellerAudit;
+			function start(){
+				socket.emit('loadHistory');
+				socket.emit('loadWaitInfo');
+				socket.emit('getAuditInfo');
+				socket.emit('loadBids');
+			}
+
+			socket.on('historyLoaded', function(data) {
+				var tbody = document.getElementById('tbody');
+				for(i=0; i<data.phase.length-1; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					var cell3 = row.insertCell();
+					cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+				}
+			});
+
+			socket.on('waitInfo', function(data) {
+				stage = data.stage;
+				if(stage == 0)
+					document.getElementById("message").innerHTML = "Please wait for the other sellers to finish submitting their offers";
+				else if(stage == 6)
+					window.location.replace('/results');
+				else if(stage == 5){
+					document.getElementById("message").innerHTML = "Please wait for the other players to finish submitting their auditor bids";
+				}
+				else
+					document.getElementById("message").innerHTML = "Please wait for buyers to finish their buy order. The current buyer is buyer <strong>" + stage + "</strong>";
+			});
+
+			socket.on('auditInfo', function(data) {
+				phase = data.phase;
+				sellerAudit = data.sellerAudit;
+				socket.emit('loadOffers');
+			});
+
+			socket.on('bidsLoaded', function(data) {
+				var tbody = document.getElementById('bids');
+				for(var i = 0; i < data.buyer_number.length; i++){
+					var row = tbody.insertRow();
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
+
+					var cell2 = row.insertCell();
+					var seller = data.seller_number[i];
+					if(seller == null)
+						cell2.innerHTML = "No Buy";
+					else
+						cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
+				}
+			});
+
+			socket.on('offersLoaded', function(data){
+				var seller1loaded = false;
+				var seller2loaded = false;
+				var seller3loaded = false;
+				if(data.seller1 != null)
+					seller1loaded = true
+				if(data.seller2 != null)
+					seller2loaded = true
+				if(data.seller3 != null)
+					seller3loaded = true
+
+				if(seller1loaded){
+					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
+					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
+				}
+				if(seller2loaded){
+					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
+					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
+				}
+				if(seller3loaded){
+					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
+					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
+				}
+				
+
+				if(phase == 3){	
+					if(sellerAudit == 1 && seller1loaded)
+						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
+					else if(sellerAudit == 2 && seller2loaded)
+						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
+					else if(sellerAudit == 3 && seller3loaded)
+						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
+				}
+				
+			});
+
+			socket.on('stageUpdated', function(data) {
+				window.location.reload(true);
+			});
+
+			function parseQuality(quality){
+				if(quality == 1)
+					return "Low Quality";
+				else if(quality == 2)
+					return "Medium Quality";
+				else if(quality == 3)
+					return "High Quality";
+				else
+					return "Error";
+			}
+
+			function parsePrice(price) {
+				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+			}
+		</script>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>

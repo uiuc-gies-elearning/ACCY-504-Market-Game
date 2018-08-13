@@ -10,6 +10,11 @@
 	<body>
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Auditor Bid</h1>
 			</div>
 			<div class="jumbotron">
@@ -34,7 +39,7 @@
 				if(data == 1)
 					window.location.replace('/buyer_wait');
 				else
-					window.location.replace('/seller_wait')
+					window.location.replace('/seller_selection')
 			});
 
 			socket.on('stageUpdated', function(data) {

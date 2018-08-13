@@ -97,6 +97,7 @@ var seller_selection = require('./seller_selection.js');
 var buyer_selection = require('./buyer_selection.js');
 var load_history = require('./load_history.js');
 var load_leaderboard = require('./load_leaderboard.js');
+var load_transactions = require('./load_transactions');
 var wait = require('./wait.js');
 var auditor_bid = require('./auditor_bid.js');
 
@@ -140,6 +141,11 @@ app.post('/signup', passport.authenticate('local-signup', {
     failureFlash : true // allow flash messages
 }));
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
 //Bulk of redirect logic. This route loads no front-end page, and used solely to redirect users
 //based on role and stage within the game. The database is queried to check the stage of the
 //game (stage_id).
@@ -172,7 +178,16 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
                         if(req.user.buy_pos == stage)   //Check if it is this buyers turn
                             res.redirect('buyer_selection');
                         else if((auditCustomer == role) && (stage == 5))
-                            res.redirect('auditor_bid');
+                            connection.query('SELECT user_id FROM `auditor bid` WHERE user_id = ?', req.user.user_id, function(err, result) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                if(result.length == 0)
+                                    res.redirect('auditor_bid');
+                                else
+                                    res.redirect('buyer_wait');
+                            });
                         else if(stage == 6)
                             res.redirect('results');
                         else
@@ -191,7 +206,16 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
                                     res.redirect('seller_wait');
                             });
                         else if((auditCustomer == role) && (stage == 5))
-                            res.redirect('auditor_bid');
+                            connection.query('SELECT user_id FROM `auditor bid` WHERE user_id = ?', req.user.user_id, function(err, result) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                if(result.length == 0)
+                                    res.redirect('auditor_bid');
+                                else
+                                    res.redirect('seller_wait');
+                            });
                         else if(stage == 6)
                             res.redirect('results');
                         else
@@ -223,6 +247,8 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
 app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/admin_control.ejs'));
     admin_control.admin_control();
+    load_transactions.load_transactions(req);
+    load_leaderboard.load_leaderboard();
 });
 
 app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
@@ -238,18 +264,21 @@ app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
 app.get('/buyer_selection', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_selection.ejs'));
     buyer_selection.buyer_select(req);
+    load_transactions.load_transactions(req);
 });
 
 app.get('/buyer_wait', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_wait.ejs'));
     load_history.load_history();
     wait.wait(req);
+    load_transactions.load_transactions(req);
 });
 
 app.get('/seller_wait', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_wait.ejs'));
     load_history.load_history();
     wait.wait(req);
+    load_transactions.load_transactions(req);
 });
 
 app.get('/results', isLoggedIn, function(req, res, next) {

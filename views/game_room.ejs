@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Game Room
+		</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	</head>
+
+	<body onload="start()">
+		<div class="container">
+			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
+				<h1>Game Room</h1>
+			</div>
+			<div class="jumbotron">
+				<h2>Games</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Game ID</th>
+							<th scope="col">Game Name</th>
+							<th scope="col">Join</th>
+						</tr>
+					</thead>
+						<tbody id="games">
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+   		<script src="/socket.io/socket.io.js"></script>
+   		<script>
+   			var socket = io.connect();
+			var role;
+
+			function start(){
+				socket.emit('getRole');
+			}
+
+			socket.on('userRole', function(data){
+				role = data;
+				socket.emit('loadGames');
+			});
+
+			socket.on('gamesLoaded', function(data){
+				var tbody = document.getElementById('games');
+				for(var i = 0; i < data.game_id.length; i++){
+					var row = tbody.insertRow();
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Game <strong>" + data.game_id[i];
+
+					var cell2 = row.insertCell();
+					cell2.innerHTML = data.game_name[i];
+
+					var cell3 = row.insertCell();
+					cell3.innerHTML = "<button type="button" class="btn btn-success" onclick="joinGame(data.game_id[i])">Join Game</button>";
+				}
+			});
+
+			function joinGame(gameID) {
+				socket.emit('selectGame', gameID)
+			}
+   		</script>
+		
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</body>
+</html>

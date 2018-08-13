@@ -10,6 +10,11 @@
 	<body onload="start()">
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Seller Selection Interface</h1>
 			</div>
 			<div class="jumbotron">
@@ -27,7 +32,7 @@
 				</form>
 				<form>
 					<div class="checkbox">
-					  <label><input type="checkbox" value="" id="secondSale">Sell a Second Product ($1 higher production cost for the second item)?</label>
+					  <label><input type="checkbox" value="" id="secondSale">Sell a Second Product ($1.00 higher production cost for the second item)?</label>
 					</div>
 				</form>
 		   		<br>
@@ -47,86 +52,89 @@
 		   		<pr id="med-quality-price"></pr><br>
 		   		<pr id="high-quality-price"></pr>
 			</div>
-
-			<script src="/socket.io/socket.io.js"></script>
-			<script>
-				var countDecimals = function(value) {
-				    if (Math.floor(value) !== value)
-				        return value.toString().split(".")[1].length || 0;
-				    return 0;
-				}
-				function inputKeyPress(e){
-					e=e||window.event;
-					var key = e.keyCode;
-					if(key==13)
-					{
-						return false;
-					}
-				}
-			</script>
-			<script>
-				var socket = io.connect();
-				function start(){
-					socket.emit('loadPrices');
-					socket.emit('checkAudit');
-				};
-
-				function submitQuality(){
-					var second;
-					var price = document.getElementById("price-input").value;
-
-					if(countDecimals(price)>2){
-						alert("Please select a dollar amount");
-						return;
-					}
-
-					if(document.getElementById("secondSale").checked){
-						second = 1;
-					} else{
-						second = 0;
-					}
-
-					if(price == 0 || isNaN(price)){
-						alert("Please pick a price to sell at");
-						return;
-					}
-
-
-					if(document.getElementById("LQ").checked){
-						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 1});
-					} else if(document.getElementById("MQ").checked){
-						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 2});
-					} else if(document.getElementById("HQ").checked){
-						socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 3});
-					} else {
-						alert("Please pick a product quality to sell");
-						return;
-					}
-				};
-
-				socket.on('auditChecked', function(data){
-					if(data.phase == 3){
-						document.getElementById("message").removeAttribute("hidden");	
-						if(data.audited == 1)
-							document.getElementById("message").innerHTML = "You have won the auditor bid! The auditor will now <i>verify</i> your product quality, meaning buyers will see it"
-						else
-							document.getElementById("message").innerHTML = "You have lost the auditor bid :(. Your product will be <i>unverified</i>. Buyers will still be unable to see your product quality"
-					}
-				});
-
-				socket.on('pricesLoaded', function(data){
-					console.log('prices received');
-					document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $" + data.price_low;
-					document.getElementById("med-quality-price").innerHTML = "The cost for producing a medium quality good is $" + data.price_med;
-					document.getElementById("high-quality-price").innerHTML = "The cost for producing a high quality good is $" + data.price_high;
-				});
-
-				socket.on('offerSubmitted', function(data){
- 					window.location.replace('/seller_wait');
-				});
-				
-			</script>
 		</div>
+		
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var countDecimals = function(value) {
+			    if (Math.floor(value) !== value)
+			        return value.toString().split(".")[1].length || 0;
+			    return 0;
+			}
+			function inputKeyPress(e){
+				e=e||window.event;
+				var key = e.keyCode;
+				if(key==13)
+				{
+					return false;
+				}
+			}
+		</script>
+		<script>
+			var socket = io.connect();
+			function start(){
+				socket.emit('loadPrices');
+				socket.emit('checkAudit');
+			};
+
+			function submitQuality(){
+				var second;
+				var price = document.getElementById("price-input").value;
+				
+				if(countDecimals(price)>2){
+					alert("Please select a dollar amount");
+					return;
+				}
+
+				if(document.getElementById("secondSale").checked){
+					second = 1;
+				} else{
+					second = 0;
+				}
+
+				if(price == 0 || isNaN(price)){
+					alert("Please pick a price to sell at");
+					return;
+				}
+
+
+				if(document.getElementById("LQ").checked){
+					socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 1});
+				} else if(document.getElementById("MQ").checked){
+					socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 2});
+				} else if(document.getElementById("HQ").checked){
+					socket.emit('pickedQuality',{price: document.getElementById("price-input").value, secondSale : second, quality : 3});
+				} else {
+					alert("Please pick a product quality to sell");
+					return;
+				}
+			};
+
+			socket.on('auditChecked', function(data){
+				if(data.phase == 3){
+					document.getElementById("message").removeAttribute("hidden");	
+					if(data.audited == 1)
+						document.getElementById("message").innerHTML = "You have won the auditor bid! The auditor will now <i>verify</i> your product quality, meaning buyers will see it."
+					else
+						document.getElementById("message").innerHTML = "You have lost the auditor bid :(. Your product will be <i>unverified</i>. Buyers will still be unable to see your product quality."
+				}
+			});
+
+			socket.on('pricesLoaded', function(data){
+				console.log('prices received');
+				document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $" + parsePrice(data.price_low);
+				document.getElementById("med-quality-price").innerHTML = "The cost for producing a medium quality good is $" + parsePrice(data.price_med);
+				document.getElementById("high-quality-price").innerHTML = "The cost for producing a high quality good is $" + parsePrice(data.price_high);
+			});
+
+			socket.on('offerSubmitted', function(data){
+				window.location.replace('/seller_wait');
+			});
+			
+			function parsePrice(price) {
+				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+			}
+		</script>
 		
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

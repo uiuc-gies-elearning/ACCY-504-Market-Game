@@ -11,6 +11,11 @@
 		
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Game Initialization</h1>
 			</div>
 			<div class="jumbotron">
@@ -42,40 +47,64 @@
 					<button type="submit" form ="name" class="btn btn-success" onclick="gameSubmit()">Submit</button>
 				</div>
 
-
-		   		<script src="/socket.io/socket.io.js"></script>
-		   		<script>
-		   			var socket = io.connect();
-					function gameSubmit(){
-						var customer;
-						if(document.getElementById("Buyer").checked){
-							customer = 1;
-						}
-						else if(document.getElementById("Seller").checked)
-							customer = 2;
-						else{
-							alert("Please select an auditor customer.");
-							return;
-						}
-						socket.emit('gameSubmit', {name: document.getElementById("game-name").value,
-							costLQ: document.getElementById("costLQ").value,
-							costMQ: document.getElementById("costMQ").value,
-							costHQ: document.getElementById("costHQ").value,
-							resaleLQ: document.getElementById("resaleLQ").value,
-							resaleMQ: document.getElementById("resaleMQ").value,
-							resaleHQ: document.getElementById("resaleHQ").value,
-							customer: customer
-						});
-					}
-
-					socket.on('submitted', function(data){
-						window.location.replace('/admin_control');
-					});
-		   		</script>
 			</div>
 		</div>
-		
 
+   		<script src="/socket.io/socket.io.js"></script>
+   		<script>
+   			var countDecimals = function(value) {
+			    if (Math.floor(value) !== value)
+			        return value.toString().split(".")[1].length || 0;
+			    return 0;
+			}
+   		</script>
+   		<script>
+   			var socket = io.connect();
+			function gameSubmit(){
+				var isDollarAmount = true;
+				var priceList = [];
+
+				priceList.push(document.getElementById("costLQ").value);
+				priceList.push(document.getElementById("costMQ").value);
+				priceList.push(document.getElementById("costHQ").value);
+				priceList.push(document.getElementById("resaleLQ").value);
+				priceList.push(document.getElementById("resaleMQ").value);
+				priceList.push(document.getElementById("resaleHQ").value);
+
+				for(var i = 0; i < priceList.length; i++){
+					var price = priceList[i];
+					if(countDecimals(price)>2){
+						alert("Check your production costs/resale prices for non-dollar amounts");
+						return;
+					}
+				}
+				
+				var customer;
+				if(document.getElementById("Buyer").checked){
+					customer = 1;
+				}
+				else if(document.getElementById("Seller").checked)
+					customer = 2;
+				else{
+					alert("Please select an auditor customer.");
+					return;
+				}
+				socket.emit('gameSubmit', {name: document.getElementById("game-name").value,
+					costLQ: document.getElementById("costLQ").value,
+					costMQ: document.getElementById("costMQ").value,
+					costHQ: document.getElementById("costHQ").value,
+					resaleLQ: document.getElementById("resaleLQ").value,
+					resaleMQ: document.getElementById("resaleMQ").value,
+					resaleHQ: document.getElementById("resaleHQ").value,
+					customer: customer
+				});
+			}
+
+			socket.on('submitted', function(data){
+				window.location.replace('/admin_control');
+			});
+   		</script>
+		
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>

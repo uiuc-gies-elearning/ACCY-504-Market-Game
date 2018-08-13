@@ -14,7 +14,7 @@ var load_leaderboard = function(){
 		}
 
 		var list = [];
-		for(var n = 0; n < teamname.length; n++){
+		for(var n = 0; n < result.length; n++){
 			list.push({teamname : result[n]["teamname"], role_id : result[n]["role_id"], profits : result[n]["profits"]});
 		}
 		list.sort(function(a, b){return b.profits - a.profits});

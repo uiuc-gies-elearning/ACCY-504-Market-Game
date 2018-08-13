@@ -10,10 +10,16 @@
 	<body onload="start()">
 		<div class="container">
 			<div class="page-header">
+				<div class='btn-toolbar pull-right'>
+		            <div class='btn-group'>
+		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+		            </div>
+		        </div>
 				<h1>Results Screen</h1>
 			</div>
 			<div class="jumbotron">
 				<h2>Sale History</h2>
+				<h4 class="alert alert-success">Please wait for the professor to go to the next period/phase.</h4>
 				<table class="table">
 					<thead>
 						<tr>
@@ -27,6 +33,7 @@
 					</tbody>
 				</table>
 				<br>
+				<h2>Leaderboard</h2>
 				<table class="table">
 					<thead>
 						<tr>
@@ -38,72 +45,76 @@
 						<tbody id="leaderboard">
 					</tbody>
 				</table>
-				<script src="/socket.io/socket.io.js"></script>
-				<script>
-					var socket = io.connect();
-					function start(){
-						socket.emit('loadHistory');
-						socket.emit('loadLeaderboard');
-					}
-
-					socket.on('historyLoaded', function(data) {
-						var tbody = document.getElementById('history');
-						for(i=0; i<data.phase.length; i++){
-							var row = tbody.insertRow();
-							var th = document.createElement('th');
-							th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
-							row.appendChild(th);
-
-							var cell1 = row.insertCell();
-							cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
-							var cell2 = row.insertCell();
-							cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
-							var cell3 = row.insertCell();
-							cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
-						}
-					});
-
-					socket.on('leaderboardLoaded', function(data) {
-						var tbody = document.getElementById('leaderboard');
-						for(i=0; i<data.teamname.length; i++){
-							var row = tbody.insertRow();
-							var th = document.createElement('th');
-							th.innerHTML = data.teamname[i];
-							row.appendChild(th);
-
-							var cell1 = row.insertCell();
-							cell1.innerHTML = parseRole(data.role_id[i]);
-							var cell2 = row.insertCell();
-							cell2.innerHTML = "$" + data.profits[i];
-						}
-					});
-
-					socket.on('stageUpdated', function(data) {
-						window.location.replace('/redirect');
-					});
-
-					function parseQuality(quality){
-						if(quality == 1)
-							return "Low Quality";
-						else if(quality == 2)
-							return "Medium Quality";
-						else if(quality == 3)
-							return "High Quality";
-						else
-							return "Error";
-					}
-
-					function parseRole(role_id){
-						if(role_id == 1)
-							return "Buyer";
-						else if(role_id == 2)
-							return "Seller";
-						else
-							return "Error";
-					}
-				</script>
 			</div>
 		</div>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect();
+			function start(){
+				socket.emit('loadHistory');
+				socket.emit('loadLeaderboard');
+			}
+
+			socket.on('historyLoaded', function(data) {
+				var tbody = document.getElementById('history');
+				for(i=0; i<data.phase.length; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					var cell3 = row.insertCell();
+					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+				}
+			});
+
+			socket.on('leaderboardLoaded', function(data) {
+				var tbody = document.getElementById('leaderboard');
+				for(i=0; i<data.teamname.length; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = data.teamname[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = parseRole(data.role_id[i]);
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "$" + parsePrice(data.profits[i]);
+				}
+			});
+
+			socket.on('stageUpdated', function(data) {
+				window.location.replace('/redirect');
+			});
+
+			function parseQuality(quality){
+				if(quality == 1)
+					return "Low Quality";
+				else if(quality == 2)
+					return "Medium Quality";
+				else if(quality == 3)
+					return "High Quality";
+				else
+					return "Error";
+			}
+
+			function parseRole(role_id){
+				if(role_id == 1)
+					return "Buyer";
+				else if(role_id == 2)
+					return "Seller";
+				else
+					return "Error";
+			}
+
+			function parsePrice(price) {
+				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+			}
+		</script>
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>

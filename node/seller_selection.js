@@ -63,7 +63,7 @@ var seller_select = function(request){
 				console.error(err);
 				return;
 			}
-			id = result[0]["seller_id"];
+			var id = result[0]["seller_id"];
 
 	    	var offer = {
 	    		quality_id : req.data.quality,
@@ -94,6 +94,7 @@ var seller_select = function(request){
 				    }
 				    else{
 				    	req.io.emit("offerSubmitted");
+				    	serverfile.app.io.broadcast('updateOffers');
 				    }
 		    	});
 	    	});

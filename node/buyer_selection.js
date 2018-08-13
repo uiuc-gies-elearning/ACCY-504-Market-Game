@@ -9,25 +9,7 @@
 var serverfile = require('./server.js');
 
 var buyer_select = function(request){
-	//Socket listens for the loadOffers emittion, queries the database, and returns a JSON object with seller offers
-    serverfile.app.io.route('loadOffers', function(req) {
-    	serverfile.connection.query('SELECT offers.quality_id, offers.price, `seller list`.seller_number, user.teamname FROM `seller list` INNER JOIN user on `seller list`.user_id = user.user_id INNER JOIN offers on offers.seller_id = `seller list`.seller_id ORDER BY `seller list`.seller_number ASC LIMIT 3;', function(err, result){
-    		if (err) {
-				console.error(err);
-				return;
-			}
-			//Accessing a null result in the array returns an error
-			//console.log("Null result tester: " + result[3]["teamname"]);
-			var offers = {
-			//TODO: Check if null and return empty
-				seller1 : {name: result[0]["teamname"], quality : result[0]["quality_id"], price : result[0]["price"]},
-				seller2 : {name: result[1]["teamname"], quality : result[1]["quality_id"], price : result[1]["price"]},
-				seller3 : {name: result[2]["teamname"], quality : result[2]["quality_id"], price : result[2]["price"]}
-			};
-			req.io.emit("offersLoaded", offers);
-    	});
-    });
-
+	
     //On loadResale, returns a JSON object with buyer resale prices
     serverfile.app.io.route('loadResale', function(req) {
     	serverfile.connection.query('SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = 1', function(err, result){
@@ -56,7 +38,7 @@ var buyer_select = function(request){
 				return;
 			}
 			var phase = result[0]["cur_phase"];
-	    	serverfile.connection.query('SELECT `seller list`.seller_id FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1', function(err, result){
+	    	serverfile.connection.query('SELECT `seller list`.seller_number FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1', function(err, result){
 		    	if (err) {
 					console.error(err);
 					return;
@@ -66,11 +48,12 @@ var buyer_select = function(request){
 		    		phase : phase,
 		    		audited : request.user.audited,
 		    		sellerAudit : null,
-		    		sellerDisable : [null, null, null]
+		    		sellerDisable : [null, null, null],
+		    		auditCustomer : null
 		    	};
 
 		    	if(result.length != 0)
-		    		info.sellerAudit = result[0]["seller_id"];
+		    		info.sellerAudit = result[0]["seller_number"];
 		    	serverfile.connection.query('SELECT offers.seller_id, offers.second_sale, `seller list`.seller_number FROM offers INNER JOIN `seller list` ON offers.seller_id = `seller list`.seller_id', function(err, result) {
 		    		if (err) {
 						console.error(err);
@@ -105,7 +88,14 @@ var buyer_select = function(request){
 							else
 								info.sellerDisable[offers[i].seller_number-1] = false;
 						}
-		    			req.io.emit('receivedInfo', info);
+						serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result) {
+		    				if (err) {
+		    					console.error(err);
+		    					return;
+		    				}
+		    				info.auditCustomer = result[0]["customer_id"];
+		    				req.io.emit('receivedInfo', info);
+						});
 					});
 		    	});
 	    	});
@@ -390,8 +380,7 @@ function saleHistoryInsert(saleHistory){
 		if (err) {
 			console.error(err);
 			return;
-		}
-		console.log("Sale History Inserted");				
+		}				
 	});
 }
 
@@ -400,8 +389,7 @@ function buyHistoryInsert(buyHistory){
 		if (err) {
 			console.error(err);
 			return;
-		}
-		console.log("Buy History Inserted");				
+		}				
 	});
 }
 

@@ -12,6 +12,10 @@ var connection = mysql.createConnection({
   database: "mydb"
 });
 
+// required for password encryption
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 connection.query('USE mydb');
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -60,78 +64,27 @@ module.exports = function(passport) {
                     // if there is no user with that username
                     // create the user
                     var role = req.body.role;
-                    var newUserMysql = {
-                        teamname: username,
-                        password: password,
-                        role_id: role,
-                        profits: 0,
-                        game_id: null
-                    };
-                    if(newUserMysql.role_id != 3)
-                        newUserMysql.game_id = 1;
 
-                    var insertQuery = "INSERT INTO user ( teamname, password, role_id, profits, game_id ) values (?,?,?,?,?)";
+                    bcrypt.hash(password, saltRounds, function(err, hash) {
+                        var newUserMysql = {
+                            teamname: username,
+                            password: hash,
+                            profits: 0
+                        };
+                        if(newUserMysql.role_id != 3)
+                            newUserMysql.game_id = 1;
 
-                    connection.query(insertQuery,[newUserMysql.teamname, newUserMysql.password, newUserMysql.role_id, newUserMysql.profits, newUserMysql.game_id],function(err, rows) {
-                        if(err) {
-                            console.error(err);
-                            return;
-                        }
+                        var insertQuery = "INSERT INTO user ( teamname, password, profits) values (?,?,?,?,?)";
 
-                        newUserMysql.user_id = rows.insertId;
-
-                        if(role == 1){
-                            connection.query('SELECT buyer_number FROM `buyer list` ORDER BY buyer_id DESC LIMIT 1', function(err, result){
-                                if(err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                var new_buyer_number = 1;
-                                if(result.length != 0)
-                                    new_buyer_number = ++result[0]["buyer_number"];
-                                var newBuyer = {
-                                    buyer_number : new_buyer_number,
-                                    user_id : rows.insertId
-                                }
-                                connection.query('INSERT INTO `buyer list` SET ?', newBuyer, function(err, result) {
-                                    if(err) {
-                                        console.error(err);
-                                        return;
-                                    }
-                                });
-                                connection.query('UPDATE user SET buy_pos = ? WHERE user_id = ?', [newBuyer.buyer_number, newBuyer.buyer_id], function(err, result) {
-                                    if(err) {
-                                        console.error(err);
-                                        return;
-                                    }
-                                });
-                            });
-                        }
-                        else if(role == 2){
-                            connection.query('SELECT seller_number FROM `seller list` ORDER BY seller_id DESC LIMIT 1', function(err, result){
-                                if(err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                var new_seller_number = 1;
-                                if(result.length != 0)
-                                    new_seller_number = ++result[0]["seller_number"];
-                                var newSeller = {
-                                    seller_number : new_seller_number,
-                                    user_id : rows.insertId
-                                }
-                                connection.query('INSERT INTO `seller list` SET ?', newSeller, function(err, result) {
-                                    if(err) {
-                                        console.error(err);
-                                        return;
-                                    }
-                                });
-                            });
-                        }
-
-                        return done(null, newUserMysql);
+                        connection.query(insertQuery,[newUserMysql.teamname, newUserMysql.password, newUserMysql.profits],function(err, rows) {
+                            if(err) {
+                                console.error(err);
+                                return;
+                            }
+                            
+                            return done(null, newUserMysql);
+                        });
                     });
-
                 }
             });
         })
@@ -160,11 +113,13 @@ module.exports = function(passport) {
                 }
 
                 // if the user is found but the password is wrong
-                if (password != rows[0].password)
-                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+                bcrypt.compare(password, rows[0].password, function(err, res) {
+                    if (!res)
+                        return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
-                // all is well, return successful user
-                return done(null, rows[0]);
+                    // all is well, return successful user
+                    return done(null, rows[0]);
+                });
             });
         })
     );

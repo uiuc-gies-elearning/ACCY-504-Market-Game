@@ -89,13 +89,12 @@ var admin_control = function(){
 			});
 
 			randomizeBuyOrder();
-
 			var newStage;
 			if(phase == 3)
 				newStage = 5;
 			else
 				newStage = 0;
-
+			
 			serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = 1', newStage, function(err, result){
 				if (err) {
 					console.error(err);
@@ -133,7 +132,7 @@ var admin_control = function(){
 			});
 
 			randomizeBuyOrder();
-
+			
 			var newStage;
 			if(newPhase == 3)
 				newStage = 5;
@@ -151,6 +150,7 @@ var admin_control = function(){
 			clearPeriodData();
     		req.io.emit("periodUpdate", newPeriod);
     		req.io.emit("phaseUpdate", newPhase);
+
     	});
 	});
 
