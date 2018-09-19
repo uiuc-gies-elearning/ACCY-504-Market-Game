@@ -21,7 +21,7 @@ var game_initialization = function(request){
     		stage_id : 0
     	};
 
-    	var query = serverfile.connection.query('INSERT INTO game SET ?', game, function(err, result){
+    	serverfile.connection.query('INSERT INTO game SET ?', game, function(err, result){
     		if (err) {
 				console.error(err);
 				return;
@@ -32,37 +32,28 @@ var game_initialization = function(request){
 					console.error(err);
 					return;
 				}
-			});
-			var currGameState = serverfile.connection.query('SELECT game_id FROM game ORDER BY game_id DESC LIMIT 1', function(err, result){
+			
 				var history = {
-		    		game_id : result[0]["game_id"],
+		    		game_id : game_id,
 		    		cur_phase : 1,
-		    		cur_period : 1,
+		    		cur_period : 1
 	    		};
-		    	var historyInitialization = serverfile.connection.query('INSERT INTO history SET ?', history, function(err, result){
+		    	serverfile.connection.query('INSERT INTO history SET ?', history, function(err, result){
 		    		if (err) {
 						console.error(err);
 						return;
 					}
-					console.log(historyInitialization.sql);
-					console.log(result);
-		    	});
-				
-				var auditor = {
-					game_id : result[0]["game_id"],
-					customer_id : req.data.customer
-				}
-				serverfile.connection.query('INSERT INTO auditor SET ?', auditor, function(err, result){
-
+					serverfile.connection.query('INSERT INTO `game owner` (user_id, game_id) values (?, ?)', [request.user.user_id, game_id], function(err, result) {
+						if (err) {
+							console.error(err);
+							return;
+						}
+    					req.io.emit('submitted');
+					});
 				});
 	    	});
-
     	});
-
-    	req.io.emit('submitted');
-    	
 	});
-
 };
 
 module.exports.game_initialization = game_initialization;

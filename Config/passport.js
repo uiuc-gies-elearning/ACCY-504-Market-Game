@@ -69,19 +69,17 @@ module.exports = function(passport) {
                         var newUserMysql = {
                             teamname: username,
                             password: hash,
-                            profits: 0
+                            profits: 0,
+                            role_id: role,
+                            game_id: null
                         };
-                        if(newUserMysql.role_id != 3)
-                            newUserMysql.game_id = 1;
 
-                        var insertQuery = "INSERT INTO user ( teamname, password, profits) values (?,?,?,?,?)";
-
-                        connection.query(insertQuery,[newUserMysql.teamname, newUserMysql.password, newUserMysql.profits],function(err, rows) {
+                        connection.query('INSERT INTO user SET ?', newUserMysql, function(err, rows) {
                             if(err) {
                                 console.error(err);
                                 return;
                             }
-                            
+                            newUserMysql.user_id = rows.insertId;
                             return done(null, newUserMysql);
                         });
                     });

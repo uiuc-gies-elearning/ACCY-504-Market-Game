@@ -5,6 +5,13 @@
 			Game Room
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -15,6 +22,7 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Game Room</h1>
 			</div>
 			<div class="jumbotron">
@@ -30,6 +38,7 @@
 						<tbody id="games">
 					</tbody>
 				</table>
+				<button hidden type="button" class="btn btn-info hidden" id="newGame" onclick='window.location.replace(`/game_initialization`)'>Create New Game</button>
 			</div>
 		</div>
 
@@ -59,12 +68,29 @@
 					cell2.innerHTML = data.game_name[i];
 
 					var cell3 = row.insertCell();
-					cell3.innerHTML = "<button type="button" class="btn btn-success" onclick="joinGame(data.game_id[i])">Join Game</button>";
+					cell3.innerHTML = '<button type="button" class="btn btn-success" onclick="joinGame(' + data.game_id[i] + ')">Join Game</button>';
 				}
+				if(role == 3)
+					document.getElementById("newGame").classList.remove("hidden");	
+			});
+
+			socket.on('gameSelected', function(data){
+				window.location.replace('/redirect');
+			});
+
+			socket.on('joinFail', function(data){
+				if(data == 'notOwner')
+					alert('Join failed. You are not the owner of the game you are trying to join.');
+				else if(data == 'gameFull')
+					alert('Join failed. The game you are trying to join is full.');
+				else if(data == 'buyersFull')
+					alert('Join failed. The game you are trying to join already has the maximum number of buyers.');
+				else if(data == 'sellersFull')
+					alert('Join failed. The game you are trying to join already has the maximum number of sellers.')
 			});
 
 			function joinGame(gameID) {
-				socket.emit('selectGame', gameID)
+				socket.emit('selectGame', gameID);
 			}
    		</script>
 		

@@ -8,8 +8,10 @@ var serverfile = require('./server.js');
 
 var seller_select = function(request){
 
+	var userGame = request.user.game_id;
+
     serverfile.app.io.route('loadPrices', function(req) {
-        	serverfile.connection.query('SELECT price_low, price_med, price_high FROM game WHERE (game_id = 1)', function(err, result){
+        	serverfile.connection.query('SELECT price_low, price_med, price_high FROM game WHERE (game_id = ?)', userGame, function(err, result){
     		if (err) {
 				console.error(err);
 				return;
@@ -27,27 +29,30 @@ var seller_select = function(request){
     //Returns phase and whether user is audited or not in order to display message to show the seller if they
     //won the auditor bid or not
     serverfile.app.io.route('checkAudit', function(req) {
-	    serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result) {
+	    serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = ?', userGame, function(err, result) {
 	    	if (err) {
 				console.error(err);
 				return;
 			}
 			if(result[0]["customer_id"] == 2){
-		    	serverfile.connection.query('SELECT cur_phase FROM history ORDER BY history_id DESC LIMIT 1', function(err, result){
+		    	serverfile.connection.query('SELECT cur_phase FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
 		    		if (err) {
 						console.error(err);
 						return;
 					}
 
 					var phase = result[0]["cur_phase"];
-					var audited = request.user.audited;
+					
+					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', request.user.user_id, function(err, result) {
+						var audited = result[0]['audited'];
 
-					var info = {
-						phase : phase,
-						audited : audited
-					}
+						var info = {
+							phase : phase,
+							audited : audited
+						}
 
-					req.io.emit("auditChecked", info);
+						req.io.emit("auditChecked", info);
+					});
 		    	});
 			}
 	    });
@@ -57,8 +62,7 @@ var seller_select = function(request){
     //Submits seller sale entry into 'offers'. Checks if all sellers have submitted their offers,
     //and then it updates the stage.
     serverfile.app.io.route('pickedQuality', function(req) {
-    	var id;
-    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ?', request.user.user_id, function(err, result) {
+    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ? AND game_id = ?', [request.user.user_id, userGame], function(err, result) {
     		if (err) {
 				console.error(err);
 				return;
@@ -76,25 +80,25 @@ var seller_select = function(request){
 					console.error(err);
 					return;
 				}
-		    	serverfile.connection.query('SELECT COUNT(*) FROM offers', function(err, result) {
+		    	serverfile.connection.query('SELECT COUNT(*) FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?', userGame, function(err, result) {
 		    		if (err) {
 						console.error(err);
 						return;
 					}
 					var offer_count = result[0]["COUNT(*)"];
 					if(offer_count >= 3){
-				    	serverfile.connection.query('UPDATE game SET stage_id = 1 WHERE game_id = 1', function(err, result) {
+				    	serverfile.connection.query('UPDATE game SET stage_id = 1 WHERE game_id = ?', userGame, function(err, result) {
 				    		if (err) {
 				    			console.error(err);
 				    			return;
 				    		}
-				    		serverfile.app.io.broadcast("stageUpdated", 1);
+				    		req.io.room(request.user.game_id).broadcast("stageUpdated", 1);
 				    		req.io.emit("offerSubmitted");
 				    	});
 				    }
 				    else{
 				    	req.io.emit("offerSubmitted");
-				    	serverfile.app.io.broadcast('updateOffers');
+				    	req.io.room(request.user.game_id).broadcast('updateOffers');
 				    }
 		    	});
 	    	});

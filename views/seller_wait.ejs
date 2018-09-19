@@ -5,6 +5,13 @@
 			Seller Wait
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -15,15 +22,16 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Seller Wait Screen</h1>
 			</div>
 			<div class="jumbotron">
-				<h2>Sale History</h2>
 				<h4 id="message" class="alert alert-success"></h4>
+				<h2>Sale History</h2>
 				<table class="table">
 					<thead>
 						<tr>
-							<th scope="col">Phase and Period</th>
+							<th scope="col">Period</th>
 							<th scope="col">Seller 1</th>
 							<th scope="col">Seller 2</th>
 							<th scope="col">Seller 3</th>
@@ -32,7 +40,7 @@
 						<tbody id="tbody">
 					</tbody>
 				</table>
-				<h2>Current Offers</h2>
+				<h2>Current Asking Prices</h2>
 				<table class="table">
 					<thead>
 						<tr>
@@ -59,12 +67,12 @@
 						</tr>
 					</tbody>
 				</table>
-				<h2>Submitted Purchases</h2>
+				<h2>Submitted Offers</h2>
 				<table class="table">
 					<thead>
 						<tr>
 							<th scope="col">Buyer</th>
-							<th scope="col">Seller Purchase</th>
+							<th scope="col">Seller Offer</th>
 						</tr>
 					</thead>
 						<tbody id="bids">
@@ -77,6 +85,7 @@
 			var socket = io.connect();
 			var phase, sellerAudit;
 			function start(){
+				socket.emit('joinRoom');
 				socket.emit('loadHistory');
 				socket.emit('loadWaitInfo');
 				socket.emit('getAuditInfo');
@@ -88,29 +97,29 @@
 				for(i=0; i<data.phase.length-1; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
-					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					th.innerHTML = "Period: " + data.period[i];
 					row.appendChild(th);
 
 					var cell1 = row.insertCell();
-					cell1.innerHTML = "Price: $" + data.seller1price[i] + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
 					var cell2 = row.insertCell();
-					cell2.innerHTML = "Price: $" + data.seller2price[i] + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
 					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: $" + data.seller3price[i] + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
 				}
 			});
 
 			socket.on('waitInfo', function(data) {
 				stage = data.stage;
 				if(stage == 0)
-					document.getElementById("message").innerHTML = "Please wait for the other sellers to finish submitting their offers";
+					document.getElementById("message").innerHTML = "Please wait for the other sellers to finish submitting their asking prices";
 				else if(stage == 6)
 					window.location.replace('/results');
 				else if(stage == 5){
 					document.getElementById("message").innerHTML = "Please wait for the other players to finish submitting their auditor bids";
 				}
 				else
-					document.getElementById("message").innerHTML = "Please wait for buyers to finish their buy order. The current buyer is buyer <strong>" + stage + "</strong>";
+					document.getElementById("message").innerHTML = "Please wait for buyers to finish their offers. The current buyer is buyer <strong>" + stage + "</strong>";
 			});
 
 			socket.on('auditInfo', function(data) {
@@ -152,16 +161,22 @@
 					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
 					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
 				}
+				else
+					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
 				if(seller2loaded){
 					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
 					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
 					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
 				}
+				else
+					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
 				if(seller3loaded){
 					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
 					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
 					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
 				}
+				else
+					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
 				
 
 				if(phase == 3){	

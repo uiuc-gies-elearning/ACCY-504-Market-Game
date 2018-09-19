@@ -5,6 +5,13 @@
 			Results
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -15,11 +22,12 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Results Screen</h1>
 			</div>
 			<div class="jumbotron">
-				<h2>Sale History</h2>
 				<h4 class="alert alert-success">Please wait for the professor to go to the next period/phase.</h4>
+				<h2>Sale History</h2>
 				<table class="table">
 					<thead>
 						<tr>
@@ -51,6 +59,7 @@
 		<script>
 			var socket = io.connect();
 			function start(){
+				socket.emit('joinRoom');
 				socket.emit('loadHistory');
 				socket.emit('loadLeaderboard');
 			}

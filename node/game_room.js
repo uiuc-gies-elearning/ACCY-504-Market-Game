@@ -1,6 +1,7 @@
 var serverfile = require('./server.js');
 
 var game_room = function(request){
+    
 	serverfile.app.io.route('getRole', function(req) {
 		req.io.emit('userRole', request.user.role_id);
 	});
@@ -20,27 +21,66 @@ var game_room = function(request){
 				gameList.game_name.push(result[i]["game_name"]);
 			}
 			req.io.emit('gamesLoaded', gameList);
+        });
 	});
-
+    
 	serverfile.app.io.route('selectGame', function(req) {
 		var game_id = req.data;
-		var user = req.user.user_id;
-		serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, user], function(err, result) {
-			if (err) {
-				console.error(err);
-				return;
-			}
-			req.io.emit('gameSelected');
-		});
+		var user = request.user.user_id;
+        serverfile.connection.query('SELECT user_id FROM `game owner` WHERE game_id = ?', game_id, function(err, result) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            var isOwner = false;
+            if(result[0]["user_id"] == user)
+                isOwner = true;
+            if(request.user.role_id == 3 && !isOwner)
+                req.io.emit('joinFail', 'notOwner');
+            else{
+                serverfile.connection.query('SELECT user_id, role_id FROM user WHERE game_id = ?', game_id, function(err, result) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    if(result.length >= 8)
+                        req.io.emit('joinFail', 'gameFull');
+                    else{
+                        var buyerCount = 0;
+                        var sellerCount = 0;
+                        for(var i = 0; i < result.length; i++){
+                            if(result[i]['role_id'] == 1)
+                                buyerCount++;
+                            else if(result[i]['role_id'] == 2)
+                                sellerCount++;
+                        }
+                        if(buyerCount >= 4 && request.user.role_id == 1)
+                            req.io.emit('joinFail', 'buyersFull');
+                        else if(sellerCount >=3 && request.user.role_id == 2)
+                            req.io.emit('joinFail', 'sellersFull');
+                        else{
+                            serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, user], function(err, result) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                userInitialization(request.user.role_id, game_id, function(){
+                                    req.io.emit('gameSelected');
+                                });
+                            });
+                        }
+                    }
+                });
+            }
+
+        });
 	});
 
-
-	function userInitialization(role) {
-		
-        newUserMysql.user_id = rows.insertId;
-
+	function userInitialization(role, game, callback) {
+        var userID = request.user.user_id;
+        
         if(role == 1){
-            connection.query('SELECT buyer_number FROM `buyer list` ORDER BY buyer_id DESC LIMIT 1', function(err, result){
+            serverfile.connection.query('SELECT buyer_number FROM `buyer list` WHERE game_id = ? ORDER BY buyer_id DESC LIMIT 1', game, function(err, result){
                 if(err) {
                     console.error(err);
                     return;
@@ -50,24 +90,26 @@ var game_room = function(request){
                     new_buyer_number = ++result[0]["buyer_number"];
                 var newBuyer = {
                     buyer_number : new_buyer_number,
-                    user_id : rows.insertId
+                    user_id : userID,
+                    game_id : game
                 }
-                connection.query('INSERT INTO `buyer list` SET ?', newBuyer, function(err, result) {
+                serverfile.connection.query('INSERT INTO `buyer list` SET ?', newBuyer, function(err, result) {
                     if(err) {
                         console.error(err);
                         return;
                     }
-                });
-                connection.query('UPDATE user SET buy_pos = ? WHERE user_id = ?', [newBuyer.buyer_number, newBuyer.buyer_id], function(err, result) {
-                    if(err) {
-                        console.error(err);
-                        return;
-                    }
+                    serverfile.connection.query('UPDATE user SET buy_pos = ? WHERE user_id = ?', [newBuyer.buyer_number, userID], function(err, result) {
+                        if(err) {
+                            console.error(err);
+                            return;
+                        }
+                    });
                 });
             });
         }
+        
         else if(role == 2){
-            connection.query('SELECT seller_number FROM `seller list` ORDER BY seller_id DESC LIMIT 1', function(err, result){
+            serverfile.connection.query('SELECT seller_number FROM `seller list` ORDER BY seller_id DESC LIMIT 1', function(err, result){
                 if(err) {
                     console.error(err);
                     return;
@@ -77,9 +119,10 @@ var game_room = function(request){
                     new_seller_number = ++result[0]["seller_number"];
                 var newSeller = {
                     seller_number : new_seller_number,
-                    user_id : rows.insertId
+                    user_id : userID,
+                    game_id : game
                 }
-                connection.query('INSERT INTO `seller list` SET ?', newSeller, function(err, result) {
+                serverfile.connection.query('INSERT INTO `seller list` SET ?', newSeller, function(err, result) {
                     if(err) {
                         console.error(err);
                         return;
@@ -87,7 +130,8 @@ var game_room = function(request){
                 });
             });
         }
-	}
+        callback();
+	};
 };
 
-module.exports.game_room = game_room
+module.exports.game_room = game_room;

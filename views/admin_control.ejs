@@ -2,8 +2,15 @@
 <html>
 	<head>
 		<title>
-			Admin Control
+			Professor Control
 		</title>
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	</head>
 
@@ -15,7 +22,8 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
-				<h1>Admin Control Interface</h1>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
+				<h1>Professor Control Interface</h1>
 			</div>
 			<div class="jumbotron">
 			   	<div class="form-group">
@@ -28,18 +36,18 @@
 		   			<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
 			   		<p id="phase"></p>
 			  	</div>
-			  	<h2>Submitted Purchases</h2>
+			  	<h2>Submitted Offers</h2>
 				<table class="table">
 					<thead>
 						<tr>
 							<th scope="col">Buyer</th>
-							<th scope="col">Seller Purchase</th>
+							<th scope="col">Seller Offer</th>
 						</tr>
 					</thead>
-						<tbody id="bids">
+					<tbody id="bids">
 					</tbody>
 				</table>
-				<h2>Current Offers</h2>
+				<h2>Current Asking Prices</h2>
 				<table class="table">
 					<thead>
 						<tr>
@@ -78,6 +86,19 @@
 						<tbody id="leaderboard">
 					</tbody>
 				</table>
+				<h2>Sale History</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Phase and Period</th>
+							<th scope="col">Seller 1</th>
+							<th scope="col">Seller 2</th>
+							<th scope="col">Seller 3</th>
+						</tr>
+					</thead>
+						<tbody id="saleHistory">
+					</tbody>
+				</table>
 			</div>
 		</div>
 		
@@ -86,6 +107,7 @@
    			var socket = io.connect();
    			var curPhase, sellerAudit;
    			function statLoad(){
+   				socket.emit('joinRoom');
    				socket.emit('statLoad');
    				socket.emit('sellerUpdate');
    				socket.emit('buyerUpdate');
@@ -93,6 +115,7 @@
 				socket.emit('loadBids');
 				socket.emit('getAuditInfo');
 				socket.emit('loadLeaderboard');
+				socket.emit('loadHistory');
    			}
 			function updatePeriod(){
 				socket.emit('updatePeriod');
@@ -127,6 +150,13 @@
 
 			socket.on('bidsLoaded', function(data) {
 				var tbody = document.getElementById('bids');
+				tbody.innerHTML = "";
+				if(data.buyer_number.length == 0){
+					var row = tbody.insertRow();
+					var cell = row.insertCell();
+					cell.innerHTML = "<strong>No Offers</strong>";
+				}
+
 				for(var i = 0; i < data.buyer_number.length; i++){
 					var row = tbody.insertRow();
 
@@ -163,16 +193,22 @@
 					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
 					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
 				}
+				else
+					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
 				if(seller2loaded){
 					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
 					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
 					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
 				}
+				else
+					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
 				if(seller3loaded){
 					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
 					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
 					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
 				}
+				else
+					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
 
 				if(phase == 3){	
 					if(sellerAudit == 1 && seller1loaded)
@@ -183,30 +219,51 @@
 						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
 				}
 			});
+			socket.on('historyLoaded', function(data) {
+				var tbody = document.getElementById('saleHistory');
+				for(i=0; i<data.phase.length-1; i++){
+					var row = tbody.insertRow();
+					var th = document.createElement('th');
+					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					row.appendChild(th);
+
+					var cell1 = row.insertCell();
+					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					var cell2 = row.insertCell();
+					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					var cell3 = row.insertCell();
+					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+				}
+			});
 
 			socket.on('sellerUpdated', function(data){
-				document.getElementById("sellers").innerHTML = "<strong>Offers submitted:</strong> " + data + "/3";
+				document.getElementById("sellers").innerHTML = "<strong>Submitted asking prices:</strong> " + data + "/3";
 			});
 			socket.on('buyerUpdated', function(data){
-				document.getElementById("buyers").innerHTML = "<strong>Bids submitted:</strong> " + data + "/4";
+				document.getElementById("buyers").innerHTML = "<strong>Submitted offers:</strong> " + data + "/4";
 			});
 
 			socket.on('stageUpdated', function(data){
 				if(data == 0)
-					document.getElementById("message").innerHTML = "Sellers are currently submitting their offers."
+					document.getElementById("message").innerHTML = "Sellers are currently submitting their asking prices."
 				else if(data == 5)
 					document.getElementById("message").innerHTML = "The auditor is currently being bid on."
 				else if(data == 6){
-					document.getElementById("message").innerHTML = "Results are being shown."
+					document.getElementById("message").innerHTML = "Results are being shown to players."
+					socket.emit('loadBids');
+					socket.emit('buyerUpdate');
 					document.getElementById("periodButton").disabled = false;
 					if(curPhase != 3)
 						document.getElementById("phaseButton").disabled = false;  
 				}
 				else if(data == 1){
-					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their buy order."
+					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
+					socket.emit('sellerUpdate');
 				}
 				else{
-					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their buy order."
+					socket.emit('loadBids');
+					socket.emit('buyerUpdate');
+					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
 				}
 				socket.emit('loadOffers');
 			});
@@ -227,7 +284,8 @@
 			});
 
 			socket.on('updateOffers', function(data) {
-				document.loaction.reload();
+				socket.emit('loadOffers');
+				socket.emit('sellerUpdate');
 			});
 
 			function parsePrice(price) {

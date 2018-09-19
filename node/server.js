@@ -83,6 +83,7 @@ app.listen(3000, function(){
     console.log('listening on *:3000');
 });
 
+app.use(express.static(path.join(__dirname, '..', 'images')));
 
 //========================
 //ROUTING=================
@@ -100,6 +101,7 @@ var load_leaderboard = require('./load_leaderboard.js');
 var load_transactions = require('./load_transactions');
 var wait = require('./wait.js');
 var auditor_bid = require('./auditor_bid.js');
+var game_room = require('./game_room.js');
 
 //redirect / to our index.ejs file
 app.get('/', function(req, res, next) {
@@ -151,104 +153,88 @@ app.get('/logout', function(req, res){
 //game (stage_id).
 //TODO: Add auditor functionality/routing
 app.get('/redirect', isLoggedIn, function(req, res, next) {
-    connection.query('SELECT COUNT(*) FROM game', function(err, result){
-        if (err) {
-            console.error(err);
-            return;
-        }
-        if(result[0]["COUNT(*)"] == 0 && req.user.role_id == 3)
-            res.redirect('game_initialization');
-        else{
-            connection.query('SELECT stage_id FROM game WHERE game_id = 1', function(err, result){
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                var stage = result[0]["stage_id"];
-                connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result){
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    //Stage 0 = Seller Selection | Stage 1-4 = Buyer 1-4 Selection | Stage 5 = Audit Bid
-                    //Role_id: 1 = Buyer, 2 = Seller, 3 = Admin
-                    var auditCustomer = result[0]["customer_id"];
-                    var role = req.user.role_id;
-                    if(role == 1){  //If user role is buyer
-                        if(req.user.buy_pos == stage)   //Check if it is this buyers turn
-                            res.redirect('buyer_selection');
-                        else if((auditCustomer == role) && (stage == 5))
-                            connection.query('SELECT user_id FROM `auditor bid` WHERE user_id = ?', req.user.user_id, function(err, result) {
-                                if (err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                if(result.length == 0)
-                                    res.redirect('auditor_bid');
-                                else
-                                    res.redirect('buyer_wait');
-                            });
-                        else if(stage == 6)
-                            res.redirect('results');
+    
+    var userGame = req.user.game_id;
+
+    if(userGame == null)
+        res.redirect('game_room');
+    else{
+        connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
+            if (err) {
+                console.error(err);
+                return;
+            }
+            var stage = result[0]["stage_id"];
+            //Stage 0 = Seller Selection | Stage 1-4 = Buyer 1-4 Selection | Stage 5 = Audit Bid
+            //Role_id: 1 = Buyer, 2 = Seller, 3 = Admin
+            var role = req.user.role_id;
+            if(role == 1){  //If user role is buyer
+                if(req.user.buy_pos == stage)   //Check if it is this buyers turn
+                    res.redirect('buyer_selection');
+                else if(stage == 5)
+                    connection.query('SELECT `auditor bid`.user_id FROM `auditor bid` INNER JOIN user on `auditor bid`.user_id = user.user_id WHERE `auditor bid`.user_id = ? AND user.game_id = ?', [req.user.user_id, userGame], function(err, result) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        if(result.length == 0)
+                            res.redirect('auditor_bid');
                         else
                             res.redirect('buyer_wait');
-                    }
-                    else if(role == 2){ //If user role is seller
-                        if(stage == 0)  //Check if it is the seller selection stage 
-                            connection.query('SELECT offers.seller_id FROM offers INNER JOIN `seller list` ON offers.seller_id = `seller list`.seller_id WHERE `seller list`.user_id = ?', req.user.user_id, function(err, result) {
-                                if (err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                if(result.length == 0)
-                                    res.redirect('seller_selection');
-                                else
-                                    res.redirect('seller_wait');
-                            });
-                        else if((auditCustomer == role) && (stage == 5))
-                            connection.query('SELECT user_id FROM `auditor bid` WHERE user_id = ?', req.user.user_id, function(err, result) {
-                                if (err) {
-                                    console.error(err);
-                                    return;
-                                }
-                                if(result.length == 0)
-                                    res.redirect('auditor_bid');
-                                else
-                                    res.redirect('seller_wait');
-                            });
-                        else if(stage == 6)
-                            res.redirect('results');
+                    });
+                else if(stage == 6)
+                    res.redirect('results');
+                else{
+                    res.redirect('buyer_wait');
+                    console.log("Request user:" + req.user.user_id);
+                }
+            }
+            else if(role == 2){ //If user role is seller
+                if(stage == 0)  //Check if it is the seller selection stage 
+                    connection.query('SELECT offers.seller_id FROM offers INNER JOIN `seller list` ON offers.seller_id = `seller list`.seller_id WHERE `seller list`.user_id = ? AND `seller list`.game_id = ?', [req.user.user_id, userGame], function(err, result) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        if(result.length == 0)
+                            res.redirect('seller_selection');
                         else
                             res.redirect('seller_wait');
-                    }
-                    else if(role == 3){ //If user role is admin
-                        connection.query("SELECT COUNT(*) FROM game;", function(err, result){   //TEMP: Check if game list is empty
-                            if (err) {
-                                console.error(err);
-                                return;
-                            }
-                            game_count = result[0]["COUNT(*)"];
-                            if(!(game_count == 0))
-                                res.redirect('admin_control');
-                            else
-                                res.redirect('game_initialization');
-                        });
-                    }
-                });
-            });
-        }
-    });
+                    });
+                else if(stage == 5)
+                    connection.query('SELECT `auditor bid`.user_id FROM `auditor bid` INNER JOIN user on `auditor bid`.user_id = user.user_id WHERE `auditor bid`.user_id = ? AND user.game_id = ?', [req.user.user_id, userGame], function(err, result) {
+                        if (err) {
+                            console.error(err);
+                            return;
+                        }
+                        if(result.length == 0)
+                            res.redirect('auditor_bid');
+                        else
+                            res.redirect('audit_wait');
+                    });
+                else if(stage == 6)
+                    res.redirect('results');
+                else
+                    res.redirect('seller_wait');
+            }
+            else if(role == 3){ //If user role is admin
+                res.redirect('admin_control');
+            }
+        });
+    }
 });
 
-//Routing to different role specific pages. The first two middleware function check for an 
-//authenticated session and whether or not the user is the role. The last middleware function
+//Routing to different role specific pages. The first two middleware functions check for an 
+//authenticated session and whether or not the user is the role. The last callback function
 //redirects the user and runs the javascript file that encapsulates most of the page functionality.
 
 app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/admin_control.ejs'));
-    admin_control.admin_control();
+    admin_control.admin_control(req);
     load_transactions.load_transactions(req);
-    load_leaderboard.load_leaderboard();
+    load_leaderboard.load_leaderboard(req);
+    load_history.load_history(req);
+    joinRoom(req);
 });
 
 app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
@@ -259,38 +245,70 @@ app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
 app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_selection.ejs'));
     seller_selection.seller_select(req);
+    joinRoom(req);
 });
 
 app.get('/buyer_selection', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_selection.ejs'));
     buyer_selection.buyer_select(req);
     load_transactions.load_transactions(req);
+    joinRoom(req);
 });
 
 app.get('/buyer_wait', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_wait.ejs'));
-    load_history.load_history();
-    wait.wait(req);
+    load_history.load_history(req);
     load_transactions.load_transactions(req);
+    joinRoom(req);
+    wait.wait(req);
 });
 
 app.get('/seller_wait', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_wait.ejs'));
-    load_history.load_history();
+    load_history.load_history(req);
     wait.wait(req);
     load_transactions.load_transactions(req);
+    joinRoom(req);
 });
 
 app.get('/results', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/results.ejs'));
-    load_history.load_history();
-    load_leaderboard.load_leaderboard();
+    load_history.load_history(req);
+    load_leaderboard.load_leaderboard(req);
+    joinRoom(req);
 });
 
 app.get('/auditor_bid', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/auditor_bid.ejs'));
     auditor_bid.auditor_bid(req);
+    joinRoom(req);
 });
+
+app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
+    res.render(path.join(__dirname, '..', 'views/audit_wait.ejs'));
+    app.io.route('getStage', function(request) {
+        connection.query('SELECT stage_id FROM game WHERE game_id = ?', req.user.game_id, function(err, result) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            var stage = result[0]['stage_id'];
+            request.io.emit('stage', stage);
+        }); 
+    });
+    joinRoom(req);
+});
+
+app.get('/game_room', isLoggedIn, function(req, res, next) {
+    res.render(path.join(__dirname, '..', 'views/game_room.ejs'));
+    game_room.game_room(req);
+});
+
+function joinRoom(request) {
+    app.io.route('joinRoom', function(req) {
+        req.io.join(request.user.game_id);
+    });
+}
 
 //Middleware function that checks if user is logged in
 function isLoggedIn(req, res, next) {

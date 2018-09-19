@@ -6,8 +6,10 @@
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 		<style>
-			.jumbotron {
-			    background-color:#e6f7ff !important; 
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
 			}
 		</style>
 	</head>
@@ -20,11 +22,13 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Buyer Selection Interface</h1>
 			</div>
 			<div class="jumbotron">
+				<h4 id="message" class="alert alert-info">Please make an offer.</h4>
 				<h4 hidden id="message" class="alert alert-success"></h4>
-				<h2>Available Offers</h2>
+				<h2>Asking Prices</h2>
 				<h4 id="position"></h4>
 				<table class="table">
 					<thead>
@@ -53,12 +57,12 @@
 					</tbody>
 				</table>
 
-				<h2>Your Resale Profits</h2>
+				<h2>Prices</h2>
 				<table class="table">
 					<thead>
 						<tr>
 							<th>Quality</th>
-							<th>Resale Price</th>
+							<th>Price</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -76,12 +80,12 @@
 						</tr>
 					</tbody>
 				</table>
-		   		<h2>Submitted Purchases</h2>
+		   		<h2>Submitted Offers</h2>
 				<table class="table">
 					<thead>
 						<tr>
 							<th scope="col">Buyer</th>
-							<th scope="col">Seller Purchase</th>
+							<th scope="col">Seller Offer</th>
 						</tr>
 					</thead>
 						<tbody id="bids">
@@ -123,6 +127,7 @@
 			var socket = io.connect();
 
 			function start(){
+				socket.emit('joinRoom');
 				socket.emit('getGameInfo');
 				socket.emit('loadResale');
 				socket.emit('loadBids');
@@ -166,7 +171,7 @@
 				}
 				document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
 
-				if(phase == 3 && data.auditCustomer == 1){
+				if(phase == 3){
 					document.getElementById("message").removeAttribute("hidden");	
 					if(audited == 1)
 						document.getElementById("message").innerHTML = "You have won the auditor bid! You will now be able to see Seller product qualites"
@@ -179,6 +184,11 @@
 
 			socket.on('bidsLoaded', function(data) {
 				var tbody = document.getElementById('bids');
+				if(data.buyer_number.length == 0){
+					var row = tbody.insertRow();
+					var cell = row.insertCell();
+					cell.innerHTML = "<i>No Offers Yet This Period</i>"
+				}
 				for(var i = 0; i < data.buyer_number.length; i++){
 					var row = tbody.insertRow();
 
@@ -205,9 +215,9 @@
 					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
 				}
 				else if(phase == 3){
-					document.getElementById("seller1Quality").innerHTML = "<strong>Hidden</strong>";
-					document.getElementById("seller2Quality").innerHTML = "<strong>Hidden</strong>";
-					document.getElementById("seller3Quality").innerHTML = "<strong>Hidden</strong>";
+					document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+					document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+					document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
 					if(sellerAudit == 1)
 						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
 					else if(sellerAudit == 2)
@@ -216,9 +226,9 @@
 						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
 				}
 				else{
-					document.getElementById("seller1Quality").innerHTML = "<strong>Hidden</strong>";
-					document.getElementById("seller2Quality").innerHTML = "<strong>Hidden</strong>";
-					document.getElementById("seller3Quality").innerHTML = "<strong>Hidden</strong>";
+					document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+					document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+					document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
 				}
 				
 				document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);

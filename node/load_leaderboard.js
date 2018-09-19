@@ -5,8 +5,15 @@
 
 var serverfile = require('./server.js');
 
-var load_leaderboard = function(){
-	serverfile.connection.query('SELECT teamname, role_id, profits FROM user WHERE game_id = 1 AND role_id <> 3', function(err, result) {
+var load_leaderboard = function(request){
+
+	var userGame = request.user.game_id;
+
+	serverfile.connection.query('SELECT teamname, role_id, profits FROM user WHERE game_id = ? AND role_id <> 3', userGame, function(err, result) {
+		if(err) {
+			console.error(err);
+			return;
+		}
 		var leaderboardInfo = {
 			teamname : [],
 			role_id : [],

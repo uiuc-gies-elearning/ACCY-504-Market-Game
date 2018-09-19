@@ -5,9 +5,11 @@
 //Import express app and mysql connection
 var serverfile = require('./server.js');
 
-var load_history = function(){
+var load_history = function(request){
 
-	serverfile.connection.query('SELECT * FROM history WHERE game_id = 1', function(err, result){
+	var userGame = request.user.game_id;
+
+	serverfile.connection.query('SELECT * FROM history WHERE game_id = ?', userGame, function(err, result){
 		if (err) {
 			console.error(err);
 			return;
@@ -28,7 +30,7 @@ var load_history = function(){
 		};
 
 		//Query grabs history id, seller number, units sold, price sold, and quality sold
-		serverfile.connection.query('SELECT `sale history`.history_id, `seller list`.seller_number, `sale history`.units_sold, `sale history`.price_sold, `sale history`.quality_id FROM `sale history` INNER JOIN `seller list` on `sale history`.seller_id = `seller list`.seller_id ORDER BY `sale history`.history_id ASC', function(err, rows){
+		serverfile.connection.query('SELECT `sale history`.history_id, `seller list`.seller_number, `sale history`.units_sold, `sale history`.price_sold, `sale history`.quality_id FROM `sale history` INNER JOIN `seller list` on `sale history`.seller_id = `seller list`.seller_id WHERE game_id = ? ORDER BY `sale history`.history_id ASC', userGame, function(err, rows){
 			if (err) {
 				console.error(err);
 				return;

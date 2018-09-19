@@ -5,6 +5,13 @@
 			Seller Selection
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -15,6 +22,7 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Seller Selection Interface</h1>
 			</div>
 			<div class="jumbotron">
@@ -38,7 +46,7 @@
 		   		<br>
 			  	<form class="form-inline" id="price">
 					<div class="form-group">
-						<label>What price do you want to sell for?</label><br>
+						<label>What's your asking price?</label><br>
 					    <div class="input-group">
 					    	<div class="input-group-addon">$</div>
 					    	<input type="number" min="0.00" step="0.01" value="0.00" id="price-input" class="form-control" placeholder="Price" onkeypress="return inputKeyPress(event)"/>
@@ -57,7 +65,7 @@
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var countDecimals = function(value) {
-			    if (Math.floor(value) !== value)
+			    if (Math.floor(value) != value)
 			        return value.toString().split(".")[1].length || 0;
 			    return 0;
 			}
@@ -73,8 +81,8 @@
 		<script>
 			var socket = io.connect();
 			function start(){
+				socket.emit('joinRoom');
 				socket.emit('loadPrices');
-				socket.emit('checkAudit');
 			};
 
 			function submitQuality(){
@@ -121,10 +129,10 @@
 			});
 
 			socket.on('pricesLoaded', function(data){
-				console.log('prices received');
-				document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $" + parsePrice(data.price_low);
-				document.getElementById("med-quality-price").innerHTML = "The cost for producing a medium quality good is $" + parsePrice(data.price_med);
-				document.getElementById("high-quality-price").innerHTML = "The cost for producing a high quality good is $" + parsePrice(data.price_high);
+				document.getElementById("low-quality-price").innerHTML = "The cost for producing a low quality good is $<strong>" + parsePrice(data.price_low) + "</strong>";
+				document.getElementById("med-quality-price").innerHTML = "The cost for producing a medium quality good is $<strong>" + parsePrice(data.price_med) + "</strong>";
+				document.getElementById("high-quality-price").innerHTML = "The cost for producing a high quality good is $<strong>" + parsePrice(data.price_high) + "</strong>";
+				socket.emit('checkAudit');
 			});
 
 			socket.on('offerSubmitted', function(data){

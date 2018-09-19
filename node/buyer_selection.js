@@ -10,9 +10,11 @@ var serverfile = require('./server.js');
 
 var buyer_select = function(request){
 	
+	var userGame = request.user.game_id;
+
     //On loadResale, returns a JSON object with buyer resale prices
     serverfile.app.io.route('loadResale', function(req) {
-    	serverfile.connection.query('SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = 1', function(err, result){
+    	serverfile.connection.query('SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = ?', userGame, function(err, result){
     		if (err) {
 				console.error(err);
 				return;
@@ -32,13 +34,13 @@ var buyer_select = function(request){
     //on no second sale, or 2 units on second sale). This is to give the frontend info on how to display the page (e.g.
     //disabling buy buttons for sold out sellers, showing qualities if audited, etc).
     serverfile.app.io.route('getGameInfo', function(req) {
-    	serverfile.connection.query('SELECT cur_phase FROM history ORDER BY history_id DESC LIMIT 1', function(err, result){
+    	serverfile.connection.query('SELECT cur_phase FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
     		if (err) {
 				console.error(err);
 				return;
 			}
 			var phase = result[0]["cur_phase"];
-	    	serverfile.connection.query('SELECT `seller list`.seller_number FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1', function(err, result){
+	    	serverfile.connection.query('SELECT `seller list`.seller_number FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1 AND user.game_id = ?', userGame, function(err, result){
 		    	if (err) {
 					console.error(err);
 					return;
@@ -54,7 +56,7 @@ var buyer_select = function(request){
 
 		    	if(result.length != 0)
 		    		info.sellerAudit = result[0]["seller_number"];
-		    	serverfile.connection.query('SELECT offers.seller_id, offers.second_sale, `seller list`.seller_number FROM offers INNER JOIN `seller list` ON offers.seller_id = `seller list`.seller_id', function(err, result) {
+		    	serverfile.connection.query('SELECT offers.seller_id, offers.second_sale, `seller list`.seller_number FROM offers INNER JOIN `seller list` ON offers.seller_id = `seller list`.seller_id WHERE `seller list`.game_id = ?', userGame, function(err, result) {
 		    		if (err) {
 						console.error(err);
 						return;
@@ -68,7 +70,7 @@ var buyer_select = function(request){
 						};
 						offers.push(insert);
 					}
-					serverfile.connection.query('SELECT seller_id FROM bid', function(err, result) {
+					serverfile.connection.query('SELECT bid.seller_id FROM bid INNER JOIN `seller list` on bid.seller_id = `seller list`.seller_id WHERE `seller list`.game_id = ?', userGame, function(err, result) {
 		    			if (err) {
 							console.error(err);
 							return;
@@ -88,7 +90,7 @@ var buyer_select = function(request){
 							else
 								info.sellerDisable[offers[i].seller_number-1] = false;
 						}
-						serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result) {
+						serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = ?', userGame, function(err, result) {
 		    				if (err) {
 		    					console.error(err);
 		    					return;
@@ -109,14 +111,14 @@ var buyer_select = function(request){
     	var bid;
     	var seller_number = req.data;
     	if(seller_number != 0) {
-    		serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE seller_number = ' + seller_number, function(err, result){
+    		serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE seller_number = ? AND game_id = ?', [seller_number, userGame], function(err, result){
     			if (err) {
 					console.error(err);
 					return;
 				}
 				var user = request.user.user_id;
 				var seller = result[0]["seller_id"]
-				serverfile.connection.query('SELECT buyer_id FROM `buyer list` WHERE user_id = ?', user, function(err, result) {
+				serverfile.connection.query('SELECT buyer_id FROM `buyer list` WHERE user_id = ? AND game_id = ?', [user, userGame], function(err, result) {
 					if (err) {
 						console.error(err);
 						return;
@@ -131,13 +133,13 @@ var buyer_select = function(request){
 							return;
 						}
 						if(request.user.buy_pos == 4){
-							serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = 1', function(err, result){
+							serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = ?', userGame, function(err, result){
 								if (err) {
 									console.error(error);
 									return;
 								}
-								updateHistory();
-								serverfile.app.io.broadcast("stageUpdated", 6);
+								updateHistory(userGame);
+								req.io.room(request.user.game_id).broadcast("stageUpdated", 6);
 							});
 						}
 			    	});
@@ -153,20 +155,19 @@ var buyer_select = function(request){
 					return;
 				}
 	    		bid = {buyer_id : result[0]["buyer_id"]};
-	    		console.log(bid);
 	    		serverfile.connection.query('INSERT INTO bid SET ?', bid, function(err, result) {
 	    			if (err) {
 						console.error(err);
 						return;
 
 						if(request.user.buy_pos == 4){
-							serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = 1', function(err, result){
+							serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = ?', userGame, function(err, result){
 								if (err) {
 									console.error(error);
 									return;
 								}
-								updateHistory();
-								serverfile.app.io.broadcast("stageUpdated", 6);
+								updateHistory(userGame);
+								req.io.room(request.user.game_id).broadcast("stageUpdated", 6);
 							});
 						}
 					}
@@ -176,18 +177,18 @@ var buyer_select = function(request){
     	}
 
 		if(request.user.buy_pos<4){
-			serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = 1', function(err, result){
+			serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
 				if (err) {
 					console.error(err);
 					return;
 				}
 				var new_stage = ++result[0]["stage_id"];
-				serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = 1', new_stage, function(err, result){
+				serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = ?', [new_stage, userGame], function(err, result){
 					if (err) {
 						console.error(error);
 						return;
 					}
-					serverfile.app.io.broadcast("stageUpdated", new_stage);
+					req.io.room(request.user.game_id).broadcast("stageUpdated", new_stage);
 				});
 			});
 		}
@@ -209,14 +210,14 @@ function countSales(array, seller_id) {
 //FUNCTION: updateHistory
 //Takes all relevant offers/bid data and stores them into 'sale history' and 'buy history' tables. Also
 //updates all user profits.
-function updateHistory() {
-	serverfile.connection.query('SELECT history_id FROM history WHERE game_id = 1 ORDER BY history_id DESC LIMIT 1', function(err, result){
+function updateHistory(userGame) {
+	serverfile.connection.query('SELECT history_id FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
 		if (err) {
 			console.error(err);
 			return;
 		}
 		var curHistory = result[0]["history_id"];
-		serverfile.connection.query('SELECT * FROM offers', function(err, result){
+		serverfile.connection.query('SELECT offers.* FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?', userGame, function(err, result){
 			if (err) {
 				console.error(err);
 				return;
@@ -227,7 +228,7 @@ function updateHistory() {
 			var prices = [result[0]["price"], result[1]["price"], result[2]["price"]];
 
 
-			serverfile.connection.query('SELECT * FROM bid', function(err, result){
+			serverfile.connection.query('SELECT bid.* FROM bid INNER JOIN `buyer list` on bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', userGame, function(err, result){
 				if (err) {
 					console.error(err);
 					return;
@@ -258,7 +259,7 @@ function updateHistory() {
 				});
 
 				allSaleHistories.forEach(function(element) {
-					sellerProfitUpdate(element);
+					sellerProfitUpdate(element, userGame);
 				});
 				
 				var allBuyHistories = [];
@@ -293,7 +294,7 @@ function updateHistory() {
 				});
 
 				allBuyHistories.forEach(function(element) {
-					buyerProfitUpdate(element);
+					buyerProfitUpdate(element, userGame);
 				});
 
 			});
@@ -306,21 +307,21 @@ function updateHistory() {
 //HELPER FUNCTIONS: buyerProfitUpdate, sellerProfitUpdate, saleHistoryInsert, buyHistoryInsert
 //--------------------------------------------------------------------------------------------
 
-function buyerProfitUpdate(buyHistory) {
-	serverfile.connection.query('SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = 1', function(err, result) {
+function buyerProfitUpdate(buyHistory, userGame) {
+	serverfile.connection.query('SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = ?', userGame, function(err, result) {
 		if (err) {
 			console.error(err);
 			return;
 		}
 		var resale = [result[0]["resale_low"], result[0]["resale_med"], result[0]["resale_high"], 0];
 		var profit = resale[buyHistory.buy_quality - 1] - buyHistory.buy_price;
-		serverfile.connection.query('SELECT user_id FROM `buyer list` WHERE buyer_id = ?', buyHistory.buyer_id, function(err, result) {
+		serverfile.connection.query('SELECT user_id FROM `buyer list` WHERE buyer_id = ? AND game_id = ?', [buyHistory.buyer_id, userGame], function(err, result) {
 			if (err) {
 				console.error(err);
 				return;
 			}
 			var user = result[0]["user_id"];
-			serverfile.connection.query('SELECT profits FROM user WHERE user_id = ?', user, function(err, result) {
+			serverfile.connection.query('SELECT profits FROM user WHERE user_id = ? AND game_id = ?', [user, userGame], function(err, result) {
 				if (err) {
 					console.error(err);
 					return;
@@ -337,8 +338,8 @@ function buyerProfitUpdate(buyHistory) {
 	});
 }
 
-function sellerProfitUpdate(saleHistory) {
-	serverfile.connection.query('SELECT price_low, price_med, price_high FROM game WHERE game_id = 1', function(err, result) {
+function sellerProfitUpdate(saleHistory, userGame) {
+	serverfile.connection.query('SELECT price_low, price_med, price_high FROM game WHERE game_id = ?', userGame, function(err, result) {
 		if (err) {
 			console.error(err);
 			return;

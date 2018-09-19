@@ -9,6 +9,8 @@ var serverfile = require('./server.js');
 
 var auditor_bid = function(request){
 	
+	var userGame = request.user.game_id;
+
 	serverfile.app.io.route('bidSubmitted', function(req) {
 		var user = request.user.user_id;
 		var bid = {
@@ -20,69 +22,59 @@ var auditor_bid = function(request){
 				console.error(err);
 				return;
 			}
-			serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = 1', function(err, result) {
+			
+			var maxBids = 7
+
+			serverfile.connection.query('SELECT `auditor bid`.user_id, `auditor bid`.bid_amount FROM `auditor bid` INNER JOIN user on `auditor bid`.user_id = user.user_id WHERE game_id = ?', userGame, function(err, result) {
 				if(err) {
 					console.error(err);
 					return;
 				}
-				var customer = result[0]["customer_id"];
-				var maxBids;
-				if(customer == 1)
-					maxBids = 4;
-				else
-					maxBids = 3;
-
-				serverfile.connection.query('SELECT user_id, bid_amount FROM `auditor bid`', function(err, result) {
-					if(err) {
-						console.error(err);
-						return;
+				if(result.length == maxBids){
+					//TODO: Randomize on matching max bids
+					var bidAmounts = [];
+					var userIDs = [];
+					for(var i = 0; i<result.length; i++){
+						bidAmounts.push(result[i]["bid_amount"]);
+						userIDs.push(result[i]["user_id"]);
 					}
-					if(result.length == maxBids){
-						//TODO: Randomize on matching max bids
-						var bidAmounts = [];
-						var userIDs = [];
-						for(var i = 0; i<result.length; i++){
-							bidAmounts.push(result[i]["bid_amount"]);
+					var auditIndex = findMaxIndex(bidAmounts);
+					var audittedUser = userIDs[auditIndex];
+					var bidPrice = bidAmounts[auditIndex];
+					serverfile.connection.query('UPDATE user SET audited = 0 WHERE game_id = ?', userGame, function(err, result) {
+						if(err) {
+							console.error(err);
+							return;
 						}
-						for(var i = 0; i<result.length; i++){
-							userIDs.push(result[i]["user_id"]);
-						}
-						var audittedUser = userIDs[findMaxIndex(bidAmounts)];
-						serverfile.connection.query('UPDATE user SET audited = 0 WHERE game_id = 1', function(err, result) {
+						serverfile.connection.query('UPDATE user SET audited = 1 WHERE user_id = ? AND game_id = ?', [audittedUser, userGame], function(err, result) {
 							if(err) {
 								console.error(err);
 								return;
 							}
-							serverfile.connection.query('UPDATE user SET audited = 1 WHERE user_id = ?', audittedUser, function(err, result) {
+							serverfile.connection.query('UPDATE user SET profits = profits - ? WHERE user_id = ?', [bidPrice, audittedUser], function(err, result) {
 								if(err) {
 									console.error(err);
 									return;
 								}
-								serverfile.connection.query('UPDATE game SET stage_id = 0 WHERE game_id = 1', function(err, result){
+								serverfile.connection.query('UPDATE game SET stage_id = 0 WHERE game_id = ?', userGame, function(err, result){
 									if (err) {
 										console.error(err);
 										return;
 									}
-									serverfile.app.io.broadcast("stageUpdated", 0);
-									serverfile.connection.query('DELETE FROM `auditor bid`', function(err, result){
+									serverfile.connection.query('DELETE `auditor bid` FROM `auditor bid` INNER JOIN user on `auditor bid`.user_id = user.user_id WHERE game_id = ?', userGame, function(err, result){
 										if (err) {
 											console.error(err);
 											return;
 										}
-										serverfile.connection.query('ALTER TABLE `auditor bid` AUTO_INCREMENT 1', function(err, result){
-											if (err) {
-												console.error(err);
-												return;
-											}
-										});
+										serverfile.app.io.room(userGame).broadcast("stageUpdated", 0);
 									});
 								});
 							});
 						});
-					}
-					else
-						req.io.emit("bidWait", user);
-				});
+					});
+				}
+				else
+					req.io.emit("bidWait", request.user.role_id);
 			});
 		});
 	});

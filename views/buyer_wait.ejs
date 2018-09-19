@@ -5,6 +5,13 @@
 			Buyer Wait
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			img {
+			    position: absolute;
+			    top: 36px;
+			    right: 150px;
+			}
+		</style>
 	</head>
 
 	<body onload="start()">
@@ -15,16 +22,17 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
+		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
 				<h1>Buyer Wait Screen</h1>
 			</div>
 			<div class="jumbotron">
-				<h2>Sale History</h2>
 				<h4 id="message" class="alert alert-success"></h4>
 				<h4 id="position"></h4>
+				<h2>Sale History</h2>
 				<table class="table">
 					<thead>
 						<tr>
-							<th scope="col">Phase and Period</th>
+							<th scope="col">Period</th>
 							<th scope="col">Seller 1</th>
 							<th scope="col">Seller 2</th>
 							<th scope="col">Seller 3</th>
@@ -34,8 +42,7 @@
 					</tbody>
 				</table>
 				<br/>
-				<h2>Available Offers</h2>
-				<h4 id="position"></h4>
+				<h2>Asking Prices</h2>
 				<table class="table">
 					<thead>
 						<tr>
@@ -63,12 +70,12 @@
 					</tbody>
 				</table>
 				<br/>
-				<h2>Submitted Purchases</h2>
+				<h2>Submitted Offers</h2>
 				<table class="table">
 					<thead>
 						<tr>
 							<th scope="col">Buyer</th>
-							<th scope="col">Seller Purchase</th>
+							<th scope="col">Seller Offer</th>
 						</tr>
 					</thead>
 						<tbody id="bids">
@@ -82,6 +89,7 @@
 			var pos, stage, phase, audited, sellerAudit, auditCustomer;
 
 			function start(){
+				socket.emit('joinRoom');
 				socket.emit('loadHistory');
 				socket.emit('loadWaitInfo');
 				socket.emit('loadBids');
@@ -93,7 +101,7 @@
 				for(var i=0; i<data.phase.length-1; i++){
 					var row = tbody.insertRow();
 					var cell1 = row.insertCell();
-					cell1.innerHTML = "Phase: <strong>" + data.phase[i] + "</strong><br>" + "Period: <strong>" + data.period[i] + "</strong>";
+					cell1.innerHTML = "Period: <strong>" + data.period[i] + "</strong>";
 
 					var cell2 = row.insertCell();
 					cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
@@ -110,7 +118,7 @@
 				auditCustomer = data.auditCustomer;
 				document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
 				if(stage == 0)
-					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their offers.";
+					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
 				else if(stage == 6)
 					window.location.replace('/results');
 				else if(stage == 5 && auditCustomer == 2)
@@ -123,6 +131,11 @@
 
 			socket.on('bidsLoaded', function(data) {
 				var tbody = document.getElementById('bids');
+				if(data.buyer_number.length == 0){
+					var row = tbody.insertRow();
+					var cell = row.insertCell();
+					cell.innerHTML = "<strong>No offers submitted yet</strong>"
+				}
 				for(var i = 0; i < data.buyer_number.length; i++){
 					var row = tbody.insertRow();
 
@@ -160,14 +173,20 @@
 					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
 					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
 				}
+				else
+					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
 				if(seller2loaded){
 					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
 					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
 				}
+				else
+					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
 				if(seller3loaded){
 					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
 					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
 				}
+				else
+					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
 				
 				if(phase == 1 || (phase == 3 && audited == 1)){
 					if(seller1loaded)
@@ -179,11 +198,11 @@
 				}
 				else if(phase == 3){
 					if(seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
 					if(seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
 					if(seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
 					if(sellerAudit == 1 && seller1loaded)
 						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
 					else if(sellerAudit == 2 && seller2loaded)
@@ -193,11 +212,11 @@
 				}
 				else{
 					if(seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
 					if(seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
 					if(seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = "<strong>Hidden</strong>";
+						document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
 				}
 				
 			});
