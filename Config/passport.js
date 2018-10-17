@@ -13,8 +13,11 @@ var connection = mysql.createConnection({
 });
 
 // required for password encryption
+
+/*==========BCRYPT ISSUE==========
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
+*/
 
 connection.query('USE mydb');
 // expose this function to our app using module.exports
@@ -64,7 +67,8 @@ module.exports = function(passport) {
                     // if there is no user with that username
                     // create the user
                     var role = req.body.role;
-
+                    
+                    /*==========BCRYPT ISSUE==========
                     bcrypt.hash(password, saltRounds, function(err, hash) {
                         var newUserMysql = {
                             teamname: username,
@@ -82,6 +86,22 @@ module.exports = function(passport) {
                             newUserMysql.user_id = rows.insertId;
                             return done(null, newUserMysql);
                         });
+                    });
+                    */
+                   var newUserMysql = {
+                        teamname: username,
+                        password: password,
+                        profits: 0,
+                        role_id: role,
+                        game_id: null
+                    };
+                    connection.query('INSERT INTO user SET ?', newUserMysql, function(err, rows) {
+                        if(err) {
+                            console.error(err);
+                            return;
+                        }
+                        newUserMysql.user_id = rows.insertId;
+                        return done(null, newUserMysql);
                     });
                 }
             });
@@ -110,6 +130,7 @@ module.exports = function(passport) {
                     return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
                 }
 
+                /*==========BCRYPT ISSUE==========
                 // if the user is found but the password is wrong
                 bcrypt.compare(password, rows[0].password, function(err, res) {
                     if (!res)
@@ -118,6 +139,12 @@ module.exports = function(passport) {
                     // all is well, return successful user
                     return done(null, rows[0]);
                 });
+                */
+                
+                if(rows[0].password == password)
+                    return done(null, rows[0]);
+                else
+                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
             });
         })
     );
