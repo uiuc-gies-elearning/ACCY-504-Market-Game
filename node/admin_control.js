@@ -101,7 +101,7 @@ var admin_control = function(request){
 						console.error(err);
 						return;
 					}
-					req.io.room(request.user.game_id).broadcast("stageUpdated", newStage);
+					req.io.room(req.user.game_id).broadcast("stageUpdated", newStage);
 				});
 
 				clearPeriodData(userGame);
@@ -145,7 +145,7 @@ var admin_control = function(request){
 						console.error(err);
 						return;
 					}
-					req.io.room(request.user.game_id).broadcast("stageUpdated", newStage);
+					req.io.room(req.user.game_id).broadcast("stageUpdated", newStage);
 				});
 
 				clearPeriodData(userGame);
@@ -184,10 +184,10 @@ function randomizeBuyOrder(userGame, callback) {
 					console.error(err);
 					return;
 				}
+				callback();
 			});
 		});
 	});
-	callback();
 }
 
 function shuffle(array) {

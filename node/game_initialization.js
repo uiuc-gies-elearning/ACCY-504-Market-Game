@@ -27,7 +27,7 @@ var game_initialization = function(request){
 				return;
 			}
 			var game_id = result.insertId;
-			serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, request.user.user_id], function(err, result){
+			serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, req.user.user_id], function(err, result){
 				if (err) {
 					console.error(err);
 					return;
@@ -43,7 +43,7 @@ var game_initialization = function(request){
 						console.error(err);
 						return;
 					}
-					serverfile.connection.query('INSERT INTO `game owner` (user_id, game_id) values (?, ?)', [request.user.user_id, game_id], function(err, result) {
+					serverfile.connection.query('INSERT INTO `game owner` (user_id, game_id) values (?, ?)', [req.user.user_id, game_id], function(err, result) {
 						if (err) {
 							console.error(err);
 							return;

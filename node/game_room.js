@@ -3,7 +3,7 @@ var serverfile = require('./server.js');
 var game_room = function(request){
     
 	serverfile.app.io.route('getRole', function(req) {
-		req.io.emit('userRole', request.user.role_id);
+		req.io.emit('userRole', req.user.role_id);
 	});
 
 	serverfile.app.io.route('loadGames', function(req) {
@@ -26,7 +26,7 @@ var game_room = function(request){
     
 	serverfile.app.io.route('selectGame', function(req) {
 		var game_id = req.data;
-		var user = request.user.user_id;
+		var user = req.user.user_id;
         serverfile.connection.query('SELECT user_id FROM `game owner` WHERE game_id = ?', game_id, function(err, result) {
             if (err) {
                 console.error(err);
@@ -35,7 +35,7 @@ var game_room = function(request){
             var isOwner = false;
             if(result[0]["user_id"] == user)
                 isOwner = true;
-            if(request.user.role_id == 3 && !isOwner)
+            if(req.user.role_id == 3 && !isOwner)
                 req.io.emit('joinFail', 'notOwner');
             else{
                 serverfile.connection.query('SELECT user_id, role_id FROM user WHERE game_id = ?', game_id, function(err, result) {
@@ -54,9 +54,9 @@ var game_room = function(request){
                             else if(result[i]['role_id'] == 2)
                                 sellerCount++;
                         }
-                        if(buyerCount >= 4 && request.user.role_id == 1)
+                        if(buyerCount >= 4 && req.user.role_id == 1)
                             req.io.emit('joinFail', 'buyersFull');
-                        else if(sellerCount >=3 && request.user.role_id == 2)
+                        else if(sellerCount >=3 && req.user.role_id == 2)
                             req.io.emit('joinFail', 'sellersFull');
                         else{
                             serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, user], function(err, result) {
@@ -64,7 +64,7 @@ var game_room = function(request){
                                     console.error(err);
                                     return;
                                 }
-                                userInitialization(request.user.role_id, game_id, function(){
+                                userInitialization(req.user.role_id, game_id, function(){
                                     req.io.emit('gameSelected');
                                 });
                             });

@@ -12,7 +12,7 @@ var auditor_bid = function(request){
 	var userGame = request.user.game_id;
 
 	serverfile.app.io.route('bidSubmitted', function(req) {
-		var user = request.user.user_id;
+		var user = req.session.user_id;
 		var bid = {
 			user_id : user,
 			bid_amount : req.data
@@ -74,7 +74,7 @@ var auditor_bid = function(request){
 					});
 				}
 				else
-					req.io.emit("bidWait", request.user.role_id);
+					req.io.emit("bidWait", req.user.role_id);
 			});
 		});
 	});

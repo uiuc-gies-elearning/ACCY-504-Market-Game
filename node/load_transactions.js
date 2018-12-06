@@ -83,7 +83,7 @@ var load_transactions = function(request){
 				}
 		    	var info = {
 		    		phase : phase,
-		    		audited : request.user.audited,
+		    		audited : req.user.audited,
 		    		sellerAudit : null
 		    	};
 

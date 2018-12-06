@@ -27,7 +27,16 @@
 			</div>
 			<div class="jumbotron">
 				<h4 id="message" class="alert alert-success"></h4>
-				<h4 id="position"></h4>
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Teamname</th>
+							<th scope="col">Buy Position</th>
+						</tr>
+					</thead>
+						<tbody id="position">
+					</tbody>
+				</table>
 				<h2>Sale History</h2>
 				<table class="table">
 					<thead>
@@ -113,10 +122,19 @@
 			});
 
 			socket.on('waitInfo', function(data) {
-				pos = data.buyPos;
+				//pos = data.buyPos;
 				stage = data.stage;
 				auditCustomer = data.auditCustomer;
-				document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+				//document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+				var tbody = document.getElementById('position');
+				for(var i=0; i<data.allBuyPos.length; i++){
+					var row = tbody.insertRow();
+					var cell1 = row.insertCell();
+					cell1.innerHTML = data.allBuyPos[i]['teamname'];
+
+					var cell2 = row.insertCell();
+					cell2.innerHTML = data.allBuyPos[i]['buy_pos'];
+				}
 				if(stage == 0)
 					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
 				else if(stage == 6)

@@ -26,12 +26,12 @@
 				<h1>Results Screen</h1>
 			</div>
 			<div class="jumbotron">
-				<h4 class="alert alert-success">Please wait for the professor to go to the next period/phase.</h4>
+				<h4 class="alert alert-success">Please wait for the professor to go to the next period.</h4>
 				<h2>Sale History</h2>
 				<table class="table">
 					<thead>
 						<tr>
-							<th scope="col">Phase and Period</th>
+							<th scope="col">Period</th>
 							<th scope="col">Seller 1</th>
 							<th scope="col">Seller 2</th>
 							<th scope="col">Seller 3</th>
@@ -69,7 +69,7 @@
 				for(i=0; i<data.phase.length; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
-					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					th.innerHTML = "Period: " + data.period[i];
 					row.appendChild(th);
 
 					var cell1 = row.insertCell();

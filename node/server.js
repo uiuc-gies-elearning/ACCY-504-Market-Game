@@ -48,7 +48,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 //The secret is used to calculate the hashing of the session cookie so it can't be as easily hacked
-app.use(session({
+app.use(express.session({
     secret: 'SuperUberSecretCode',
     resave: true,
     saveUninitialized: true
@@ -115,7 +115,7 @@ app.get('/login', function(req, res) {
 });
 
 //Process the login form. Uses the local-login function from passport, which was altered
-//in Config/passport.js. Check there to see what the function is actually doing
+//in config/passport.js. Check there to see what the function is actually doing
 app.post('/login', passport.authenticate('local-login', {
         successRedirect : '/redirect',
         failureRedirect : '/login',
@@ -136,7 +136,7 @@ app.get('/signup', function(req, res) {
 });
 
 //Similar to the login form, this page is using the HTTP POST request to submit a form which
-//is then processed by passport in a predefined way set in Config/passport.js
+//is then processed by passport in a predefined way set in config/passport.js
 app.post('/signup', passport.authenticate('local-signup', {
     successRedirect : '/redirect', 
     failureRedirect : '/signup',
@@ -186,7 +186,6 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
                     res.redirect('results');
                 else{
                     res.redirect('buyer_wait');
-                    console.log("Request user:" + req.user.user_id);
                 }
             }
             else if(role == 2){ //If user role is seller
@@ -244,6 +243,7 @@ app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
 
 app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_selection.ejs'));
+    req.session.user_id = req.user.user_id;
     seller_selection.seller_select(req);
     joinRoom(req);
 });
@@ -280,6 +280,7 @@ app.get('/results', isLoggedIn, function(req, res, next) {
 
 app.get('/auditor_bid', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/auditor_bid.ejs'));
+    req.session.user_id = req.user.user_id;
     auditor_bid.auditor_bid(req);
     joinRoom(req);
 });
@@ -294,7 +295,7 @@ app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
             }
             var stage = result[0]['stage_id'];
             request.io.emit('stage', stage);
-        }); 
+        });
     });
     joinRoom(req);
 });
@@ -341,5 +342,5 @@ function isAdmin(req, res, next) {
     res.redirect('/redirect');
 }
 
-//connection.end(); ???????????????????????? 
+//connection.end();
 //Do this if Sleep Queries become a problem (i.e. timeout isn't fast enough and connection pool fills up)

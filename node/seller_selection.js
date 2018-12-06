@@ -28,6 +28,7 @@ var seller_select = function(request){
     //SOCKET FUNCTION: checkAudit
     //Returns phase and whether user is audited or not in order to display message to show the seller if they
     //won the auditor bid or not
+
     serverfile.app.io.route('checkAudit', function(req) {
 	    serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = ?', userGame, function(err, result) {
 	    	if (err) {
@@ -43,7 +44,7 @@ var seller_select = function(request){
 
 					var phase = result[0]["cur_phase"];
 					
-					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', request.user.user_id, function(err, result) {
+					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', req.session.user_id, function(err, result) {
 						var audited = result[0]['audited'];
 
 						var info = {
@@ -58,11 +59,14 @@ var seller_select = function(request){
 	    });
     });
 
+
+
     //SOCKET FUNCTION: pickedQuality
     //Submits seller sale entry into 'offers'. Checks if all sellers have submitted their offers,
     //and then it updates the stage.
+ 
     serverfile.app.io.route('pickedQuality', function(req) {
-    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ? AND game_id = ?', [request.user.user_id, userGame], function(err, result) {
+    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ? AND game_id = ?', [req.session.user_id, userGame], function(err, result) {
     		if (err) {
 				console.error(err);
 				return;
@@ -92,13 +96,13 @@ var seller_select = function(request){
 				    			console.error(err);
 				    			return;
 				    		}
-				    		req.io.room(request.user.game_id).broadcast("stageUpdated", 1);
+				    		req.io.room(req.user.game_id).broadcast("stageUpdated", 1);
 				    		req.io.emit("offerSubmitted");
 				    	});
 				    }
 				    else{
 				    	req.io.emit("offerSubmitted");
-				    	req.io.room(request.user.game_id).broadcast('updateOffers');
+				    	req.io.room(req.user.game_id).broadcast('updateOffers');
 				    }
 		    	});
 	    	});
