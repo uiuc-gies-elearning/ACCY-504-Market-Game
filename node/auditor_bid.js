@@ -74,7 +74,7 @@ var auditor_bid = function(request){
 					});
 				}
 				else
-					req.io.emit("bidWait", req.user.role_id);
+					req.io.emit("bidWait", req.session.role_id);
 			});
 		});
 	});

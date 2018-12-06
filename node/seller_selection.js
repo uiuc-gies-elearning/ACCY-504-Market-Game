@@ -96,13 +96,13 @@ var seller_select = function(request){
 				    			console.error(err);
 				    			return;
 				    		}
-				    		req.io.room(req.user.game_id).broadcast("stageUpdated", 1);
+				    		req.io.room(req.session.game_id).broadcast("stageUpdated", 1);
 				    		req.io.emit("offerSubmitted");
 				    	});
 				    }
 				    else{
 				    	req.io.emit("offerSubmitted");
-				    	req.io.room(req.user.game_id).broadcast('updateOffers');
+				    	req.io.room(req.session.game_id).broadcast('updateOffers');
 				    }
 		    	});
 	    	});

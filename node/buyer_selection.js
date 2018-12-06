@@ -46,7 +46,7 @@ var buyer_select = function(request){
 					return;
 				}
 		    	var info = {
-		    		pos : request.user.buy_pos,
+		    		pos : req.session.buy_pos,
 		    		phase : phase,
 		    		audited : request.user.audited,
 		    		sellerAudit : null,
@@ -116,7 +116,7 @@ var buyer_select = function(request){
 					console.error(err);
 					return;
 				}
-				var user = request.user.user_id;
+				var user = req.session.user_id;
 				var seller = result[0]["seller_id"]
 				serverfile.connection.query('SELECT buyer_id FROM `buyer list` WHERE user_id = ? AND game_id = ?', [user, userGame], function(err, result) {
 					if (err) {
@@ -140,7 +140,7 @@ var buyer_select = function(request){
 										return;
 									}
 									updateHistory(userGame);
-									req.io.room(request.user.game_id).broadcast("stageUpdated", 6);
+									req.io.room(req.session.game_id).broadcast("stageUpdated", 6);
 								});
 							}
 						});
@@ -161,7 +161,7 @@ var buyer_select = function(request){
 	    			if (err) {
 						console.error(err);
 						return;
-						serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', request.user.game_id, function(err, result){
+						serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', req.session.game_id, function(err, result){
 							if(result.length >= 4){
 								serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = ?', userGame, function(err, result){
 									if (err) {
@@ -169,7 +169,7 @@ var buyer_select = function(request){
 										return;
 									}
 									updateHistory(userGame);
-									req.io.room(request.user.game_id).broadcast("stageUpdated", 6);
+									req.io.room(req.session.game_id).broadcast("stageUpdated", 6);
 								});
 							}
 						});
@@ -179,7 +179,7 @@ var buyer_select = function(request){
 	    	});
     	}
 
-		serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', request.user.game_id, function(err, result){
+		serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', req.session.game_id, function(err, result){
 			if(result.length < 4){
 				serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
 					if (err) {
@@ -192,7 +192,7 @@ var buyer_select = function(request){
 							console.error(error);
 							return;
 						}
-						req.io.room(request.user.game_id).broadcast("stageUpdated", new_stage);
+						req.io.room(req.session.game_id).broadcast("stageUpdated", new_stage);
 					});
 				});
 			}

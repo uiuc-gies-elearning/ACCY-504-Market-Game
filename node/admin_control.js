@@ -101,7 +101,7 @@ var admin_control = function(request){
 						console.error(err);
 						return;
 					}
-					req.io.room(req.user.game_id).broadcast("stageUpdated", newStage);
+					req.io.room(req.session.game_id).broadcast("stageUpdated", newStage);
 				});
 
 				clearPeriodData(userGame);
@@ -145,7 +145,7 @@ var admin_control = function(request){
 						console.error(err);
 						return;
 					}
-					req.io.room(req.user.game_id).broadcast("stageUpdated", newStage);
+					req.io.room(req.session.game_id).broadcast("stageUpdated", newStage);
 				});
 
 				clearPeriodData(userGame);
