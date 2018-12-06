@@ -44,7 +44,7 @@ var seller_select = function(request){
 
 					var phase = result[0]["cur_phase"];
 					
-					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', req.session.user_id, function(err, result) {
+					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', req.session.user.user_id, function(err, result) {
 						var audited = result[0]['audited'];
 
 						var info = {
@@ -66,7 +66,7 @@ var seller_select = function(request){
     //and then it updates the stage.
  
     serverfile.app.io.route('pickedQuality', function(req) {
-    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ? AND game_id = ?', [req.session.user_id, userGame], function(err, result) {
+    	serverfile.connection.query('SELECT seller_id FROM `seller list` WHERE user_id = ? AND game_id = ?', [req.session.user.user_id, userGame], function(err, result) {
     		if (err) {
 				console.error(err);
 				return;
@@ -96,13 +96,13 @@ var seller_select = function(request){
 				    			console.error(err);
 				    			return;
 				    		}
-				    		req.io.room(req.session.game_id).broadcast("stageUpdated", 1);
+				    		req.io.room(req.session.user.game_id).broadcast("stageUpdated", 1);
 				    		req.io.emit("offerSubmitted");
 				    	});
 				    }
 				    else{
 				    	req.io.emit("offerSubmitted");
-				    	req.io.room(req.session.game_id).broadcast('updateOffers');
+				    	req.io.room(req.session.user.game_id).broadcast('updateOffers');
 				    }
 		    	});
 	    	});

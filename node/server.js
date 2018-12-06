@@ -67,6 +67,13 @@ var connection = mysql.createConnection({
     database: "mydb"
 });
 
+/*var connection = mysql.createConnection({
+    host: "206.81.2.182",
+    user: "admin",
+    password: "5615f1f95884b2c3252ed34a13e0241ce442703b627261f9",
+    database: "mydb"
+});*/
+
 //Try connection
 connection.connect(function(err) {
     if (err) throw err;
@@ -229,6 +236,7 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
 
 app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/admin_control.ejs'));
+    req.session.user_id = req.user.user_id;
     admin_control.admin_control(req);
     load_transactions.load_transactions(req);
     load_leaderboard.load_leaderboard(req);
@@ -238,6 +246,7 @@ app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
 
 app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_initialization.ejs'));
+    req.session.user_id = req.user.user_id;
     game_initialization.game_initialization(req);
 });
 
@@ -250,6 +259,7 @@ app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
 
 app.get('/buyer_selection', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_selection.ejs'));
+    req.session.user = req.user;
     buyer_selection.buyer_select(req);
     load_transactions.load_transactions(req);
     joinRoom(req);
@@ -257,6 +267,7 @@ app.get('/buyer_selection', isLoggedIn, isBuyer, function(req, res, next) {
 
 app.get('/buyer_wait', isLoggedIn, isBuyer, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/buyer_wait.ejs'));
+    req.session.user = req.user;
     load_history.load_history(req);
     load_transactions.load_transactions(req);
     joinRoom(req);
@@ -265,6 +276,7 @@ app.get('/buyer_wait', isLoggedIn, isBuyer, function(req, res, next) {
 
 app.get('/seller_wait', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_wait.ejs'));
+    req.session.user = req.user;
     load_history.load_history(req);
     wait.wait(req);
     load_transactions.load_transactions(req);
@@ -280,15 +292,16 @@ app.get('/results', isLoggedIn, function(req, res, next) {
 
 app.get('/auditor_bid', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/auditor_bid.ejs'));
-    req.session.user_id = req.user.user_id;
+    req.session.user = req.user;
     auditor_bid.auditor_bid(req);
     joinRoom(req);
 });
 
 app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/audit_wait.ejs'));
+    req.session.user = req.user;
     app.io.route('getStage', function(request) {
-        connection.query('SELECT stage_id FROM game WHERE game_id = ?', req.user.game_id, function(err, result) {
+        connection.query('SELECT stage_id FROM game WHERE game_id = ?', req.session.user.game_id, function(err, result) {
             if (err) {
                 console.error(err);
                 return;
@@ -302,6 +315,7 @@ app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
 
 app.get('/game_room', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_room.ejs'));
+    req.session.user_id = req.user.user_id;
     game_room.game_room(req);
 });
 

@@ -3,7 +3,7 @@ var serverfile = require('./server.js');
 var game_room = function(request){
     
 	serverfile.app.io.route('getRole', function(req) {
-		req.io.emit('userRole', req.session.role_id);
+		req.io.emit('userRole', req.session.user.role_id);
 	});
 
 	serverfile.app.io.route('loadGames', function(req) {
@@ -26,7 +26,7 @@ var game_room = function(request){
     
 	serverfile.app.io.route('selectGame', function(req) {
 		var game_id = req.data;
-		var user = req.session.user_id;
+		var user = req.session.user.user_id;
         serverfile.connection.query('SELECT user_id FROM `game owner` WHERE game_id = ?', game_id, function(err, result) {
             if (err) {
                 console.error(err);
@@ -35,7 +35,7 @@ var game_room = function(request){
             var isOwner = false;
             if(result[0]["user_id"] == user)
                 isOwner = true;
-            if(req.session.role_id == 3 && !isOwner)
+            if(req.session.user.role_id == 3 && !isOwner)
                 req.io.emit('joinFail', 'notOwner');
             else{
                 serverfile.connection.query('SELECT user_id, role_id FROM user WHERE game_id = ?', game_id, function(err, result) {
@@ -54,9 +54,9 @@ var game_room = function(request){
                             else if(result[i]['role_id'] == 2)
                                 sellerCount++;
                         }
-                        if(buyerCount >= 4 && req.session.role_id == 1)
+                        if(buyerCount >= 4 && req.session.user.role_id == 1)
                             req.io.emit('joinFail', 'buyersFull');
-                        else if(sellerCount >=3 && req.session.role_id == 2)
+                        else if(sellerCount >=3 && req.session.user.role_id == 2)
                             req.io.emit('joinFail', 'sellersFull');
                         else{
                             serverfile.connection.query('UPDATE user SET game_id = ? WHERE user_id = ?', [game_id, user], function(err, result) {
@@ -64,7 +64,7 @@ var game_room = function(request){
                                     console.error(err);
                                     return;
                                 }
-                                userInitialization(req.session.role_id, game_id, function(){
+                                userInitialization(req.session.user.role_id, game_id, function(){
                                     req.io.emit('gameSelected');
                                 });
                             });
@@ -77,7 +77,7 @@ var game_room = function(request){
 	});
 
 	function userInitialization(role, game, callback) {
-        var userID = request.user.user_id;
+        var userID = request.session.user.user_id;
         
         if(role == 1){
             serverfile.connection.query('SELECT buyer_number FROM `buyer list` WHERE game_id = ? ORDER BY buyer_id DESC LIMIT 1', game, function(err, result){
