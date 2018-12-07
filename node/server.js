@@ -237,6 +237,7 @@ app.get('/redirect', isLoggedIn, function(req, res, next) {
 app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/admin_control.ejs'));
     req.session.user_id = req.user.user_id;
+    req.session.user = req.user;
     admin_control.admin_control(req);
     load_transactions.load_transactions(req);
     load_leaderboard.load_leaderboard(req);
@@ -247,12 +248,14 @@ app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
 app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_initialization.ejs'));
     req.session.user_id = req.user.user_id;
+    req.session.user = req.user;
     game_initialization.game_initialization(req);
 });
 
 app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/seller_selection.ejs'));
     req.session.user_id = req.user.user_id;
+    req.session.user = req.user;
     seller_selection.seller_select(req);
     joinRoom(req);
 });
@@ -315,7 +318,7 @@ app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
 
 app.get('/game_room', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_room.ejs'));
-    req.session.user_id = req.user.user_id;
+    req.session.user = req.user.user_id;
     game_room.game_room(req);
 });
 

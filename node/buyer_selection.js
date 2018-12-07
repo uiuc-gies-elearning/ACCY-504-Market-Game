@@ -382,7 +382,7 @@ function sellerProfitUpdate(saleHistory, userGame) {
 }
 
 function saleHistoryInsert(saleHistory){
-	serverfile.connection.query('INSERT INTO `Sale History` SET ?', saleHistory, function(err, result) {
+	serverfile.connection.query('INSERT INTO `sale history` SET ?', saleHistory, function(err, result) {
 		if (err) {
 			console.error(err);
 			return;
@@ -391,7 +391,7 @@ function saleHistoryInsert(saleHistory){
 }
 
 function buyHistoryInsert(buyHistory){
-	serverfile.connection.query('INSERT INTO `Buy History` SET ?', buyHistory, function(err, result) {
+	serverfile.connection.query('INSERT INTO `buy history` SET ?', buyHistory, function(err, result) {
 		if (err) {
 			console.error(err);
 			return;

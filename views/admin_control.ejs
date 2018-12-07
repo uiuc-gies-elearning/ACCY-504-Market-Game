@@ -252,6 +252,7 @@
 					document.getElementById("message").innerHTML = "Results are being shown to players."
 					socket.emit('loadBids');
 					socket.emit('buyerUpdate');
+					socket.emit('loadLeaderboard');
 					document.getElementById("periodButton").disabled = false;
 					if(curPhase != 3)
 						document.getElementById("phaseButton").disabled = false;  
