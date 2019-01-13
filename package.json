@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "A web app version of an in-class market simulation",
   "dependencies": {
-    "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
@@ -19,8 +18,8 @@
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
-    "npm": "^6.2.0",
     "coffeescript": "^2.3.1",
-    "connect": "^3.6.6"
+    "connect": "^3.6.6",
+    "npm": "^6.5.0"
   }
 }
