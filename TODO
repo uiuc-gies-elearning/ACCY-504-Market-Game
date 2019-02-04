@@ -1,0 +1,22 @@
+TODO
+
+•	Professor needs to know audit amounts
+•	Professor should see results history
+•	Adding some instructions
+•	Protecting URLs
+•	Force button (way to get around a team not inputting decisions)
+•	Salting & hashing passwords
+•	Removing the professor radio button from the create user screen
+•	More testing with multiple players
+•	Adding an email address field for future use
+
+ALTER TABLE `mydb`.`history` 
+ADD COLUMN `audited_user` INT NULL DEFAULT NULL AFTER `cur_period`,
+ADD INDEX `audited_user_idx` (`audited_user` ASC) VISIBLE;
+;
+ALTER TABLE `mydb`.`history` 
+ADD CONSTRAINT `audited_user`
+  FOREIGN KEY (`audited_user`)
+  REFERENCES `mydb`.`user` (`user_id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;

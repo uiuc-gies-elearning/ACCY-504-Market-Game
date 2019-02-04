@@ -38,7 +38,7 @@
 						<tbody id="games">
 					</tbody>
 				</table>
-				<button hidden type="button" class="btn btn-info hidden" id="newGame" onclick='window.location.replace(`/game_initialization`)'>Create New Game</button>
+				<button type="button" class="btn btn-info hidden" id="newGame" onclick='window.location.replace(`/game_initialization`)'>Create New Game</button>
 			</div>
 		</div>
 
@@ -53,6 +53,9 @@
 
 			socket.on('userRole', function(data){
 				role = data;
+				console.log(role);
+				if(role == 3)
+					document.getElementById("newGame").className = "btn btn-info";	
 				socket.emit('loadGames');
 			});
 
@@ -70,8 +73,6 @@
 					var cell3 = row.insertCell();
 					cell3.innerHTML = '<button type="button" class="btn btn-success" onclick="joinGame(' + data.game_id[i] + ')">Join Game</button>';
 				}
-				if(role == 3)
-					document.getElementById("newGame").classList.remove("hidden");	
 			});
 
 			socket.on('gameSelected', function(data){
