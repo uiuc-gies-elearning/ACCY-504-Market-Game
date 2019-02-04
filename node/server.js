@@ -68,10 +68,10 @@ var connection = mysql.createConnection({
 });
 
 /*var connection = mysql.createConnection({
-    host: "206.81.2.182",
-    user: "admin",
-    password: "5615f1f95884b2c3252ed34a13e0241ce442703b627261f9",
-    database: "mydb"
+    host: 'localhost',
+    user: 'marketgame_admin',
+    password: 'lz0n1y32psvf',
+    database: 'marketgame_mydb'
 });*/
 
 //Try connection
