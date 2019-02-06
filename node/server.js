@@ -20,6 +20,7 @@ var app = express();
 
 //HTTP connection with express.io
 app.http().io();
+var server = require('http').createServer(app);
 
 //Passport is a Node JS library that allows for easy authentication
 var passport = require('passport');
@@ -89,6 +90,9 @@ exports.connection = connection;
 app.listen(3000, function(){
     console.log('listening on *:3000');
 });
+
+express.io.listen(server);
+server.listen(8036, function (){},function(){});
 
 app.use(express.static(path.join(__dirname, '..', 'images')));
 
@@ -318,7 +322,7 @@ app.get('/audit_wait', isLoggedIn, isSeller, function(req, res, next) {
 
 app.get('/game_room', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/game_room.ejs'));
-    req.session.user = req.user.user_id;
+    req.session.user = req.user;
     game_room.game_room(req);
 });
 

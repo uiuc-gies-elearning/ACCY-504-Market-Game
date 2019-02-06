@@ -3,7 +3,7 @@ var serverfile = require('./server.js');
 var game_room = function(request){
     
 	serverfile.app.io.route('getRole', function(req) {
-		req.io.emit('userRole', request.user.role_id);
+		req.io.emit('userRole', req.session.user.role_id);
 	});
 
 	serverfile.app.io.route('loadGames', function(req) {
