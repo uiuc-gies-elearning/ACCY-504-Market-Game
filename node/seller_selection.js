@@ -30,33 +30,26 @@ var seller_select = function(request){
     //won the auditor bid or not
 
     serverfile.app.io.route('checkAudit', function(req) {
-	    serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = ?', userGame, function(err, result) {
-	    	if (err) {
+	
+    	serverfile.connection.query('SELECT cur_phase FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
+    		if (err) {
 				console.error(err);
 				return;
 			}
-			if(result[0]["customer_id"] == 2){
-		    	serverfile.connection.query('SELECT cur_phase FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
-		    		if (err) {
-						console.error(err);
-						return;
-					}
 
-					var phase = result[0]["cur_phase"];
-					
-					serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', req.session.user.user_id, function(err, result) {
-						var audited = result[0]['audited'];
+			var phase = result[0]["cur_phase"];
+			
+			serverfile.connection.query('SELECT audited FROM user WHERE user_id = ?', req.session.user.user_id, function(err, result) {
+				var audited = result[0]['audited'];
 
-						var info = {
-							phase : phase,
-							audited : audited
-						}
+				var info = {
+					phase : phase,
+					audited : audited
+				}
 
-						req.io.emit("auditChecked", info);
-					});
-		    	});
-			}
-	    });
+				req.io.emit("auditChecked", info);
+			});
+    	});
     });
 
 

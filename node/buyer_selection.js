@@ -50,8 +50,7 @@ var buyer_select = function(request){
 		    		phase : phase,
 		    		audited : req.session.user.audited,
 		    		sellerAudit : null,
-		    		sellerDisable : [null, null, null],
-		    		auditCustomer : null
+		    		sellerDisable : [null, null, null]
 		    	};
 
 		    	if(result.length != 0)
@@ -90,14 +89,7 @@ var buyer_select = function(request){
 							else
 								info.sellerDisable[offers[i].seller_number-1] = false;
 						}
-						serverfile.connection.query('SELECT customer_id FROM auditor WHERE game_id = ?', userGame, function(err, result) {
-		    				if (err) {
-		    					console.error(err);
-		    					return;
-		    				}
-		    				info.auditCustomer = result[0]["customer_id"];
-		    				req.io.emit('receivedInfo', info);
-						});
+						req.io.emit('receivedInfo', info);
 					});
 		    	});
 	    	});

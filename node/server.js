@@ -75,6 +75,13 @@ var connection = mysql.createConnection({
     database: 'marketgame_mydb'
 });*/
 
+/*var connection = mysql.createConnection({
+    host: '206.189.205.150',
+    user: 'admin',
+    password: 'a124191ad08b94b5f242c1ef8ae8b03229597ec39442d26d',
+    database: 'mydb'
+});*/
+
 //Try connection
 connection.connect(function(err) {
     if (err) throw err;
