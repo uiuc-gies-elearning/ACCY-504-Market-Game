@@ -20,7 +20,7 @@ var app = express();
 
 //HTTP connection with express.io
 app.http().io();
-var server = require('http').createServer(app);
+//var server = require('http').createServer(app);
 
 //Passport is a Node JS library that allows for easy authentication
 var passport = require('passport');
@@ -91,8 +91,8 @@ app.listen(3000, function(){
     console.log('listening on *:3000');
 });
 
-express.io.listen(server);
-server.listen(8036, function (){},function(){});
+//express.io.listen(server);
+//server.listen(80, function (){},function(){});
 
 app.use(express.static(path.join(__dirname, '..', 'images')));
 

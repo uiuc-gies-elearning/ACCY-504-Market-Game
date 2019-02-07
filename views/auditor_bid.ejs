@@ -41,7 +41,7 @@
 		</div>
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
-			var socket = io.connect('http://localhost', { port: 3000 });
+			var socket = io.connect();
 			var countDecimals = function(value) {
 			    if (Math.floor(value) != value)
 			        return value.toString().split(".")[1].length || 0;
