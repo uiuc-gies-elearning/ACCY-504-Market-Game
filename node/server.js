@@ -61,12 +61,12 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 //Sign in to create connection with MySQL database
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "1259",
     database: "mydb"
-});
+});/*
 
 /*var connection = mysql.createConnection({
     host: 'localhost',
@@ -75,12 +75,13 @@ var connection = mysql.createConnection({
     database: 'marketgame_mydb'
 });*/
 
-/*var connection = mysql.createConnection({
+var connection = mysql.createConnection({
     host: '206.189.205.150',
-    user: 'admin',
-    password: 'a124191ad08b94b5f242c1ef8ae8b03229597ec39442d26d',
+    user: 'marketgameAdmin',
+    password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
-});*/
+});
+
 
 //Try connection
 connection.connect(function(err) {
