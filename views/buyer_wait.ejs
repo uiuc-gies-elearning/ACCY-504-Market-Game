@@ -124,7 +124,6 @@
 			socket.on('waitInfo', function(data) {
 				//pos = data.buyPos;
 				stage = data.stage;
-				auditCustomer = data.auditCustomer;
 				//document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
 				var tbody = document.getElementById('position');
 				for(var i=0; i<data.allBuyPos.length; i++){
@@ -139,10 +138,8 @@
 					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
 				else if(stage == 6)
 					window.location.replace('/results');
-				else if(stage == 5 && auditCustomer == 2)
-					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their auditor bids.";
-				else if(stage == 5 && auditCustomer == 1)
-					document.getElementById("message").innerHTML = "Please wait for other buyers to finalize their auditor bids.";
+				else if(stage == 5)
+					document.getElementById("message").innerHTML = "Please wait for players to finalize their auditor bids.";
 				else
 					document.getElementById("message").innerHTML = "Please wait for Buyer <strong>" + stage + "</strong> to finish their buy order.";
 			});
