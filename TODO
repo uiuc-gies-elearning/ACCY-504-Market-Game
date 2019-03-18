@@ -1,22 +1,36 @@
-TODO
+## TODO ##
 
-•	Professor needs to know audit amounts
-•	Professor should see results history
-•	Adding some instructions
-•	Protecting URLs
-•	Force button (way to get around a team not inputting decisions)
-•	Salting & hashing passwords
+## Easy
+•	Professor needs to know audit amounts (3 Hours)
+•	Show auditor winner in history/professor dashboard (3 Hours)
+•	Highlight which buy each buyer did (database change?) (5 Hours)
+•	`Fix professor history showing on results (admin_control.ejs:224) (1 Hour)`
+•	`Fix num bids on no buy (admin_control.js:58) (1 Hour)`
+•	Make profits update for professor at end of period (1 Hour)
+•	*Color for Qualities (2 Hours)*
+•	`Change Seller Number in Sale History to show names (2 Hours)`
+•	(Option for) show asking prices all at once (4 Hours)
+•	Adding some instructions (pop up) (4 Hours)
+•	Force button (way to get around a team not inputting decisions) (2 Hours)
+•	Salting & hashing passwords (2 Hours)
 •	Removing the professor radio button from the create user screen
+•	Protecting URLs
+•	Viewport for Mobile (https://www.w3schools.com/css/css_rwd_viewport.asp)
+•	Fixing U of I logo scaling
+•	Worksheet download
+
+## Medium
+•	Units sold graph
+•	Graphing Profits 
+
+## Hard
+•	Professor seeing what gets inputted into worksheet
+•	Cumulative profits for buyer/sellers, wealth transfer (Difference between profits of sellers/buyers, show over time)
+•	Bar graph showing qualities sold/bought
+•	Average price for each quality (axis for price, axis for quality)
+•	Increase number of buyers/sellers
+
+## Later
 •	More testing with multiple players
 •	Adding an email address field for future use
-
-ALTER TABLE `mydb`.`history` 
-ADD COLUMN `audited_user` INT NULL DEFAULT NULL AFTER `cur_period`,
-ADD INDEX `audited_user_idx` (`audited_user` ASC) VISIBLE;
-;
-ALTER TABLE `mydb`.`history` 
-ADD CONSTRAINT `audited_user`
-  FOREIGN KEY (`audited_user`)
-  REFERENCES `mydb`.`user` (`user_id`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+•   Toggle leaderboard
