@@ -334,6 +334,8 @@ app.get('/game_room', isLoggedIn, function(req, res, next) {
     game_room.game_room(req);
 });
 
+app.get('/profits', isLoggedIn, exports.profits)
+
 function joinRoom(request) {
     app.io.route('joinRoom', function(req) {
         req.io.join(request.user.game_id);
