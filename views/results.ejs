@@ -5,13 +5,6 @@
 			Results
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<style>
-			img {
-			    position: absolute;
-			    top: 36px;
-			    right: 150px;
-			}
-		</style>
 	</head>
 
 	<body onload="start()">
@@ -22,8 +15,7 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
-		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
-				<h1>Results Screen</h1>
+				<h1>Results Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
 			</div>
 			<div class="jumbotron">
 				<h4 class="alert alert-success">Please wait for the professor to go to the next period.</h4>
@@ -32,9 +24,9 @@
 					<thead>
 						<tr>
 							<th scope="col">Period</th>
-							<th scope="col">Seller 1</th>
-							<th scope="col">Seller 2</th>
-							<th scope="col">Seller 3</th>
+							<th scope="col" id="historySeller1">Seller 1</th>
+							<th scope="col" id="historySeller2">Seller 2</th>
+							<th scope="col" id="historySeller3">Seller 3</th>
 						</tr>
 					</thead>
 						<tbody id="history">
@@ -58,26 +50,63 @@
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var socket = io.connect();
+			var playerData;
 			function start(){
 				socket.emit('joinRoom');
-				socket.emit('loadHistory');
 				socket.emit('loadLeaderboard');
+				socket.emit('getSessionData');
 			}
+
+			socket.on('sessionData', function(data){
+				playerData = data;
+				socket.emit('loadHistory');
+			});
 
 			socket.on('historyLoaded', function(data) {
 				var tbody = document.getElementById('history');
+				for(i = 0; i < 3; i++){
+					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
+				}
 				for(i=0; i<data.phase.length; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
 					th.innerHTML = "Period: " + data.period[i];
 					row.appendChild(th);
 
+					console.log(playerData)
 					var cell1 = row.insertCell();
 					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					if(playerData.role == 1){
+						if(data.sellerBought[i] == 1)
+							cell1.style = "color:MediumSeaGreen"
+					}
+					if(playerData.role == 2){
+						if(playerData.roleNum == 1)
+							cell1.style = 'color:SteelBlue';
+					}
+
 					var cell2 = row.insertCell();
 					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					if(playerData.role == 1){
+						if(data.sellerBought[i] == 2)
+							cell2.style = "color:MediumSeaGreen"
+					}
+					if(playerData.role == 2){
+						if(playerData.roleNum == 2)
+							cell2.style = 'color:SteelBlue';
+					}
+
+
 					var cell3 = row.insertCell();
 					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+					if(playerData.role == 1){
+						if(data.sellerBought[i] == 3)
+							cell3.style = "color:MediumSeaGreen"
+					}
+					if(playerData.role == 2){
+						if(playerData.roleNum == 3)
+							cell3.style = 'color:SteelBlue';
+					}
 				}
 			});
 

@@ -4,13 +4,6 @@
 		<title>
 			Professor Control
 		</title>
-		<style>
-			img {
-			    position: absolute;
-			    top: 36px;
-			    right: 150px;
-			}
-		</style>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	</head>
 
@@ -22,12 +15,12 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
-		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
-				<h1>Professor Control Interface</h1>
+				<h1>Professor Control Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
 			</div>
 			<div class="jumbotron">
 			   	<div class="form-group">
 			   		<h4 id="message" class="alert alert-success"></h4>
+			   		<h4 hidden id="auditedMessage" class="alert alert-warning"></h4>
 			   		<h4 id="sellers"></h4>
 			   		<h4 id="buyers"></h4>
 			   		<br>
@@ -91,9 +84,9 @@
 					<thead>
 						<tr>
 							<th scope="col">Phase and Period</th>
-							<th scope="col">Seller 1</th>
-							<th scope="col">Seller 2</th>
-							<th scope="col">Seller 3</th>
+							<th scope="col" id="historySeller1">Seller 1</th>
+							<th scope="col" id="historySeller2">Seller 2</th>
+							<th scope="col" id="historySeller3">Seller 3</th>
 						</tr>
 					</thead>
 						<tbody id="saleHistory">
@@ -106,6 +99,7 @@
    		<script>
    			var socket = io.connect();
    			var curPhase, sellerAudit;
+   			var isResults = false;
    			function statLoad(){
    				socket.emit('joinRoom');
    				socket.emit('statLoad');
@@ -115,7 +109,6 @@
 				socket.emit('loadBids');
 				socket.emit('getAuditInfo');
 				socket.emit('loadLeaderboard');
-				socket.emit('loadHistory');
    			}
 			function updatePeriod(){
 				socket.emit('updatePeriod');
@@ -140,12 +133,22 @@
 				document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
 				if(data.phase == 3){
 					document.getElementById("phaseButton").disabled = true;
+					if(data.audited_role != null){
+						document.getElementById("auditedMessage").removeAttribute("hidden");
+						if(data.audited_role == 1)
+							document.getElementById("auditedMessage").innerHTML = "The buyer <strong>" + data.audited_name + "</strong>has won the auditor bid";
+						else
+							document.getElementById("auditedMessage").innerHTML = "The seller <strong>" + data.audited_name + "</strong>has won the auditor bid";
+					}
 				}
 				if(data.stage!=6){
 					document.getElementById("periodButton").disabled = true;
 					document.getElementById("phaseButton").disabled = true;
 				}
 				curPhase = data.phase;
+				if(data.stage == 6)
+					isResults = true;
+				socket.emit('loadHistory');
 			});
 
 			socket.on('bidsLoaded', function(data) {
@@ -191,6 +194,7 @@
 				if(seller1loaded){
 					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
 					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+					parseColor("seller1Quality", data.seller1.quality);
 					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
 				}
 				else
@@ -198,6 +202,7 @@
 				if(seller2loaded){
 					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
 					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+					parseColor("seller2Quality", data.seller2.quality);
 					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
 				}
 				else
@@ -205,6 +210,7 @@
 				if(seller3loaded){
 					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
 					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+					parseColor("seller3Quality", data.seller3.quality);
 					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
 				}
 				else
@@ -221,10 +227,20 @@
 			});
 			socket.on('historyLoaded', function(data) {
 				var tbody = document.getElementById('saleHistory');
+				var historyLength = data.phase.length-1;
+				if(isResults)
+					historyLength++;
+				for(i = 0; i < 3; i++){
+					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
+				}
+				tbody.innerHTML = ""
 				for(i=0; i<data.phase.length-1; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
-					th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					if(data.phase[i] != 3)
+						th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+					else
+						th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i];
 					row.appendChild(th);
 
 					var cell1 = row.insertCell();
@@ -234,6 +250,7 @@
 					var cell3 = row.insertCell();
 					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
 				}
+				isResults = false;
 			});
 
 			socket.on('sellerUpdated', function(data){
@@ -244,8 +261,10 @@
 			});
 
 			socket.on('stageUpdated', function(data){
-				if(data == 0)
+				if(data == 0){
 					document.getElementById("message").innerHTML = "Sellers are currently submitting their asking prices."
+					socket.emit('statLoad');
+				}
 				else if(data == 5)
 					document.getElementById("message").innerHTML = "The auditor is currently being bid on."
 				else if(data == 6){
@@ -253,6 +272,8 @@
 					socket.emit('loadBids');
 					socket.emit('buyerUpdate');
 					socket.emit('loadLeaderboard');
+					isResults = true;
+					socket.emit('loadHistory');
 					document.getElementById("periodButton").disabled = false;
 					if(curPhase != 3)
 						document.getElementById("phaseButton").disabled = false;  
@@ -271,6 +292,7 @@
 
 			socket.on('leaderboardLoaded', function(data) {
 				var tbody = document.getElementById('leaderboard');
+				tbody.innerHTML = "";
 				for(i=0; i<data.teamname.length; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
@@ -311,6 +333,15 @@
 					return "Seller";
 				else
 					return "Error";
+			}
+
+			function parseColor(id, quality){
+				if(quality == 1)
+					document.getElementById(id).style = "color:cornflowerblue"
+				else if(quality == 2)
+					document.getElementById(id).style = "color:green"
+				else
+					document.getElementById(id).style = "color:coral"
 			}
    		</script>
 

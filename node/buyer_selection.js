@@ -214,13 +214,14 @@ function updateHistory(userGame) {
 			return;
 		}
 		var curHistory = result[0]["history_id"];
-		serverfile.connection.query('SELECT offers.* FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?', userGame, function(err, result){
+		serverfile.connection.query('SELECT offers.*, `seller list`.seller_number FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?', userGame, function(err, result){
 			if (err) {
 				console.error(err);
 				return;
 			}
 
 			var sellerIDs = [result[0]["seller_id"], result[1]["seller_id"], result[2]["seller_id"]];
+			var sellerNums = [result[0]["seller_number"], result[1]["seller_number"], result[2]["seller_number"]];
 			var qualities = [result[0]["quality_id"], result[1]["quality_id"], result[2]["quality_id"]];
 			var prices = [result[0]["price"], result[1]["price"], result[2]["price"]];
 
@@ -262,7 +263,7 @@ function updateHistory(userGame) {
 				var allBuyHistories = [];
 				for(i = 0; i<result.length; i++){
 					var curSeller = result[i]["seller_id"];
-					var sellQuality, sellPrice;
+					var sellQuality, sellPrice, sellNum;
 					if(curSeller == null){
 						sellPrice = 0;
 						sellQuality = 4;
@@ -272,6 +273,8 @@ function updateHistory(userGame) {
 							if(curSeller == sellerIDs[n]){
 								sellQuality = qualities[n];
 								sellPrice = prices[n];
+								sellNum = sellerNums[n];
+								break;
 							}
 						}
 					}
@@ -280,7 +283,8 @@ function updateHistory(userGame) {
 						history_id : curHistory,
 						buyer_id : result[i]["buyer_id"],
 						buy_quality : sellQuality,
-						buy_price : sellPrice
+						buy_price : sellPrice,
+						seller_number : sellNum
 					}
 
 					allBuyHistories.push(buyHistory);

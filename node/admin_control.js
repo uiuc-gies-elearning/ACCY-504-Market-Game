@@ -25,7 +25,9 @@ var admin_control = function(request){
 				var stats = {
 					period : period,
 					phase : phase,
-					stage : null
+					stage : null,
+					audited_name : null,
+					audited_role: null
 				};
 				serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
 					if (err) {
@@ -33,7 +35,13 @@ var admin_control = function(request){
 						return;
 					}
 					stats.stage = result[0]["stage_id"];
-					req.io.emit("stats", stats);
+					serverfile.connection.query('SELECT teamname, role_id FROM user WHERE game_id = ? AND audited = 1', userGame, function(err, result){
+						if(result.length > 0){
+							stats.audited_name = result[0]["teamname"];
+							stats.audited_role = result[0]["role_id"];
+						}
+						req.io.emit("stats", stats);
+					});
 				});
 			});
 		});
@@ -56,7 +64,7 @@ var admin_control = function(request){
 	//Uses count of buyers in bid to query # of bids submitted
 	//TODO: Use table joins to check game id as well
 	serverfile.app.io.route('buyerUpdate', function(req) {
-		serverfile.connection.query('SELECT COUNT(*) FROM bid INNER JOIN `seller list` on bid.seller_id = `seller list`.seller_id WHERE game_id = ?', userGame, function(err, result){
+		serverfile.connection.query('SELECT COUNT(*) FROM `buy history` WHERE history_id IN (SELECT MAX(history_id) FROM history WHERE game_id = ?);', userGame, function(err, result){
 			if (err) {
 				console.error(err);
 				return;

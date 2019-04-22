@@ -61,12 +61,12 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 //Sign in to create connection with MySQL database
-/*var connection = mysql.createConnection({
+var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "1259",
     database: "mydb"
-});/*
+});
 
 /*var connection = mysql.createConnection({
     host: 'localhost',
@@ -75,12 +75,12 @@ app.use(flash()); // use connect-flash for flash messages stored in session
     database: 'marketgame_mydb'
 });*/
 
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
-});
+});*/
 
 
 //Try connection
@@ -300,6 +300,28 @@ app.get('/seller_wait', isLoggedIn, isSeller, function(req, res, next) {
 
 app.get('/results', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/results.ejs'));
+    req.session.user = req.user;
+    app.io.route('getSessionData', function(request){
+        var playerData = {
+            role : null,
+            roleNum : null
+        }
+        if(request.session.user.role_id == 1){  // Buyer
+            console.log(request.session.user)
+            connection.query('SELECT buyer_number FROM `buyer list` WHERE user_id = ?', request.session.user.user_id,function(err, result){
+                playerData.role = 1;
+                playerData.roleNum = result[0]['buyer_number'];
+                request.io.emit('sessionData', playerData);
+            });
+        }
+        else if(request.session.user.role_id == 2){ //Seller
+            connection.query('SELECT seller_number FROM `seller list` WHERE user_id = ?', request.session.user.user_id, function(err, result){
+                playerData.role = 2;
+                playerData.roleNum = result[0]['seller_number'];
+                request.io.emit('sessionData', playerData);
+            });
+        }
+    });
     load_history.load_history(req);
     load_leaderboard.load_leaderboard(req);
     joinRoom(req);

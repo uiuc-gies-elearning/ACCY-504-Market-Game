@@ -31,7 +31,7 @@ var auditor_bid = function(request){
 					return;
 				}
 				if(result.length == maxBids){
-					//TODO: Randomize on matching max bids
+					//TODO: Randomize on matching max bids or not, currently selects fastest bidder
 					var bidAmounts = [];
 					var userIDs = [];
 					for(var i = 0; i<result.length; i++){
@@ -66,7 +66,13 @@ var auditor_bid = function(request){
 											console.error(err);
 											return;
 										}
-										serverfile.app.io.room(userGame).broadcast("stageUpdated", 0);
+										serverfile.connection.query('UPDATE history SET audit_winner = (SELECT teamname FROM user WHERE user_id = ?) WHERE game_id = ? ORDER BY cur_period DESC LIMIT 1', [audittedUser, userGame], function(err, result){
+											if (err) {
+												console.error(err);
+												return;
+											}
+											serverfile.app.io.room(userGame).broadcast("stageUpdated", 0);
+										});
 									});
 								});
 							});
