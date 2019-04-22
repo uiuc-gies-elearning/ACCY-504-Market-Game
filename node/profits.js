@@ -1,7 +1,7 @@
-const server = require('server.js')
+const server = require('./server.js')
 
 module.exports.profits = (request, response) => {
-  let gameid = request.session.user.game_id
+  let gameid = request.user.game_id
 
   server.connection.query(
     'SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = ?',
@@ -19,7 +19,7 @@ module.exports.profits = (request, response) => {
       ]
 
       server.connection.query(
-        'SELECT user.teamname, `buy history`.buy_quality, `buy history`.buy_price, history.cur_period FROM `buy history` INNER JOIN history ON `buy history`.history_id = history.history_id INNER JOIN `buyer list` ON `buyer list`.buyer_id = `buy history`.buyer_id INNER JOIN user ON user.user_id = `buyer list`.user_id WHERE game_id = ? ORDER BY `buyer list`.user_id, history.cur_period',
+        'SELECT user.teamname, `buy history`.buy_quality, `buy history`.buy_price, history.cur_period FROM `buy history` INNER JOIN history ON `buy history`.history_id = history.history_id INNER JOIN `buyer list` ON `buyer list`.buyer_id = `buy history`.buyer_id INNER JOIN user ON user.user_id = `buyer list`.user_id WHERE `user`.game_id = ? ORDER BY `buyer list`.user_id, history.cur_period',
         gameid,
         (err, res) => {
           if (err) {

@@ -121,6 +121,7 @@ var load_transactions = require('./load_transactions');
 var wait = require('./wait.js');
 var auditor_bid = require('./auditor_bid.js');
 var game_room = require('./game_room.js');
+var profits = require('./profits.js')
 
 //redirect / to our index.ejs file
 app.get('/', function(req, res, next) {
@@ -334,7 +335,7 @@ app.get('/game_room', isLoggedIn, function(req, res, next) {
     game_room.game_room(req);
 });
 
-app.get('/profits', isLoggedIn, exports.profits)
+app.get('/profits', isLoggedIn, profits.profits)
 
 function joinRoom(request) {
     app.io.route('joinRoom', function(req) {
