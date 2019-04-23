@@ -96,14 +96,14 @@
 					row.appendChild(th);
 
 					var cell1 = row.insertCell();
-					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+					cell1.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
 
 					var cell2 = row.insertCell();
-					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+					cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
 
 
 					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+					cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
 				}
 			});
 
@@ -194,13 +194,11 @@
 
 			function parseQuality(quality){
 				if(quality == 1)
-					return "Low Quality";
+					return "<h style='color: gold'>Low Quality</h>";
 				else if(quality == 2)
-					return "Medium Quality";
+					return "<h style='color: orange'>Medium Quality</h>";
 				else if(quality == 3)
-					return "High Quality";
-				else
-					return "Error";
+					return "<h style='color: crimson'>High Quality</h>";
 			}
 
 			function parsePrice(price) {

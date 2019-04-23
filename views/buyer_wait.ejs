@@ -114,12 +114,12 @@
 						cell2.style = "color:MediumSeaGreen"
 
 					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: $<strong>" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
+					cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
 					if(data.sellerBought[i] == 2)
 						cell3.style = "color:MediumSeaGreen"
 
 					var cell4 = row.insertCell();
-					cell4.innerHTML = "Price: $<strong>" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
+					cell4.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
 					if(data.sellerBought[i] == 3)
 						cell4.style = "color:MediumSeaGreen"
 				}
@@ -246,13 +246,11 @@
 
 			function parseQuality(quality){
 				if(quality == 1)
-					return "Low Quality";
+					return "<h style='color: gold'>Low Quality</h>";
 				else if(quality == 2)
-					return "Medium Quality";
+					return "<h style='color: orange'>Medium Quality</h>";
 				else if(quality == 3)
-					return "High Quality";
-				else
-					return "Error";
+					return "<h style='color: crimson'>High Quality</h>";
 			}
 
 			function parsePrice(price) {

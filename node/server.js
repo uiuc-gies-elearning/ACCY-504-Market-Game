@@ -304,10 +304,10 @@ app.get('/results', isLoggedIn, function(req, res, next) {
     app.io.route('getSessionData', function(request){
         var playerData = {
             role : null,
-            roleNum : null
+            roleNum : null,
+            teamname : request.session.user.teamname
         }
         if(request.session.user.role_id == 1){  // Buyer
-            console.log(request.session.user)
             connection.query('SELECT buyer_number FROM `buyer list` WHERE user_id = ?', request.session.user.user_id,function(err, result){
                 playerData.role = 1;
                 playerData.roleNum = result[0]['buyer_number'];

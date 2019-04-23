@@ -107,7 +107,6 @@
    				socket.emit('buyerUpdate');
    				socket.emit('stageUpdate');
 				socket.emit('loadBids');
-				socket.emit('getAuditInfo');
 				socket.emit('loadLeaderboard');
    			}
 			function updatePeriod(){
@@ -136,9 +135,9 @@
 					if(data.audited_role != null){
 						document.getElementById("auditedMessage").removeAttribute("hidden");
 						if(data.audited_role == 1)
-							document.getElementById("auditedMessage").innerHTML = "The buyer <strong>" + data.audited_name + "</strong>has won the auditor bid";
+							document.getElementById("auditedMessage").innerHTML = "The buyer <strong>" + data.audited_name + "</strong> has won the auditor bid";
 						else
-							document.getElementById("auditedMessage").innerHTML = "The seller <strong>" + data.audited_name + "</strong>has won the auditor bid";
+							document.getElementById("auditedMessage").innerHTML = "The seller <strong>" + data.audited_name + "</strong> has won the auditor bid";
 					}
 				}
 				if(data.stage!=6){
@@ -149,6 +148,7 @@
 				if(data.stage == 6)
 					isResults = true;
 				socket.emit('loadHistory');
+				socket.emit('getAuditInfo');
 			});
 
 			socket.on('bidsLoaded', function(data) {
@@ -215,8 +215,7 @@
 				}
 				else
 					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
-
-				if(phase == 3){	
+				if(curPhase == 3){
 					if(sellerAudit == 1 && seller1loaded)
 						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
 					else if(sellerAudit == 2 && seller2loaded)
@@ -228,13 +227,14 @@
 			socket.on('historyLoaded', function(data) {
 				var tbody = document.getElementById('saleHistory');
 				var historyLength = data.phase.length-1;
+				console.log(isResults)
 				if(isResults)
 					historyLength++;
 				for(i = 0; i < 3; i++){
 					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
 				}
 				tbody.innerHTML = ""
-				for(i=0; i<data.phase.length-1; i++){
+				for(i=0; i<historyLength; i++){
 					var row = tbody.insertRow();
 					var th = document.createElement('th');
 					if(data.phase[i] != 3)
@@ -250,7 +250,6 @@
 					var cell3 = row.insertCell();
 					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
 				}
-				isResults = false;
 			});
 
 			socket.on('sellerUpdated', function(data){
@@ -261,6 +260,7 @@
 			});
 
 			socket.on('stageUpdated', function(data){
+				isResults = false;
 				if(data == 0){
 					document.getElementById("message").innerHTML = "Sellers are currently submitting their asking prices."
 					socket.emit('statLoad');
@@ -317,13 +317,11 @@
 
 			function parseQuality(quality){
 				if(quality == 1)
-					return "Low Quality";
+					return "<h style='color: gold'>Low Quality</h>";
 				else if(quality == 2)
-					return "Medium Quality";
+					return "<h style='color: orange'>Medium Quality</h>";
 				else if(quality == 3)
-					return "High Quality";
-				else
-					return "Error";
+					return "<h style='color: crimson'>High Quality</h>";
 			}
 
 			function parseRole(role_id){
