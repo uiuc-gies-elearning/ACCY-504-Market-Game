@@ -5,13 +5,6 @@
 			Buyer Wait
 		</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<style>
-			img {
-			    position: absolute;
-			    top: 36px;
-			    right: 150px;
-			}
-		</style>
 	</head>
 
 	<body onload="start()">
@@ -22,8 +15,7 @@
 		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
 		            </div>
 		        </div>
-		        <img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;">
-				<h1>Buyer Wait Screen</h1>
+				<h1>Buyer Wait Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
 			</div>
 			<div class="jumbotron">
 				<h4 id="message" class="alert alert-success"></h4>
@@ -42,12 +34,12 @@
 					<thead>
 						<tr>
 							<th scope="col">Period</th>
-							<th scope="col">Seller 1</th>
-							<th scope="col">Seller 2</th>
-							<th scope="col">Seller 3</th>
+							<th scope="col" id="historySeller1">Seller 1</th>
+							<th scope="col" id="historySeller2">Seller 2</th>
+							<th scope="col" id="historySeller3">Seller 3</th>
 						</tr>
 					</thead>
-						<tbody id="history">
+					<tbody id="history">
 					</tbody>
 				</table>
 				<br/>
@@ -107,6 +99,10 @@
 
 			socket.on('historyLoaded', function(data) {
 				var tbody = document.getElementById('history');
+				for(i = 0; i < 3; i++){
+					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
+				}
+				
 				for(var i=0; i<data.phase.length-1; i++){
 					var row = tbody.insertRow();
 					var cell1 = row.insertCell();
@@ -114,10 +110,18 @@
 
 					var cell2 = row.insertCell();
 					cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
+					if(data.sellerBought[i] == 1)
+						cell2.style = "color:MediumSeaGreen"
+
 					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: $<strong>" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
+					cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
+					if(data.sellerBought[i] == 2)
+						cell3.style = "color:MediumSeaGreen"
+
 					var cell4 = row.insertCell();
-					cell4.innerHTML = "Price: $<strong>" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
+					cell4.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
+					if(data.sellerBought[i] == 3)
+						cell4.style = "color:MediumSeaGreen"
 				}
 			});
 
@@ -242,13 +246,11 @@
 
 			function parseQuality(quality){
 				if(quality == 1)
-					return "Low Quality";
+					return "<h style='color: gold'>Low Quality</h>";
 				else if(quality == 2)
-					return "Medium Quality";
+					return "<h style='color: orange'>Medium Quality</h>";
 				else if(quality == 3)
-					return "High Quality";
-				else
-					return "Error";
+					return "<h style='color: crimson'>High Quality</h>";
 			}
 
 			function parsePrice(price) {

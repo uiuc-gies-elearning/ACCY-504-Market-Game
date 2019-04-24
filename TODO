@@ -1,27 +1,24 @@
 ## TODO ##
 
 ## Easy (Atsu)
-•	Professor needs to know audit amounts (3 Hours)
-•	Show auditor winner in history/professor dashboard (3 Hours)
-•	Highlight which buy each buyer did (database change?) (5 Hours)
+•	`Professor needs to know audit amounts (3 Hours)` UNTESTED, Needs to show per round -> remove delete from auditor_bid.js
+•	`Show auditor winner in history/professor dashboard (3 Hours)`
+•	`Highlight which buy each buyer did (database change?) (5 Hours)`
 •	`Fix professor history showing on results (admin_control.ejs:224) (1 Hour)`
 •	`Fix num bids on no buy (admin_control.js:58) (1 Hour)`
-•	Make profits update for professor at end of period (1 Hour)
-•	*Color for Qualities (2 Hours)*
+•	`Make profits update for professor at end of period (1 Hour)`
+•	`Color for Qualities (2 Hours)`
 •	`Change Seller Number in Sale History to show names (2 Hours)`
-•	(Option for) show asking prices all at once (4 Hours)
 •	Adding some instructions (pop up) (4 Hours)
 •	Force button (way to get around a team not inputting decisions) (2 Hours)
-•	Salting & hashing passwords (2 Hours)
-•	Removing the professor radio button from the create user screen
+•	`** Salting & hashing passwords (2 Hours)` Need to install on server/put back on package.json
+•	`Removing the professor radio button from the create user screen`
 •	Protecting URLs
-•	Viewport for Mobile (https://www.w3schools.com/css/css_rwd_viewport.asp)
-•	Fixing U of I logo scaling
-•	Worksheet download
+•	`Fixing U of I logo scaling`
 
 ## Medium
 •	Units sold graph
-•	Graphing Profits 
+•	Graphing Profits
 
 ## Hard
 •	Professor seeing what gets inputted into worksheet
@@ -31,6 +28,9 @@
 •	Increase number of buyers/sellers
 
 ## Later
+•	(Option for) show asking prices all at once
 •	More testing with multiple players
 •	Adding an email address field for future use
 •   Toggle leaderboard
+•   Worksheet download
+•   Viewport for Mobile (https://www.w3schools.com/css/css_rwd_viewport.asp)

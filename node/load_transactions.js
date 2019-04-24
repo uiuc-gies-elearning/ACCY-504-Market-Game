@@ -76,7 +76,7 @@ var load_transactions = function(request){
 				return;
 			}
 			var phase = result[0]["cur_phase"];
-	    	serverfile.connection.query('SELECT `seller list`.seller_id FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1 AND user.game_id = ?', userGame, function(err, result){
+	    	serverfile.connection.query('SELECT `seller list`.seller_number FROM user INNER JOIN `seller list` on `seller list`.user_id = user.user_id WHERE audited = 1 AND user.game_id = ?', userGame, function(err, result){
 		    	if (err) {
 					console.error(err);
 					return;
@@ -88,7 +88,7 @@ var load_transactions = function(request){
 		    	};
 
 		    	if(result.length != 0)
-		    		info.sellerAudit = result[0]["seller_id"];
+		    		info.sellerAudit = result[0]["seller_number"];
 
 		    	req.io.emit('auditInfo', info);
 	    	});
