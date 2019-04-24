@@ -59,15 +59,15 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td>Low Quality</td>
+							<td style = "color:orange">Low Quality</td>
 							<td id="LQSale"></td>
 						</tr>
 						<tr>
-							<td>Medium Quality</td>
+							<td style = "color:salmon">Medium Quality</td>
 							<td id="MQSale"></td>
 						</tr>
 						<tr>
-							<td>High Quality</td>
+							<td style = "color:crimson">High Quality</td>
 							<td id="HQSale"></td>
 						</tr>
 					</tbody>
@@ -107,11 +107,11 @@
 		<script>
 			function parseQuality(quality){
 				if(quality == 1)
-					return "Low Quality";
+					return "<h style='color: orange'>Low Quality</h>";
 				else if(quality == 2)
-					return "Medium Quality";
-				else
-					return "High Quality";
+					return "<h style='color: salmon'>Medium Quality</h>";
+				else if(quality == 3)
+					return "<h style='color: crimson'>High Quality</h>";
 			}
 		</script>
 		<script>

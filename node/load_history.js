@@ -90,7 +90,7 @@ var load_history = function(request){
 							console.error(err);
 							return;
 						}
-						for(i = 0; i < 3; i ++){
+						for(i = 0; i < rows.length; i ++){
 							history.sellerNames.push(rows[i]["teamname"]);
 						}
 						req.io.emit("historyLoaded", history);

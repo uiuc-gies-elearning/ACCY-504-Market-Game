@@ -61,12 +61,12 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 //Sign in to create connection with MySQL database
-/*var connection = mysql.createConnection({
+var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "1259",
     database: "mydb"
-});*/
+});
 
 /*var connection = mysql.createConnection({
     host: 'localhost',
@@ -75,12 +75,12 @@ app.use(flash()); // use connect-flash for flash messages stored in session
     database: 'marketgame_mydb'
 });*/
 
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
-});
+});*/
 
 
 //Try connection
@@ -262,6 +262,23 @@ app.get('/game_initialization', isLoggedIn, isAdmin, function(req, res, next) {
     req.session.user_id = req.user.user_id;
     req.session.user = req.user;
     game_initialization.game_initialization(req);
+});
+
+app.get('/game_wait', isLoggedIn, function(req, res, next) {
+    res.render(path.join(__dirname, '..', 'views/game_wait.ejs'));
+    joinRoom(req);
+    var userGame = req.session.user.game_id;
+    app.io.route('checkGameStart', function(req) {
+        connection.query('SELECT COUNT(*) FROM `seller list` WHERE game_id = ? UNION SELECT COUNT(*) FROM `buyer list` WHERE game_id = ?', [userGame, userGame], function(err, result){
+            var total = 0;
+            for(var i = 0; i < result.length; i++){
+                total += result[i]["COUNT(*)"];
+            }
+            console.log(total);
+            if(total == 7)
+                app.io.room(userGame).broadcast('gameStarted');
+        });
+    });
 });
 
 app.get('/seller_selection', isLoggedIn, isSeller, function(req, res, next) {

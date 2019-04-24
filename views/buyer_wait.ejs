@@ -100,7 +100,10 @@
 			socket.on('historyLoaded', function(data) {
 				var tbody = document.getElementById('history');
 				for(i = 0; i < 3; i++){
-					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
+					if(data.sellerNames[i] == undefined)
+						document.getElementById("historySeller" + (i+1)).innerHTML = "Seller Not Joined Yet"
+					else
+						document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
 				}
 				
 				for(var i=0; i<data.phase.length-1; i++){
@@ -246,9 +249,9 @@
 
 			function parseQuality(quality){
 				if(quality == 1)
-					return "<h style='color: gold'>Low Quality</h>";
+					return "<h style='color: orange'>Low Quality</h>";
 				else if(quality == 2)
-					return "<h style='color: orange'>Medium Quality</h>";
+					return "<h style='color: salmon'>Medium Quality</h>";
 				else if(quality == 3)
 					return "<h style='color: crimson'>High Quality</h>";
 			}

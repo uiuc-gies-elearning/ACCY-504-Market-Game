@@ -99,8 +99,10 @@ var admin_control = function(request){
 
 			randomizeBuyOrder(userGame, function(){
 				var newStage;
-				if(phase == 3)
+				if(phase == 3){
+					console.log("reached here")
 					newStage = 5;
+				}
 				else
 					newStage = 0;
 				
@@ -143,8 +145,9 @@ var admin_control = function(request){
 
 			randomizeBuyOrder(userGame, function(){
 				var newStage;
-				if(newPhase == 3)
+				if(newPhase == 3){
 					newStage = 5;
+				}
 				else
 					newStage = 0;
 

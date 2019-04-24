@@ -135,6 +135,22 @@ var buyer_select = function(request){
 									req.io.room(req.session.user.game_id).broadcast("stageUpdated", 6);
 								});
 							}
+							else{
+								serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
+									if (err) {
+										console.error(err);
+										return;
+									}
+									var new_stage = ++result[0]["stage_id"];
+									serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = ?', [new_stage, userGame], function(err, result){
+										if (err) {
+											console.error(error);
+											return;
+										}
+										req.io.room(req.session.user.game_id).broadcast("stageUpdated", new_stage);
+									});
+								});
+							}
 						});
 			    	});
 				});
@@ -153,43 +169,38 @@ var buyer_select = function(request){
 	    			if (err) {
 						console.error(err);
 						return;
-						serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', req.session.user.game_id, function(err, result){
-							if(result.length >= 4){
-								serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = ?', userGame, function(err, result){
+					}
+					serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', req.session.user.game_id, function(err, result){
+						if(result.length >= 4){
+							serverfile.connection.query('UPDATE game SET stage_id = 6 WHERE game_id = ?', userGame, function(err, result){
+								if (err) {
+									console.error(error);
+									return;
+								}
+								updateHistory(userGame);
+								req.io.room(req.session.user.game_id).broadcast("stageUpdated", 6);
+							});
+						}
+						else{
+							serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
+								if (err) {
+									console.error(err);
+									return;
+								}
+								var new_stage = ++result[0]["stage_id"];
+								serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = ?', [new_stage, userGame], function(err, result){
 									if (err) {
 										console.error(error);
 										return;
 									}
-									updateHistory(userGame);
-									req.io.room(req.session.user.game_id).broadcast("stageUpdated", 6);
+									req.io.room(req.session.user.game_id).broadcast("stageUpdated", new_stage);
 								});
-							}
-						});
-					}
-
+							});
+						}
+					});
 	    		});
 	    	});
     	}
-
-		serverfile.connection.query('SELECT * FROM bid INNER JOIN `buyer list` ON bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?', userGame, function(err, result){
-			if(result.length < 4){
-				serverfile.connection.query('SELECT stage_id FROM game WHERE game_id = ?', userGame, function(err, result){
-					if (err) {
-						console.error(err);
-						return;
-					}
-					var new_stage = ++result[0]["stage_id"];
-					serverfile.connection.query('UPDATE game SET stage_id = ? WHERE game_id = ?', [new_stage, userGame], function(err, result){
-						if (err) {
-							console.error(error);
-							return;
-						}
-						req.io.room(req.session.user.game_id).broadcast("stageUpdated", new_stage);
-					});
-				});
-			}
-		});
-		
     });
 
 };
