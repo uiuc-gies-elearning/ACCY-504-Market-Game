@@ -306,6 +306,10 @@ app.get('/results', isLoggedIn, function(req, res, next) {
     joinRoom(req);
 });
 
+app.get('/viz', isLoggedIn, (_req, res, _next) => {
+    res.render(path.join(__dirname, '..', 'views', 'profits_viz.ejs'));
+})
+
 app.get('/auditor_bid', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/auditor_bid.ejs'));
     req.session.user = req.user;

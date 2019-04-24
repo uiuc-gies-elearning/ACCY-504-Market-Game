@@ -1,5 +1,7 @@
 const server = require('./server.js')
 
+let financial = d => Number.parseFloat(d).toFixed(2)
+
 module.exports.profits = (request, response) => {
   let gameid = request.user.game_id
 
@@ -46,12 +48,11 @@ module.exports.profits = (request, response) => {
                 buyQuality == 3 ? 0
                                 : resale[buyQuality] - datavec['buy_price']
               totalProfits += profit
-              buyerProfits.profits.push(profit)
-              buyerProfits.totalProfits.push(totalProfits)
+              buyerProfits.profits.push(financial(profit))
+              buyerProfits.totalProfits.push(financial(totalProfits))
             }
             profits.push(buyerProfits)
           }
-          console.log(profits)
           response.setHeader('Content-Type', 'application/json')
           response.write(JSON.stringify(profits))
           response.end()
