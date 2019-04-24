@@ -121,6 +121,7 @@ var load_transactions = require('./load_transactions');
 var wait = require('./wait.js');
 var auditor_bid = require('./auditor_bid.js');
 var game_room = require('./game_room.js');
+var profits = require('./profits.js')
 
 //redirect / to our index.ejs file
 app.get('/', function(req, res, next) {
@@ -344,6 +345,10 @@ app.get('/results', isLoggedIn, function(req, res, next) {
     joinRoom(req);
 });
 
+app.get('/viz', isLoggedIn, (_req, res, _next) => {
+    res.render(path.join(__dirname, '..', 'views', 'profits_viz.ejs'));
+})
+
 app.get('/auditor_bid', isLoggedIn, function(req, res, next) {
     res.render(path.join(__dirname, '..', 'views/auditor_bid.ejs'));
     req.session.user = req.user;
@@ -372,6 +377,8 @@ app.get('/game_room', isLoggedIn, function(req, res, next) {
     req.session.user = req.user;
     game_room.game_room(req);
 });
+
+app.get('/profits', isLoggedIn, profits.profits)
 
 function joinRoom(request) {
     app.io.route('joinRoom', function(req) {
