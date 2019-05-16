@@ -61,13 +61,14 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 //Sign in to create connection with MySQL database
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "1259",
     database: "mydb"
-});
+});*/
 
+// Connection for CPanel
 /*var connection = mysql.createConnection({
     host: 'localhost',
     user: 'marketgame_admin',
@@ -75,12 +76,13 @@ var connection = mysql.createConnection({
     database: 'marketgame_mydb'
 });*/
 
-/*var connection = mysql.createConnection({
+// Connection for DigitalOcean
+var connection = mysql.createConnection({
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
-});*/
+});
 
 
 //Try connection
@@ -98,9 +100,6 @@ exports.connection = connection;
 app.listen(3000, function(){
     console.log('listening on *:3000');
 });
-
-//express.io.listen(server);
-//server.listen(80, function (){},function(){});
 
 app.use(express.static(path.join(__dirname, '..', 'images')));
 
@@ -255,6 +254,8 @@ app.get('/admin_control', isLoggedIn, isAdmin, function(req, res, next) {
     load_transactions.load_transactions(req);
     load_leaderboard.load_leaderboard(req);
     load_history.load_history(req);
+    seller_selection.seller_select(req);
+    buyer_selection.buyer_select(req);
     joinRoom(req);
 });
 

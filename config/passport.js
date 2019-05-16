@@ -3,12 +3,12 @@ var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
 var mysql = require('mysql');
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "1259",
   database: "mydb"
-});
+});*/
 
 /*var connection = mysql.createConnection({
     host: 'localhost',
@@ -17,12 +17,12 @@ var connection = mysql.createConnection({
     database: 'marketgame_mydb'
 });*/
 
-/*var connection = mysql.createConnection({
+var connection = mysql.createConnection({
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
-});*/
+});
 
 // required for password encryption
 

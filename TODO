@@ -1,7 +1,8 @@
 ## TODO ##
+Lines with `` surrounding them are completed
 
 ## Easy (Atsu)
-•	`Professor needs to know audit amounts (3 Hours)` UNTESTED, Needs to show per round -> remove delete from auditor_bid.js
+•	Professor needs to know audit amounts (3 Hours) Needs to show per round -> remove delete from auditor_bid.js
 •	`Show auditor winner in history/professor dashboard (3 Hours)`
 •	`Highlight which buy each buyer did (database change?) (5 Hours)`
 •	`Fix professor history showing on results (admin_control.ejs:224) (1 Hour)`
@@ -10,11 +11,17 @@
 •	`Color for Qualities (2 Hours)`
 •	`Change Seller Number in Sale History to show names (2 Hours)`
 •	Adding some instructions (pop up) (4 Hours)
-•	Force button (way to get around a team not inputting decisions) (2 Hours)
+•	`Force button (way to get around a team not inputting decisions) (2 Hours)` UNTESTED (TEST ON LAST BUYER), NEED TO ADD TO ADMIN CONTROL SCREEN (check buyer_selection line 206, buyOverride and seller_selection line 106 sellerOverride, and put those into admin_control.ejs)
 •	`** Salting & hashing passwords (2 Hours)` Need to install on server/put back on package.json
 •	`Removing the professor radio button from the create user screen`
 •	Protecting URLs
 •	`Fixing U of I logo scaling`
+•   Reset Game Button
+
+## To Fix
+•   Race condition on buyers buying quickly. Does not redirect buyer page when in the middle of refresh.
+•   Race condition on auditor bid. Does not redirect pages in middle of refresh.
+•   Professor History not updating correctly.
 
 ## Medium
 •	Units sold graph
@@ -26,6 +33,8 @@
 •	Bar graph showing qualities sold/bought
 •	Average price for each quality (axis for price, axis for quality)
 •	Increase number of buyers/sellers
+•   Timer Force
+•   Restructure Login
 
 ## Later
 •	(Option for) show asking prices all at once
@@ -47,6 +56,15 @@ DELETE FROM `buyer list`;
 DELETE FROM `game owner`;
 DELETE FROM `user`;
 DELETE FROM `game`;
+
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`) VALUES ('professor', '1234', '3');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('killer queen', '1234', '2', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('crazy diamond', '1234', '2', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('green day', '1234', '2', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('onett', '1234', '1', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('twoson', '1234', '1', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('threed', '1234', '1', '0');
+INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('fourside', '1234', '1', '0');
 
 INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`) VALUES ('professor', '1234', '3');
 INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('seller1', '1234', '2', '0');

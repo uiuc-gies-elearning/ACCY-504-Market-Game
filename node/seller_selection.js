@@ -101,6 +101,45 @@ var seller_select = function(request){
 	    	});
     	});
     });
+
+
+    serverfile.app.io.route('sellerOverride', function(req) {
+    	serverfile.connection.query('SELECT price_low FROM game WHERE game_id = ?', userGame, function(err, result) {
+    		var lowPrice = result[0]["price_low"];
+	    	serverfile.connection.query('SELECT `seller list`.seller_id FROM `seller list` LEFT JOIN offers ON `seller list`.seller_id = offers.seller_id WHERE offers.seller_id IS null AND `seller list`.game_id = ?', userGame, function(err, result) {
+	    		if (err) {
+					console.error(err);
+					return;
+				}
+
+				var offers = [];
+				for(var i = 0; i < result.length; i++){
+					var set = {
+						quality_id : 1,
+			    		price : lowPrice,
+			    		second_sale : 0,
+			    		seller_id : result[i]["seller_id"]
+					}
+					offers.append(set);
+				}
+
+		    	serverfile.connection.query('INSERT INTO offers SET ?', offers, function(err, result) {
+		    		if (err) {
+						console.error(err);
+						return;
+					}
+			    	serverfile.connection.query('UPDATE game SET stage_id = 1 WHERE game_id = ?', userGame, function(err, result) {
+			    		if (err) {
+			    			console.error(err);
+			    			return;
+			    		}
+			    		req.io.room(req.session.user.game_id).broadcast("stageUpdated", 1);
+			    		req.io.room(req.session.user.game_id).broadcast("offerSubmitted");
+			    	});
+		    	});
+	    	});
+	    });
+    });
 };
 
 module.exports.seller_select = seller_select;

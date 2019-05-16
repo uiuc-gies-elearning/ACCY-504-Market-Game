@@ -234,6 +234,10 @@
 				document.getElementById("HQSale").innerHTML = "$" + parsePrice(data.resale3);
 			});
 
+			socket.on('stageUpdated', function(data){
+				window.location.replace('/buyer_wait');
+			});
+
 			function parsePrice(price) {
 				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
 			}
