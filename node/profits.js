@@ -28,7 +28,7 @@ module.exports.profits = (request, response) => {
             console.error(err)
             return
           }
-          if(res.length == 0)
+          if (res.length == 0)
             return
           let nbuyers = 4
           let nperiods = res.length / nbuyers;
@@ -38,8 +38,8 @@ module.exports.profits = (request, response) => {
             let buyerBaseIdx = buyerid * nperiods;
             let buyerProfits = {
               team: res[buyerBaseIdx]['teamname'],
-              profits: [],
-              totalProfits: []
+              profits: [0],
+              totalProfits: [0]
             }
             let totalProfits = 0
             for (let period = 0; period < nperiods; ++period) {
