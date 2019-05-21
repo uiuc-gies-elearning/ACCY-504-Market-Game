@@ -58,24 +58,6 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-
-
-//Sign in to create connection with MySQL database
-/*var connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "1259",
-    database: "mydb"
-});*/
-
-// Connection for CPanel
-/*var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'marketgame_admin',
-    password: 'lz0n1y32psvf',
-    database: 'marketgame_mydb'
-});*/
-
 // Connection for DigitalOcean
 var connection = mysql.createConnection({
     host: '206.189.205.150',
