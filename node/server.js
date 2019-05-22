@@ -66,7 +66,6 @@ var connection = mysql.createConnection({
     database: 'mydb'
 });
 
-
 //Try connection
 connection.connect(function(err) {
     if (err) throw err;
