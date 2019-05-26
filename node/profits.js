@@ -1,6 +1,6 @@
 const server = require('./server.js')
 
-let financial = d => Number.parseFloat(d).toFixed(2)
+const financial = d => Number.parseFloat(d).toFixed(2)
 
 module.exports.profits = (request, response) => {
   let gameid = request.user.game_id

@@ -3,7 +3,7 @@
 //============================================
 
 //Import express app and mysql connection
-var serverfile = require('./server.js');
+const serverfile = require('./server.js');
 
 var admin_control = function(request){
 
@@ -124,7 +124,7 @@ var admin_control = function(request){
 	//Stage is updated based on whether or not it is phase 3 (if phase == 3, auditor bid stage is set)
 	serverfile.app.io.route('updatePhase', function(req) {
 		serverfile.connection.query('SELECT cur_phase, cur_period FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
-    		if (err) {
+			if (err) {
 				console.error(err);
 				return;
 			}
@@ -160,10 +160,10 @@ var admin_control = function(request){
 				});
 
 				clearPeriodData(userGame);
-	    		req.io.emit("periodUpdate", newPeriod);
-	    		req.io.emit("phaseUpdate", newPhase);
+				req.io.emit("periodUpdate", newPeriod);
+				req.io.emit("phaseUpdate", newPhase);
 			});
-    	});
+		});
 	});
 
 	//Doesn't change stage number, simply loads it

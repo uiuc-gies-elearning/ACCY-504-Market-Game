@@ -15,7 +15,6 @@ var mysql = require('mysql');
 
 //Variables for socket io (express.io) connections and express routing
 var express = require('express.io');
-var session = require('express-session');
 var app = express();
 
 //HTTP connection with express.io
@@ -91,17 +90,18 @@ app.use(express.static(path.join(__dirname, '..', 'images')));
 //Import segmented JS files
 //These files contain most of the dynamic functionality of each page
 //and are called within the routes
-var admin_control = require('./admin_control.js');
-var game_initialization = require('./game_initialization.js');
-var seller_selection = require('./seller_selection.js');
-var buyer_selection = require('./buyer_selection.js');
-var load_history = require('./load_history.js');
-var load_leaderboard = require('./load_leaderboard.js');
-var load_transactions = require('./load_transactions');
-var wait = require('./wait.js');
-var auditor_bid = require('./auditor_bid.js');
-var game_room = require('./game_room.js');
-var profits = require('./profits.js')
+const admin_control = require('./admin_control.js');
+const game_initialization = require('./game_initialization.js');
+const seller_selection = require('./seller_selection.js');
+const buyer_selection = require('./buyer_selection.js');
+const load_history = require('./load_history.js');
+const load_leaderboard = require('./load_leaderboard.js');
+const load_transactions = require('./load_transactions');
+const wait = require('./wait.js');
+const auditor_bid = require('./auditor_bid.js');
+const game_room = require('./game_room.js');
+const profits = require('./profits.js')
+const current_stage = require('./current_stage.js')
 
 //redirect / to our index.ejs file
 app.get('/', function(req, res, next) {

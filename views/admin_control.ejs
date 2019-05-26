@@ -108,8 +108,8 @@
    				socket.emit('sellerUpdate');
    				socket.emit('buyerUpdate');
    				socket.emit('stageUpdate');
-				socket.emit('loadBids');
-				socket.emit('loadLeaderboard');
+					socket.emit('loadBids');
+					socket.emit('loadLeaderboard');
    			}
 			function updatePeriod(){
 				socket.emit('updatePeriod');
@@ -348,24 +348,11 @@
 			}
 
 			function forceForward() {
-				// TODO Determine current stage.
-				let stage = 'something'
-				switch (stage) {
-					case 'audit':
-						console.log('Forcing audit bid...')
-						console.log('Sending empty bid...')
-						socket.emit('bidSubmitted', 0)
-						break
-					case 'bid':
-						console.log('Forcing buyer bid...')
-						break
-					case 'offer':
-						console.log('Forcing buyer bid...')
-						break
-					default:
-						console.error('Unknown stage!')
-						return
-				}
+				socket.emit('forceForward')
+			}
+
+			function reset() {
+				socket.emit('reset')
 			}
    		</script>
 
