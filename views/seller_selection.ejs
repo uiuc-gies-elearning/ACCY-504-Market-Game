@@ -110,6 +110,8 @@
 				}
 			};
 
+			socket.on('gameReset', _ => window.location.replace('/redirect'));
+
 			socket.on('auditChecked', function(data){
 				if(data.phase == 3){
 					document.getElementById("message").removeAttribute("hidden");	

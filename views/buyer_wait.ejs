@@ -247,6 +247,8 @@
 				window.location.replace('/redirect');
 			});
 
+			socket.on('gameReset', _ => window.location.replace('/redirect'));
+
 			function parseQuality(quality){
 				if(quality == 1)
 					return "<h style='color: orange'>Low Quality</h>";

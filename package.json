@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A web app version of an in-class market simulation",
   "scripts": {
-    "run": "node node/server.js"
+    "start": "node node/server.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

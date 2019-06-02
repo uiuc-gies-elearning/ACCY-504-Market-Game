@@ -7,7 +7,8 @@ const serverfile = require('./server.js');
 
 var admin_control = function(request){
 
-	var userGame = request.user.game_id;
+	const userGame = request.user.game_id;
+	const gameid = userGame;
 	//The 'Stats' loaded include the current phase, period, and stage
 	serverfile.app.io.route('statLoad', function(req) {
 		serverfile.connection.query('SELECT cur_period FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1', userGame, function(err, result){
@@ -173,6 +174,21 @@ var admin_control = function(request){
 			req.io.emit("stageUpdated", cur_stage);
 		});
 	});
+
+	serverfile.app.io.route('reset', req => {
+		const queries =
+			[ `DELETE FROM \`auditor bid\` WHERE user_id IN (SELECT user_id FROM users WHERE game_id = ${gameid})`
+			, `DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM \`buyer list\` WHERE game_id = ${gameid})`,
+			, `DELETE FROM \`buy history\` WHERE buyer_id IN (SELECT buyer_id FROM \`buyer list\` WHERE game_id = ${gameid})`
+			, `UPDATE game SET stage_id = 0 WHERE game_id = ${gameid}`
+			, `DELETE FROM history WHERE NOT (cur_phase = 1 AND cur_period = 1) AND game_id = ${gameid}`
+			, `DELETE FROM offers WHERE seller_id IN (SELECT seller_id FROM \`seller list\` WHERE game_id = ${gameid})`
+			, `DELETE FROM \`sale history\` WHERE seller_id IN (SELECT seller_id FROM \`seller list\` WHERE game_id = ${gameid})`
+			, `UPDATE user SET profits = 0 WHERE role_id IN (1, 2) AND game_id = ${gameid}`
+			]
+		queries.forEach(q => serverfile.connection.query(q, (_err, _res) => 0))
+		req.io.room(req.session.game_id).broadcast("gameReset");
+	})
 };
 
 

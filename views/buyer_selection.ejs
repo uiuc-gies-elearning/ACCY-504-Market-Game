@@ -145,6 +145,8 @@
 				window.location.replace('/buyer_wait');
 			}
 
+			socket.on('gameReset', _ => window.location.replace('/redirect'));
+
 			socket.on('receivedInfo', function(data){
 				pos = data.pos;
 				phase = data.phase;

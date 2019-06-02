@@ -63,6 +63,8 @@
 				socket.emit('bidSubmitted', bid);
 			}
 
+			socket.on('gameReset', _ => window.location.replace('/redirect'));
+
 			socket.on('bidWait', function(data) {
 				if(data == 1)
 					window.location.replace('/buyer_wait');

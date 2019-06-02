@@ -29,6 +29,8 @@
 				socket.emit('joinRoom');
 			}
 
+			socket.on('gameReset', _ => window.location.replace('/redirect'));
+
 			socket.emit('getStage');
 			socket.on('stage', function(data) {
 				if(data != 5)

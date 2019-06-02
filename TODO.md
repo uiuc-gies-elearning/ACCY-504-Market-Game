@@ -18,6 +18,7 @@
 - [ ]	Protecting URLs
 - [x]	Fixing U of I logo scaling
 - [ ] Reset Game Button
+- [ ] Add warning message when resetting a game
 
 ## To Fix
 - [ ] Race condition on buyers buying quickly. Does not redirect buyer page when in the middle of refresh.
@@ -45,6 +46,7 @@
   - [ ] Worksheet download
   - [ ] Viewport for Mobile (https://www.w3schools.com/css/css_rwd_viewport.asp)
 
+## DB Reset
 ```sql
 use mydb;
 DELETE FROM `bid`;
