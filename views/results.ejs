@@ -1,161 +1,165 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Results
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="start()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Results Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-				<h4 class="alert alert-success">Please wait for the professor to go to the next period.</h4>
-				<h2>Sale History</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Period</th>
-							<th scope="col" id="historySeller1">Seller 1</th>
-							<th scope="col" id="historySeller2">Seller 2</th>
-							<th scope="col" id="historySeller3">Seller 3</th>
-						</tr>
-					</thead>
-						<tbody id="history">
-					</tbody>
-				</table>
-				<br>
-				<h2>Leaderboard</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Teamname</th>
-							<th scope="col">Role</th>
-							<th scope="col">Profits</th>
-						</tr>
-					</thead>
-						<tbody id="leaderboard">
-					</tbody>
-				</table>
-			</div>
-		</div>
-		<script src="/socket.io/socket.io.js"></script>
-		<script>
-			var socket = io.connect();
-			var playerData;
-			function start(){
-				socket.emit('joinRoom');
-				socket.emit('getSessionData');
-			}
+<head>
+  <title>
+    Results
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-			socket.on('sessionData', function(data){
-				playerData = data;
-				socket.emit('loadHistory');
-				socket.emit('loadLeaderboard');
-			});
+<body onload="start()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Results Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <h4 class="alert alert-success">Please wait for the professor to go to the next period.</h4>
+      <h2>Sale History</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Period</th>
+            <th scope="col" id="historySeller1">Seller 1</th>
+            <th scope="col" id="historySeller2">Seller 2</th>
+            <th scope="col" id="historySeller3">Seller 3</th>
+          </tr>
+        </thead>
+        <tbody id="history">
+        </tbody>
+      </table>
+      <br>
+      <h2>Leaderboard</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Teamname</th>
+            <th scope="col">Role</th>
+            <th scope="col">Profits</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect();
+    var playerData;
 
-			socket.on('historyLoaded', function(data) {
-				var tbody = document.getElementById('history');
-				for(i = 0; i < 3; i++){
-					document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
-				}
-				for(i=0; i<data.phase.length; i++){
-					var row = tbody.insertRow();
-					var th = document.createElement('th');
-					th.innerHTML = "Period: " + data.period[i];
-					row.appendChild(th);
+    function start() {
+      socket.emit('joinRoom');
+      socket.emit('getSessionData');
+    }
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
-					if(playerData.role == 1){
-						if(data.sellerBought[i] == 1)
-							cell1.style = "color:MediumSeaGreen"
-					}
-					if(playerData.role == 2){
-						if(playerData.roleNum == 1)
-							cell1.style = 'color:SteelBlue';
-					}
+    socket.on('sessionData', function(data) {
+      playerData = data;
+      socket.emit('loadHistory');
+      socket.emit('loadLeaderboard');
+    });
 
-					var cell2 = row.insertCell();
-					cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
-					if(playerData.role == 1){
-						if(data.sellerBought[i] == 2)
-							cell2.style = "color:MediumSeaGreen"
-					}
-					if(playerData.role == 2){
-						if(playerData.roleNum == 2)
-							cell2.style = 'color:SteelBlue';
-					}
+    socket.on('historyLoaded', function(data) {
+      var tbody = document.getElementById('history');
+      for (i = 0; i < 3; i++) {
+        document.getElementById("historySeller" + (i + 1)).innerHTML = data.sellerNames[i];
+      }
+      for (i = 0; i < data.phase.length; i++) {
+        var row = tbody.insertRow();
+        var th = document.createElement('th');
+        th.innerHTML = "Period: " + data.period[i];
+        row.appendChild(th);
+
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
+        if (playerData.role == 1) {
+          if (data.sellerBought[i] == 1)
+            cell1.style = "color:MediumSeaGreen"
+        }
+        if (playerData.role == 2) {
+          if (playerData.roleNum == 1)
+            cell1.style = 'color:SteelBlue';
+        }
+
+        var cell2 = row.insertCell();
+        cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
+        if (playerData.role == 1) {
+          if (data.sellerBought[i] == 2)
+            cell2.style = "color:MediumSeaGreen"
+        }
+        if (playerData.role == 2) {
+          if (playerData.roleNum == 2)
+            cell2.style = 'color:SteelBlue';
+        }
 
 
-					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
-					if(playerData.role == 1){
-						if(data.sellerBought[i] == 3)
-							cell3.style = "color:MediumSeaGreen"
-					}
-					if(playerData.role == 2){
-						if(playerData.roleNum == 3)
-							cell3.style = 'color:SteelBlue';
-					}
-				}
-			});
+        var cell3 = row.insertCell();
+        cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
+        if (playerData.role == 1) {
+          if (data.sellerBought[i] == 3)
+            cell3.style = "color:MediumSeaGreen"
+        }
+        if (playerData.role == 2) {
+          if (playerData.roleNum == 3)
+            cell3.style = 'color:SteelBlue';
+        }
+      }
+    });
 
-			socket.on('leaderboardLoaded', function(data) {
-				var tbody = document.getElementById('leaderboard');
-				for(i=0; i<data.teamname.length; i++){
-					var row = tbody.insertRow();
-					var th = document.createElement('th');
-					th.innerHTML = data.teamname[i];
-					row.appendChild(th);
+    socket.on('leaderboardLoaded', function(data) {
+      var tbody = document.getElementById('leaderboard');
+      for (i = 0; i < data.teamname.length; i++) {
+        var row = tbody.insertRow();
+        var th = document.createElement('th');
+        th.innerHTML = data.teamname[i];
+        row.appendChild(th);
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = parseRole(data.role_id[i]);
-					var cell2 = row.insertCell();
-					cell2.innerHTML = "$" + parsePrice(data.profits[i]);
-					if(playerData.teamname == data.teamname[i]){
-						th.style = "color:orange";
-						cell1.style = "color:orange";
-						cell2.style = "color:orange";
-					}
-				}
-			});
+        var cell1 = row.insertCell();
+        cell1.innerHTML = parseRole(data.role_id[i]);
+        var cell2 = row.insertCell();
+        cell2.innerHTML = "$" + parsePrice(data.profits[i]);
+        if (playerData.teamname == data.teamname[i]) {
+          th.style = "color:orange";
+          cell1.style = "color:orange";
+          cell2.style = "color:orange";
+        }
+      }
+    });
 
-			socket.on('stageUpdated', function(data) {
-				window.location.replace('/redirect');
-			});
+    socket.on('stageUpdated', function(data) {
+      window.location.replace('/redirect');
+    });
 
-			function parseQuality(quality){
-				if(quality == 1)
-					return "<h style='color: orange'>Low Quality</h>";
-				else if(quality == 2)
-					return "<h style='color: salmon'>Medium Quality</h>";
-				else if(quality == 3)
-					return "<h style='color: crimson'>High Quality</h>";
-			}
+    function parseQuality(quality) {
+      if (quality == 1)
+        return "<h style='color: orange'>Low Quality</h>";
+      else if (quality == 2)
+        return "<h style='color: salmon'>Medium Quality</h>";
+      else if (quality == 3)
+        return "<h style='color: crimson'>High Quality</h>";
+    }
 
-			function parseRole(role_id){
-				if(role_id == 1)
-					return "Buyer";
-				else if(role_id == 2)
-					return "Seller";
-				else
-					return "Error";
-			}
+    function parseRole(role_id) {
+      if (role_id == 1)
+        return "Buyer";
+      else if (role_id == 2)
+        return "Seller";
+      else
+        return "Error";
+    }
 
-			function parsePrice(price) {
-				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
-			}
-		</script>
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+    function parsePrice(price) {
+      return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+    }
+
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>

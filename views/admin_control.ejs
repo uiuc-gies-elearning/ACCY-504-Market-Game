@@ -1,364 +1,364 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Professor Control
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="statLoad()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Professor Control Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-			   	<div class="form-group">
-			   		<h4 id="message" class="alert alert-success"></h4>
-			   		<h4 hidden id="auditedMessage" class="alert alert-warning"></h4>
-			   		<h4 id="sellers"></h4>
-			   		<h4 id="buyers"></h4>
-			   		<br>
-			   		<button type="button" class="btn btn-success" onclick="updatePeriod()" id="periodButton"><strong>Next Period</strong> (Ends results)</button>
-			   		<p id="period"></p>
-		   			<button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
-			   		<p id="phase"></p>
-			   		<button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>
-						<button type='button' class='btn btn-warning' onclick="forceForward()">Force Selection</button>
-						<button type="button" class="btn btn-danger" onclick="reset()">Reset Game</button>
-			  	</div>
-			  	<h2>Submitted Offers</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Buyer</th>
-							<th scope="col">Seller Offer</th>
-						</tr>
-					</thead>
-					<tbody id="bids">
-					</tbody>
-				</table>
-				<h2>Current Asking Prices</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Seller</th>
-							<th>Quality</th>
-							<th>Price</th>
-						</tr>
-					</thead>
-					<tbody id="Offers">
-						<tr>
-							<th id="seller1Name"></th>
-							<td id="seller1Quality"></td>
-							<td id="seller1Price"></td>
-						</tr>
-						<tr>
-							<th id="seller2Name"></th>
-							<td id="seller2Quality"></td>
-							<td id="seller2Price"></td>
-						</tr>
-						<tr>
-							<th id="seller3Name"></th>
-							<td id="seller3Quality"></td>
-							<td id="seller3Price"></td>
-						</tr>
-					</tbody>
-				</table>
-				<h2>Leaderboard</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Teamname</th>
-							<th scope="col">Role</th>
-							<th scope="col">Profits</th>
-						</tr>
-					</thead>
-						<tbody id="leaderboard">
-					</tbody>
-				</table>
-				<h2>Sale History</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Phase and Period</th>
-							<th scope="col" id="historySeller1">Seller 1</th>
-							<th scope="col" id="historySeller2">Seller 2</th>
-							<th scope="col" id="historySeller3">Seller 3</th>
-						</tr>
-					</thead>
-						<tbody id="saleHistory">
-					</tbody>
-				</table>
-			</div>
-		</div>
-		
-   		<script src="/socket.io/socket.io.js"></script>
-   		<script>
-   			var socket = io.connect();
-   			var curPhase, sellerAudit;
-   			var isResults = false;
-   			function statLoad(){
-   				socket.emit('joinRoom');
-   				socket.emit('statLoad');
-   				socket.emit('sellerUpdate');
-   				socket.emit('buyerUpdate');
-   				socket.emit('stageUpdate');
-					socket.emit('loadBids');
-					socket.emit('loadLeaderboard');
-   			}
-			function updatePeriod(){
-				socket.emit('updatePeriod');
-				document.getElementById("periodButton").disabled = true; 
-				document.getElementById("phaseButton").disabled = true;
-			};
-			function updatePhase(){
-				socket.emit('updatePhase');
-				document.getElementById("phaseButton").disabled = true;
-				document.getElementById("periodButton").disabled = true;  
-			};
+<head>
+  <title>
+    Professor Control
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-			socket.on('periodUpdate', function(data){
-				document.location.reload();
-			});
-			socket.on('phaseUpdate', function(data){
-				document.location.reload();
-			});
+<body onload="statLoad()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Professor Control Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <div class="form-group">
+        <h4 id="message" class="alert alert-success"></h4>
+        <h4 hidden id="auditedMessage" class="alert alert-warning"></h4>
+        <h4 id="sellers"></h4>
+        <h4 id="buyers"></h4>
+        <br>
+        <button type="button" class="btn btn-success" onclick="updatePeriod()" id="periodButton"><strong>Next Period</strong> (Ends results)</button>
+        <p id="period"></p>
+        <button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
+        <p id="phase"></p>
+        <button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>
+        <button type='button' class='btn btn-warning' onclick="forceForward()">Force Selection</button>
+        <button type="button" class="btn btn-danger" onclick="reset()">Reset Game</button>
+      </div>
+      <h2>Submitted Offers</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Buyer</th>
+            <th scope="col">Seller Offer</th>
+          </tr>
+        </thead>
+        <tbody id="bids">
+        </tbody>
+      </table>
+      <h2>Current Asking Prices</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Seller</th>
+            <th>Quality</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="Offers">
+          <tr>
+            <th id="seller1Name"></th>
+            <td id="seller1Quality"></td>
+            <td id="seller1Price"></td>
+          </tr>
+          <tr>
+            <th id="seller2Name"></th>
+            <td id="seller2Quality"></td>
+            <td id="seller2Price"></td>
+          </tr>
+          <tr>
+            <th id="seller3Name"></th>
+            <td id="seller3Quality"></td>
+            <td id="seller3Price"></td>
+          </tr>
+        </tbody>
+      </table>
+      <h2>Leaderboard</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Teamname</th>
+            <th scope="col">Role</th>
+            <th scope="col">Profits</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard">
+        </tbody>
+      </table>
+      <h2>Sale History</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Phase and Period</th>
+            <th scope="col" id="historySeller1">Seller 1</th>
+            <th scope="col" id="historySeller2">Seller 2</th>
+            <th scope="col" id="historySeller3">Seller 3</th>
+          </tr>
+        </thead>
+        <tbody id="saleHistory">
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-			socket.on('stats', function(data){
-				document.getElementById("period").innerHTML = "The Current Period is " + data.period;
-				document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
-				if(data.phase == 3){
-					document.getElementById("phaseButton").disabled = true;
-					if(data.audited_role != null){
-						document.getElementById("auditedMessage").removeAttribute("hidden");
-						if(data.audited_role == 1)
-							document.getElementById("auditedMessage").innerHTML = "The buyer <strong>" + data.audited_name + "</strong> has won the auditor bid";
-						else
-							document.getElementById("auditedMessage").innerHTML = "The seller <strong>" + data.audited_name + "</strong> has won the auditor bid";
-					}
-				}
-				if(data.stage!=6){
-					document.getElementById("periodButton").disabled = true;
-					document.getElementById("phaseButton").disabled = true;
-				}
-				curPhase = data.phase;
-				if(data.stage == 6)
-					isResults = true;
-				socket.emit('loadHistory');
-				socket.emit('getAuditInfo');
-			});
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect();
+    var curPhase, sellerAudit;
+    var isResults = false;
 
-			socket.on('bidsLoaded', function(data) {
-				var tbody = document.getElementById('bids');
-				tbody.innerHTML = "";
-				if(data.buyer_number.length == 0){
-					var row = tbody.insertRow();
-					var cell = row.insertCell();
-					cell.innerHTML = "<strong>No Offers</strong>";
-				}
+    function statLoad() {
+      socket.emit('joinRoom');
+      socket.emit('statLoad');
+      socket.emit('sellerUpdate');
+      socket.emit('buyerUpdate');
+      socket.emit('stageUpdate');
+      socket.emit('loadBids');
+      socket.emit('loadLeaderboard');
+    }
 
-				for(var i = 0; i < data.buyer_number.length; i++){
-					var row = tbody.insertRow();
+    function updatePeriod() {
+      socket.emit('updatePeriod');
+      document.getElementById("periodButton").disabled = true;
+      document.getElementById("phaseButton").disabled = true;
+    };
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
+    function updatePhase() {
+      socket.emit('updatePhase');
+      document.getElementById("phaseButton").disabled = true;
+      document.getElementById("periodButton").disabled = true;
+    };
 
-					var cell2 = row.insertCell();
-					var seller = data.seller_number[i];
-					if(seller == null)
-						cell2.innerHTML = "No Buy";
-					else
-						cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
-				}
-			});
+    socket.on('periodUpdate', function(data) {
+      document.location.reload();
+    });
+    socket.on('phaseUpdate', function(data) {
+      document.location.reload();
+    });
 
-			socket.on('auditInfo', function(data) {
-				sellerAudit = data.sellerAudit;
-				socket.emit('loadOffers');
-			});
+    socket.on('stats', function(data) {
+      document.getElementById("period").innerHTML = "The Current Period is " + data.period;
+      document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
+      if (data.phase == 3) {
+        document.getElementById("phaseButton").disabled = true;
+        if (data.audited_role != null) {
+          document.getElementById("auditedMessage").removeAttribute("hidden");
+          if (data.audited_role == 1)
+            document.getElementById("auditedMessage").innerHTML = "The buyer <strong>" + data.audited_name + "</strong> has won the auditor bid";
+          else
+            document.getElementById("auditedMessage").innerHTML = "The seller <strong>" + data.audited_name + "</strong> has won the auditor bid";
+        }
+      }
+      if (data.stage != 6) {
+        document.getElementById("periodButton").disabled = true;
+        document.getElementById("phaseButton").disabled = true;
+      }
+      curPhase = data.phase;
+      if (data.stage == 6)
+        isResults = true;
+      socket.emit('loadHistory');
+      socket.emit('getAuditInfo');
+    });
 
-			socket.on('offersLoaded', function(data){
-				var seller1loaded = false;
-				var seller2loaded = false;
-				var seller3loaded = false;
-				if(data.seller1 != null)
-					seller1loaded = true
-				if(data.seller2 != null)
-					seller2loaded = true
-				if(data.seller3 != null)
-					seller3loaded = true
+    socket.on('bidsLoaded', function(data) {
+      var tbody = document.getElementById('bids');
+      tbody.innerHTML = "";
+      if (data.buyer_number.length == 0) {
+        var row = tbody.insertRow();
+        var cell = row.insertCell();
+        cell.innerHTML = "<strong>No Offers</strong>";
+      }
 
-				if(seller1loaded){
-					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
-					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
-					parseColor("seller1Quality", data.seller1.quality);
-					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
-				}
-				else
-					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
-				if(seller2loaded){
-					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
-					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
-					parseColor("seller2Quality", data.seller2.quality);
-					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
-				}
-				else
-					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
-				if(seller3loaded){
-					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
-					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
-					parseColor("seller3Quality", data.seller3.quality);
-					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
-				}
-				else
-					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
-				if(curPhase == 3){
-					if(sellerAudit == 1 && seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 2 && seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 3 && seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
-				}
-			});
-			socket.on('historyLoaded', function(data) {
-				var tbody = document.getElementById('saleHistory');
-				var historyLength = data.phase.length-1;
-				console.log(isResults)
-				if(isResults)
-					historyLength++;
-				for(i = 0; i < 3; i++){
-					if(data.sellerNames[i] == undefined)
-						document.getElementById("historySeller" + (i+1)).innerHTML = "Seller Not Joined Yet"
-					else
-						document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
-				}
-				tbody.innerHTML = ""
-				for(i=0; i<historyLength; i++){
-					var row = tbody.insertRow();
-					var th = document.createElement('th');
-					if(data.phase[i] != 3)
-						th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
-					else
-						th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i];
-					row.appendChild(th);
+      for (var i = 0; i < data.buyer_number.length; i++) {
+        var row = tbody.insertRow();
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
-					var cell2 = row.insertCell();
-					cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
-					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
-				}
-			});
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
 
-			socket.on('sellerUpdated', function(data){
-				document.getElementById("sellers").innerHTML = "<strong>Submitted asking prices:</strong> " + data + "/3";
-			});
-			socket.on('buyerUpdated', function(data){
-				document.getElementById("buyers").innerHTML = "<strong>Submitted offers:</strong> " + data + "/4";
-			});
+        var cell2 = row.insertCell();
+        var seller = data.seller_number[i];
+        if (seller == null)
+          cell2.innerHTML = "No Buy";
+        else
+          cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
+      }
+    });
 
-			socket.on('stageUpdated', function(data){
-				isResults = false;
-				if(data == 0){
-					document.getElementById("message").innerHTML = "Sellers are currently submitting their asking prices."
-					socket.emit('statLoad');
-				}
-				else if(data == 5)
-					document.getElementById("message").innerHTML = "The auditor is currently being bid on."
-				else if(data == 6){
-					document.getElementById("message").innerHTML = "Results are being shown to players."
-					socket.emit('loadBids');
-					socket.emit('buyerUpdate');
-					socket.emit('loadLeaderboard');
-					isResults = true;
-					socket.emit('loadHistory');
-					document.getElementById("periodButton").disabled = false;
-					if(curPhase != 3)
-						document.getElementById("phaseButton").disabled = false;  
-				}
-				else if(data == 1){
-					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
-					socket.emit('sellerUpdate');
-				}
-				else{
-					socket.emit('loadBids');
-					socket.emit('buyerUpdate');
-					document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
-				}
-				socket.emit('loadOffers');
-			});
+    socket.on('auditInfo', function(data) {
+      sellerAudit = data.sellerAudit;
+      socket.emit('loadOffers');
+    });
 
-			socket.on('leaderboardLoaded', function(data) {
-				var tbody = document.getElementById('leaderboard');
-				tbody.innerHTML = "";
-				for(i=0; i<data.teamname.length; i++){
-					var row = tbody.insertRow();
-					var th = document.createElement('th');
-					th.innerHTML = data.teamname[i];
-					row.appendChild(th);
+    socket.on('offersLoaded', function(data) {
+      var seller1loaded = false;
+      var seller2loaded = false;
+      var seller3loaded = false;
+      if (data.seller1 != null)
+        seller1loaded = true
+      if (data.seller2 != null)
+        seller2loaded = true
+      if (data.seller3 != null)
+        seller3loaded = true
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = parseRole(data.role_id[i]);
-					var cell2 = row.insertCell();
-					cell2.innerHTML = "$" + parsePrice(data.profits[i]);
-				}
-			});
+      if (seller1loaded) {
+        document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
+        document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+        parseColor("seller1Quality", data.seller1.quality);
+        document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
+      } else
+        document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
+      if (seller2loaded) {
+        document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
+        document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+        parseColor("seller2Quality", data.seller2.quality);
+        document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
+      } else
+        document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
+      if (seller3loaded) {
+        document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
+        document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+        parseColor("seller3Quality", data.seller3.quality);
+        document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
+      } else
+        document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
+      if (curPhase == 3) {
+        if (sellerAudit == 1 && seller1loaded)
+          document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 2 && seller2loaded)
+          document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 3 && seller3loaded)
+          document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
+      }
+    });
+    socket.on('historyLoaded', function(data) {
+      var tbody = document.getElementById('saleHistory');
+      var historyLength = data.phase.length - 1;
+      console.log(isResults)
+      if (isResults)
+        historyLength++;
+      for (i = 0; i < 3; i++) {
+        if (data.sellerNames[i] == undefined)
+          document.getElementById("historySeller" + (i + 1)).innerHTML = "Seller Not Joined Yet"
+        else
+          document.getElementById("historySeller" + (i + 1)).innerHTML = data.sellerNames[i];
+      }
+      tbody.innerHTML = ""
+      for (i = 0; i < historyLength; i++) {
+        var row = tbody.insertRow();
+        var th = document.createElement('th');
+        if (data.phase[i] != 3)
+          th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
+        else
+          th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i];
+        row.appendChild(th);
 
-			socket.on('updateOffers', function(data) {
-				socket.emit('loadOffers');
-				socket.emit('sellerUpdate');
-			});
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
+        var cell2 = row.insertCell();
+        cell2.innerHTML = "Price: $" + parsePrice(data.seller2price[i]) + "<br>" + "Quality: " + parseQuality(data.seller2quality[i]) + "<br>" + "Units Sold: " + data.seller2units[i];
+        var cell3 = row.insertCell();
+        cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
+      }
+    });
 
-			function parsePrice(price) {
-				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
-			}
+    socket.on('sellerUpdated', function(data) {
+      document.getElementById("sellers").innerHTML = "<strong>Submitted asking prices:</strong> " + data + "/3";
+    });
+    socket.on('buyerUpdated', function(data) {
+      document.getElementById("buyers").innerHTML = "<strong>Submitted offers:</strong> " + data + "/4";
+    });
 
-			function parseQuality(quality){
-				if(quality == 1)
-					return "<h style='color: orange'>Low Quality</h>";
-				else if(quality == 2)
-					return "<h style='color: salmon'>Medium Quality</h>";
-				else if(quality == 3)
-					return "<h style='color: crimson'>High Quality</h>";
-			}
+    socket.on('stageUpdated', function(data) {
+      isResults = false;
+      if (data == 0) {
+        document.getElementById("message").innerHTML = "Sellers are currently submitting their asking prices."
+        socket.emit('statLoad');
+      } else if (data == 5)
+        document.getElementById("message").innerHTML = "The auditor is currently being bid on."
+      else if (data == 6) {
+        document.getElementById("message").innerHTML = "Results are being shown to players."
+        socket.emit('loadBids');
+        socket.emit('buyerUpdate');
+        socket.emit('loadLeaderboard');
+        isResults = true;
+        socket.emit('loadHistory');
+        document.getElementById("periodButton").disabled = false;
+        if (curPhase != 3)
+          document.getElementById("phaseButton").disabled = false;
+      } else if (data == 1) {
+        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
+        socket.emit('sellerUpdate');
+      } else {
+        socket.emit('loadBids');
+        socket.emit('buyerUpdate');
+        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
+      }
+      socket.emit('loadOffers');
+    });
 
-			function parseRole(role_id){
-				if(role_id == 1)
-					return "Buyer";
-				else if(role_id == 2)
-					return "Seller";
-				else
-					return "Error";
-			}
+    socket.on('leaderboardLoaded', function(data) {
+      var tbody = document.getElementById('leaderboard');
+      tbody.innerHTML = "";
+      for (i = 0; i < data.teamname.length; i++) {
+        var row = tbody.insertRow();
+        var th = document.createElement('th');
+        th.innerHTML = data.teamname[i];
+        row.appendChild(th);
 
-			function parseColor(id, quality){
-				if(quality == 1)
-					document.getElementById(id).style = "color:cornflowerblue"
-				else if(quality == 2)
-					document.getElementById(id).style = "color:green"
-				else
-					document.getElementById(id).style = "color:coral"
-			}
+        var cell1 = row.insertCell();
+        cell1.innerHTML = parseRole(data.role_id[i]);
+        var cell2 = row.insertCell();
+        cell2.innerHTML = "$" + parsePrice(data.profits[i]);
+      }
+    });
 
-			function forceForward() {
-				socket.emit('forceForward')
-			}
+    socket.on('updateOffers', function(data) {
+      socket.emit('loadOffers');
+      socket.emit('sellerUpdate');
+    });
 
-			function reset() {
-				socket.emit('reset')
-				window.location.replace('/admin_control');
-			}
-   		</script>
+    function parsePrice(price) {
+      return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+    }
 
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+    function parseQuality(quality) {
+      if (quality == 1)
+        return "<h style='color: orange'>Low Quality</h>";
+      else if (quality == 2)
+        return "<h style='color: salmon'>Medium Quality</h>";
+      else if (quality == 3)
+        return "<h style='color: crimson'>High Quality</h>";
+    }
+
+    function parseRole(role_id) {
+      if (role_id == 1)
+        return "Buyer";
+      else if (role_id == 2)
+        return "Seller";
+      else
+        return "Error";
+    }
+
+    function parseColor(id, quality) {
+      if (quality == 1)
+        document.getElementById(id).style = "color:cornflowerblue"
+      else if (quality == 2)
+        document.getElementById(id).style = "color:green"
+      else
+        document.getElementById(id).style = "color:coral"
+    }
+
+    function forceForward() {
+      socket.emit('forceForward')
+    }
+
+    function reset() {
+      socket.emit('reset')
+      window.location.replace('/admin_control');
+    }
+
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>

@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Visualization</title>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.css" rel="stylesheet">
-  </head>
-  <body>
-    <h1>Profits</h1>
-    <p>This chart shows the rolling profits of each team over time periods.</p>
-    <div id='chart'></div>
-    <script>
-      d3.json('/profits').then(data => {
-        let cols = []
-        data.map(row => row.totalProfits.unshift(row.team))
-        data.forEach(row => cols.push(row.totalProfits))
-        let chart = c3.generate({
-          bindto: '#chart',
-          data: { columns: cols }
-        })
+
+<head>
+  <title>Visualization</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.0/c3.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <h1>Profits</h1>
+  <p>This chart shows the rolling profits of each team over time periods.</p>
+  <div id='chart'></div>
+  <script>
+    d3.json('/profits').then(data => {
+      let cols = []
+      data.map(row => row.totalProfits.unshift(row.team))
+      data.forEach(row => cols.push(row.totalProfits))
+      let chart = c3.generate({
+        bindto: '#chart',
+        data: {
+          columns: cols
+        }
       })
-    </script>
-  </body>
+    })
+
+  </script>
+</body>
+
 </html>

@@ -1,251 +1,249 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Buyer Selection
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="start()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Buyer Selection Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-				<h4 id="message" class="alert alert-info">Please make an offer.</h4>
-				<h4 hidden id="message" class="alert alert-success"></h4>
-				<h2>Asking Prices</h2>
-				<h4 id="position"></h4>
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Seller</th>
-							<th>Quality</th>
-							<th>Price</th>
-						</tr>
-					</thead>
-					<tbody id="tbody">
-						<tr>
-							<th id="seller1Name"></th>
-							<td id="seller1Quality"></td>
-							<td id="seller1Price"></td>
-						</tr>
-						<tr>
-							<th id="seller2Name"></th>
-							<td id="seller2Quality"></td>
-							<td id="seller2Price"></td>
-						</tr>
-						<tr>
-							<th id="seller3Name"></th>
-							<td id="seller3Quality"></td>
-							<td id="seller3Price"></td>
-						</tr>
-					</tbody>
-				</table>
+<head>
+  <title>
+    Buyer Selection
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-				<h2>Prices</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Quality</th>
-							<th>Price</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td style = "color:orange">Low Quality</td>
-							<td id="LQSale"></td>
-						</tr>
-						<tr>
-							<td style = "color:salmon">Medium Quality</td>
-							<td id="MQSale"></td>
-						</tr>
-						<tr>
-							<td style = "color:crimson">High Quality</td>
-							<td id="HQSale"></td>
-						</tr>
-					</tbody>
-				</table>
-		   		<h2>Submitted Offers</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Buyer</th>
-							<th scope="col">Seller Offer</th>
-						</tr>
-					</thead>
-						<tbody id="bids">
-					</tbody>
-				</table>
-				<h2>Buy Selection</h2>
-				<form>
-					<div class="radio-inline">
-						<input type="radio" name="sellerSelect" id="Seller1"><label for="Seller1" id = "SellerLabel1">Seller 1</label>
-					</div>
-					<div class="radio-inline">
-						<input type="radio" name="sellerSelect" id="Seller2"><label for="Seller2" id = "SellerLabel2">Seller 2</label>
-					</div>
-					<div class="radio-inline">
-						<input type="radio" name="sellerSelect" id="Seller3"><label for="Seller3" id = "SellerLabel3">Seller 3</label>
-					</div>
-					<div class="radio-inline">
-						<label><input type="radio" name="sellerSelect" id="NoBuy">No Buy</label>
-					</div>
-				</form>
-		   		<br/>
-		   		<button type="button" class="btn btn-success" onclick="submitBuy()">Submit</button>
-			</div>
-		</div>
+<body onload="start()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Buyer Selection Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <h4 id="message" class="alert alert-info">Please make an offer.</h4>
+      <h4 hidden id="message" class="alert alert-success"></h4>
+      <h2>Asking Prices</h2>
+      <h4 id="position"></h4>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Seller</th>
+            <th>Quality</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr>
+            <th id="seller1Name"></th>
+            <td id="seller1Quality"></td>
+            <td id="seller1Price"></td>
+          </tr>
+          <tr>
+            <th id="seller2Name"></th>
+            <td id="seller2Quality"></td>
+            <td id="seller2Price"></td>
+          </tr>
+          <tr>
+            <th id="seller3Name"></th>
+            <td id="seller3Quality"></td>
+            <td id="seller3Price"></td>
+          </tr>
+        </tbody>
+      </table>
 
-		<script src="/socket.io/socket.io.js"></script>
-		<script>
-			function parseQuality(quality){
-				if(quality == 1)
-					return "<h style='color: orange'>Low Quality</h>";
-				else if(quality == 2)
-					return "<h style='color: salmon'>Medium Quality</h>";
-				else if(quality == 3)
-					return "<h style='color: crimson'>High Quality</h>";
-			}
-		</script>
-		<script>
-			var pos, phase, audited, sellerAudit, sellerDisable;
-			var socket = io.connect();
+      <h2>Prices</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Quality</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:orange">Low Quality</td>
+            <td id="LQSale"></td>
+          </tr>
+          <tr>
+            <td style="color:salmon">Medium Quality</td>
+            <td id="MQSale"></td>
+          </tr>
+          <tr>
+            <td style="color:crimson">High Quality</td>
+            <td id="HQSale"></td>
+          </tr>
+        </tbody>
+      </table>
+      <h2>Submitted Offers</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Buyer</th>
+            <th scope="col">Seller Offer</th>
+          </tr>
+        </thead>
+        <tbody id="bids">
+        </tbody>
+      </table>
+      <h2>Buy Selection</h2>
+      <form>
+        <div class="radio-inline">
+          <input type="radio" name="sellerSelect" id="Seller1"><label for="Seller1" id="SellerLabel1">Seller 1</label>
+        </div>
+        <div class="radio-inline">
+          <input type="radio" name="sellerSelect" id="Seller2"><label for="Seller2" id="SellerLabel2">Seller 2</label>
+        </div>
+        <div class="radio-inline">
+          <input type="radio" name="sellerSelect" id="Seller3"><label for="Seller3" id="SellerLabel3">Seller 3</label>
+        </div>
+        <div class="radio-inline">
+          <label><input type="radio" name="sellerSelect" id="NoBuy">No Buy</label>
+        </div>
+      </form>
+      <br/>
+      <button type="button" class="btn btn-success" onclick="submitBuy()">Submit</button>
+    </div>
+  </div>
 
-			function start(){
-				socket.emit('joinRoom');
-				socket.emit('getGameInfo');
-				socket.emit('loadResale');
-				socket.emit('loadBids');
-			}
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    function parseQuality(quality) {
+      if (quality == 1)
+        return "<h style='color: orange'>Low Quality</h>";
+      else if (quality == 2)
+        return "<h style='color: salmon'>Medium Quality</h>";
+      else if (quality == 3)
+        return "<h style='color: crimson'>High Quality</h>";
+    }
 
-			function submitBuy(){
-				if(document.getElementById("Seller1").checked){
-					socket.emit('buy', 1);
-				}
-				else if(document.getElementById("Seller2").checked){
-					socket.emit('buy', 2);
-				}
-				else if(document.getElementById("Seller3").checked){
-					socket.emit('buy', 3);
-				}
-				else if(document.getElementById("NoBuy").checked){
-					socket.emit('buy', 0);
-				}
-				else{
-					alert("Please select a buy option");
-					return;
-				}
-				window.location.replace('/buyer_wait');
-			}
+  </script>
+  <script>
+    var pos, phase, audited, sellerAudit, sellerDisable;
+    var socket = io.connect();
 
-			socket.on('gameReset', _ => window.location.replace('/redirect'));
+    function start() {
+      socket.emit('joinRoom');
+      socket.emit('getGameInfo');
+      socket.emit('loadResale');
+      socket.emit('loadBids');
+    }
 
-			socket.on('receivedInfo', function(data){
-				pos = data.pos;
-				phase = data.phase;
-				audited = data.audited;
-				sellerAudit = data.sellerAudit;
-				sellerDisable = data.sellerDisable;
-				for(var i = 0; i < 3; i++){	
-					if(sellerDisable[i]){
-						var selNum = i + 1;
-						var seller = document.getElementById("Seller" + selNum);
-						var sellerLabel = document.getElementById("SellerLabel" + selNum);
-						var att = document.createAttribute("disabled");
-						seller.setAttributeNode(att);
-						sellerLabel.innerHTML = "Seller " + selNum + ": Sold Out!";
-					}
-				}
-				document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+    function submitBuy() {
+      if (document.getElementById("Seller1").checked) {
+        socket.emit('buy', 1);
+      } else if (document.getElementById("Seller2").checked) {
+        socket.emit('buy', 2);
+      } else if (document.getElementById("Seller3").checked) {
+        socket.emit('buy', 3);
+      } else if (document.getElementById("NoBuy").checked) {
+        socket.emit('buy', 0);
+      } else {
+        alert("Please select a buy option");
+        return;
+      }
+      window.location.replace('/buyer_wait');
+    }
 
-				if(phase == 3){
-					document.getElementById("message").removeAttribute("hidden");	
-					if(audited == 1)
-						document.getElementById("message").innerHTML = "You have won the auditor bid! You will now be able to see Seller product qualites"
-					else
-						document.getElementById("message").innerHTML = "You have lost the auditor bid :(. You will continue to be unable to see Seller product qualities"
-				}
+    socket.on('gameReset', _ => window.location.replace('/redirect'));
 
-				socket.emit('loadOffers');
-			});
+    socket.on('receivedInfo', function(data) {
+      pos = data.pos;
+      phase = data.phase;
+      audited = data.audited;
+      sellerAudit = data.sellerAudit;
+      sellerDisable = data.sellerDisable;
+      for (var i = 0; i < 3; i++) {
+        if (sellerDisable[i]) {
+          var selNum = i + 1;
+          var seller = document.getElementById("Seller" + selNum);
+          var sellerLabel = document.getElementById("SellerLabel" + selNum);
+          var att = document.createAttribute("disabled");
+          seller.setAttributeNode(att);
+          sellerLabel.innerHTML = "Seller " + selNum + ": Sold Out!";
+        }
+      }
+      document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
 
-			socket.on('bidsLoaded', function(data) {
-				var tbody = document.getElementById('bids');
-				if(data.buyer_number.length == 0){
-					var row = tbody.insertRow();
-					var cell = row.insertCell();
-					cell.innerHTML = "<i>No Offers Yet This Period</i>"
-				}
-				for(var i = 0; i < data.buyer_number.length; i++){
-					var row = tbody.insertRow();
+      if (phase == 3) {
+        document.getElementById("message").removeAttribute("hidden");
+        if (audited == 1)
+          document.getElementById("message").innerHTML = "You have won the auditor bid! You will now be able to see Seller product qualites"
+        else
+          document.getElementById("message").innerHTML = "You have lost the auditor bid :(. You will continue to be unable to see Seller product qualities"
+      }
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
+      socket.emit('loadOffers');
+    });
 
-					var cell2 = row.insertCell();
-					var seller = data.seller_number[i];
-					if(seller == null)
-						cell2.innerHTML = "No Buy";
-					else
-						cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
-				}
-			});
+    socket.on('bidsLoaded', function(data) {
+      var tbody = document.getElementById('bids');
+      if (data.buyer_number.length == 0) {
+        var row = tbody.insertRow();
+        var cell = row.insertCell();
+        cell.innerHTML = "<i>No Offers Yet This Period</i>"
+      }
+      for (var i = 0; i < data.buyer_number.length; i++) {
+        var row = tbody.insertRow();
 
-			socket.on('offersLoaded', function(data){
-				document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
-				document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
-				document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
-				
-				if(phase == 1 || (phase == 3 && audited == 1)){
-					document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
-					document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
-					document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
-				}
-				else if(phase == 3){
-					document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
-					document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
-					document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
-					if(sellerAudit == 1)
-						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 2)
-						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 3)
-						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
-				}
-				else{
-					document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
-					document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
-					document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
-				}
-				
-				document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
-				document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
-				document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
-			});
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
 
-			socket.on('resaleLoaded', function(data){
-				document.getElementById("LQSale").innerHTML = "$" + parsePrice(data.resale1);
-				document.getElementById("MQSale").innerHTML = "$" + parsePrice(data.resale2);
-				document.getElementById("HQSale").innerHTML = "$" + parsePrice(data.resale3);
-			});
+        var cell2 = row.insertCell();
+        var seller = data.seller_number[i];
+        if (seller == null)
+          cell2.innerHTML = "No Buy";
+        else
+          cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
+      }
+    });
 
-			socket.on('stageUpdated', function(data){
-				window.location.replace('/buyer_wait');
-			});
+    socket.on('offersLoaded', function(data) {
+      document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
+      document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
+      document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
 
-			function parsePrice(price) {
-				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
-			}
-		</script>
-		
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>		
-	</body>
+      if (phase == 1 || (phase == 3 && audited == 1)) {
+        document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+        document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+        document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+      } else if (phase == 3) {
+        document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+        document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+        document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
+        if (sellerAudit == 1)
+          document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 2)
+          document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 3)
+          document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
+      } else {
+        document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+        document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+        document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
+      }
+
+      document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
+      document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
+      document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
+    });
+
+    socket.on('resaleLoaded', function(data) {
+      document.getElementById("LQSale").innerHTML = "$" + parsePrice(data.resale1);
+      document.getElementById("MQSale").innerHTML = "$" + parsePrice(data.resale2);
+      document.getElementById("HQSale").innerHTML = "$" + parsePrice(data.resale3);
+    });
+
+    socket.on('stageUpdated', function(data) {
+      window.location.replace('/buyer_wait');
+    });
+
+    function parsePrice(price) {
+      return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+    }
+
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>

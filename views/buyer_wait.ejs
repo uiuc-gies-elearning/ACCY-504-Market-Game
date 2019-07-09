@@ -1,268 +1,266 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Buyer Wait
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="start()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Buyer Wait Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-				<h4 id="message" class="alert alert-success"></h4>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Teamname</th>
-							<th scope="col">Buy Position</th>
-						</tr>
-					</thead>
-						<tbody id="position">
-					</tbody>
-				</table>
-				<h2>Sale History</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Period</th>
-							<th scope="col" id="historySeller1">Seller 1</th>
-							<th scope="col" id="historySeller2">Seller 2</th>
-							<th scope="col" id="historySeller3">Seller 3</th>
-						</tr>
-					</thead>
-					<tbody id="history">
-					</tbody>
-				</table>
-				<br/>
-				<h2>Asking Prices</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Seller</th>
-							<th>Quality</th>
-							<th>Price</th>
-						</tr>
-					</thead>
-					<tbody id="tbody">
-						<tr>
-							<td id="seller1Name"></td>
-							<td id="seller1Quality"></td>
-							<td id="seller1Price"></td>
-						</tr>
-						<tr>
-							<td id="seller2Name"></td>
-							<td id="seller2Quality"></td>
-							<td id="seller2Price"></td>
-						</tr>
-						<tr>
-							<td id="seller3Name"></td>
-							<td id="seller3Quality"></td>
-							<td id="seller3Price"></td>
-						</tr>
-					</tbody>
-				</table>
-				<br/>
-				<h2>Submitted Offers</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Buyer</th>
-							<th scope="col">Seller Offer</th>
-						</tr>
-					</thead>
-						<tbody id="bids">
-					</tbody>
-				</table>
-			</div>
-		</div>
-		<script src="/socket.io/socket.io.js"></script>
-		<script>
-			var socket = io.connect();
-			var pos, stage, phase, audited, sellerAudit, auditCustomer;
+<head>
+  <title>
+    Buyer Wait
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-			function start(){
-				socket.emit('joinRoom');
-				socket.emit('loadHistory');
-				socket.emit('loadWaitInfo');
-				socket.emit('loadBids');
-				socket.emit('getAuditInfo');
-			}
+<body onload="start()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Buyer Wait Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <h4 id="message" class="alert alert-success"></h4>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Teamname</th>
+            <th scope="col">Buy Position</th>
+          </tr>
+        </thead>
+        <tbody id="position">
+        </tbody>
+      </table>
+      <h2>Sale History</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Period</th>
+            <th scope="col" id="historySeller1">Seller 1</th>
+            <th scope="col" id="historySeller2">Seller 2</th>
+            <th scope="col" id="historySeller3">Seller 3</th>
+          </tr>
+        </thead>
+        <tbody id="history">
+        </tbody>
+      </table>
+      <br/>
+      <h2>Asking Prices</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Seller</th>
+            <th>Quality</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr>
+            <td id="seller1Name"></td>
+            <td id="seller1Quality"></td>
+            <td id="seller1Price"></td>
+          </tr>
+          <tr>
+            <td id="seller2Name"></td>
+            <td id="seller2Quality"></td>
+            <td id="seller2Price"></td>
+          </tr>
+          <tr>
+            <td id="seller3Name"></td>
+            <td id="seller3Quality"></td>
+            <td id="seller3Price"></td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+      <h2>Submitted Offers</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Buyer</th>
+            <th scope="col">Seller Offer</th>
+          </tr>
+        </thead>
+        <tbody id="bids">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect();
+    var pos, stage, phase, audited, sellerAudit, auditCustomer;
 
-			socket.on('historyLoaded', function(data) {
-				var tbody = document.getElementById('history');
-				for(i = 0; i < 3; i++){
-					if(data.sellerNames[i] == undefined)
-						document.getElementById("historySeller" + (i+1)).innerHTML = "Seller Not Joined Yet"
-					else
-						document.getElementById("historySeller" + (i+1)).innerHTML = data.sellerNames[i];
-				}
-				
-				for(var i=0; i<data.phase.length-1; i++){
-					var row = tbody.insertRow();
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Period: <strong>" + data.period[i] + "</strong>";
+    function start() {
+      socket.emit('joinRoom');
+      socket.emit('loadHistory');
+      socket.emit('loadWaitInfo');
+      socket.emit('loadBids');
+      socket.emit('getAuditInfo');
+    }
 
-					var cell2 = row.insertCell();
-					cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
-					if(data.sellerBought[i] == 1)
-						cell2.style = "color:MediumSeaGreen"
+    socket.on('historyLoaded', function(data) {
+      var tbody = document.getElementById('history');
+      for (i = 0; i < 3; i++) {
+        if (data.sellerNames[i] == undefined)
+          document.getElementById("historySeller" + (i + 1)).innerHTML = "Seller Not Joined Yet"
+        else
+          document.getElementById("historySeller" + (i + 1)).innerHTML = data.sellerNames[i];
+      }
 
-					var cell3 = row.insertCell();
-					cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
-					if(data.sellerBought[i] == 2)
-						cell3.style = "color:MediumSeaGreen"
+      for (var i = 0; i < data.phase.length - 1; i++) {
+        var row = tbody.insertRow();
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Period: <strong>" + data.period[i] + "</strong>";
 
-					var cell4 = row.insertCell();
-					cell4.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
-					if(data.sellerBought[i] == 3)
-						cell4.style = "color:MediumSeaGreen"
-				}
-			});
+        var cell2 = row.insertCell();
+        cell2.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
+        if (data.sellerBought[i] == 1)
+          cell2.style = "color:MediumSeaGreen"
 
-			socket.on('waitInfo', function(data) {
-				//pos = data.buyPos;
-				stage = data.stage;
-				//document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
-				var tbody = document.getElementById('position');
-				for(var i=0; i<data.allBuyPos.length; i++){
-					var row = tbody.insertRow();
-					var cell1 = row.insertCell();
-					cell1.innerHTML = data.allBuyPos[i]['teamname'];
+        var cell3 = row.insertCell();
+        cell3.innerHTML = "Price: <strong>$" + parsePrice(data.seller2price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller2quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller2units[i] + "</strong>";
+        if (data.sellerBought[i] == 2)
+          cell3.style = "color:MediumSeaGreen"
 
-					var cell2 = row.insertCell();
-					cell2.innerHTML = data.allBuyPos[i]['buy_pos'];
-				}
-				if(stage == 0)
-					document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
-				else if(stage == 6)
-					window.location.replace('/results');
-				else if(stage == 5)
-					document.getElementById("message").innerHTML = "Please wait for players to finalize their auditor bids.";
-				else
-					document.getElementById("message").innerHTML = "Please wait for Buyer <strong>" + stage + "</strong> to finish their buy order.";
-			});
+        var cell4 = row.insertCell();
+        cell4.innerHTML = "Price: <strong>$" + parsePrice(data.seller3price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller3quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller3units[i] + "</strong>";
+        if (data.sellerBought[i] == 3)
+          cell4.style = "color:MediumSeaGreen"
+      }
+    });
 
-			socket.on('bidsLoaded', function(data) {
-				var tbody = document.getElementById('bids');
-				if(data.buyer_number.length == 0){
-					var row = tbody.insertRow();
-					var cell = row.insertCell();
-					cell.innerHTML = "<strong>No offers submitted yet</strong>"
-				}
-				for(var i = 0; i < data.buyer_number.length; i++){
-					var row = tbody.insertRow();
+    socket.on('waitInfo', function(data) {
+      //pos = data.buyPos;
+      stage = data.stage;
+      //document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+      var tbody = document.getElementById('position');
+      for (var i = 0; i < data.allBuyPos.length; i++) {
+        var row = tbody.insertRow();
+        var cell1 = row.insertCell();
+        cell1.innerHTML = data.allBuyPos[i]['teamname'];
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
+        var cell2 = row.insertCell();
+        cell2.innerHTML = data.allBuyPos[i]['buy_pos'];
+      }
+      if (stage == 0)
+        document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
+      else if (stage == 6)
+        window.location.replace('/results');
+      else if (stage == 5)
+        document.getElementById("message").innerHTML = "Please wait for players to finalize their auditor bids.";
+      else
+        document.getElementById("message").innerHTML = "Please wait for Buyer <strong>" + stage + "</strong> to finish their buy order.";
+    });
 
-					var cell2 = row.insertCell();
-					var seller = data.seller_number[i];
-					if(seller == null)
-						cell2.innerHTML = "No Buy";
-					else
-						cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
-				}
-			});
+    socket.on('bidsLoaded', function(data) {
+      var tbody = document.getElementById('bids');
+      if (data.buyer_number.length == 0) {
+        var row = tbody.insertRow();
+        var cell = row.insertCell();
+        cell.innerHTML = "<strong>No offers submitted yet</strong>"
+      }
+      for (var i = 0; i < data.buyer_number.length; i++) {
+        var row = tbody.insertRow();
 
-			socket.on('auditInfo', function(data) {
-				phase = data.phase;
-				audited = data.audited;
-				sellerAudit = data.sellerAudit;
-				socket.emit('loadOffers');
-			});
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
 
-			socket.on('offersLoaded', function(data){
-				var seller1loaded = false;
-				var seller2loaded = false;
-				var seller3loaded = false;
-				if(data.seller1 != null)
-					seller1loaded = true
-				if(data.seller2 != null)
-					seller2loaded = true
-				if(data.seller3 != null)
-					seller3loaded = true
+        var cell2 = row.insertCell();
+        var seller = data.seller_number[i];
+        if (seller == null)
+          cell2.innerHTML = "No Buy";
+        else
+          cell2.innerHTML = "Seller: <strong>" + seller + "</strong>";
+      }
+    });
 
-				if(seller1loaded){
-					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
-					document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
-				}
-				else
-					document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
-				if(seller2loaded){
-					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
-					document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
-				}
-				else
-					document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
-				if(seller3loaded){
-					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
-					document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
-				}
-				else
-					document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
-				
-				if(phase == 1 || (phase == 3 && audited == 1)){
-					if(seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
-					if(seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
-					if(seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
-				}
-				else if(phase == 3){
-					if(seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
-					if(seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
-					if(seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
-					if(sellerAudit == 1 && seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 2 && seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
-					else if(sellerAudit == 3 && seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
-				}
-				else{
-					if(seller1loaded)
-						document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
-					if(seller2loaded)
-						document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
-					if(seller3loaded)
-						document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
-				}
-				
-			});
+    socket.on('auditInfo', function(data) {
+      phase = data.phase;
+      audited = data.audited;
+      sellerAudit = data.sellerAudit;
+      socket.emit('loadOffers');
+    });
 
-			socket.on('stageUpdated', function(data){
-				window.location.replace('/redirect');
-			});
+    socket.on('offersLoaded', function(data) {
+      var seller1loaded = false;
+      var seller2loaded = false;
+      var seller3loaded = false;
+      if (data.seller1 != null)
+        seller1loaded = true
+      if (data.seller2 != null)
+        seller2loaded = true
+      if (data.seller3 != null)
+        seller3loaded = true
 
-			socket.on('gameReset', _ => window.location.replace('/redirect'));
+      if (seller1loaded) {
+        document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>" + data.seller1.name + "</strong>";
+        document.getElementById("seller1Price").innerHTML = "$" + parsePrice(data.seller1.price);
+      } else
+        document.getElementById("seller1Name").innerHTML = "Seller 1: <strong>Not yet submitted</strong>";
+      if (seller2loaded) {
+        document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>" + data.seller2.name + "</strong>";
+        document.getElementById("seller2Price").innerHTML = "$" + parsePrice(data.seller2.price);
+      } else
+        document.getElementById("seller2Name").innerHTML = "Seller 2: <strong>Not yet submitted</strong>";
+      if (seller3loaded) {
+        document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>" + data.seller3.name + "</strong>";
+        document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
+      } else
+        document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
 
-			function parseQuality(quality){
-				if(quality == 1)
-					return "<h style='color: orange'>Low Quality</h>";
-				else if(quality == 2)
-					return "<h style='color: salmon'>Medium Quality</h>";
-				else if(quality == 3)
-					return "<h style='color: crimson'>High Quality</h>";
-			}
+      if (phase == 1 || (phase == 3 && audited == 1)) {
+        if (seller1loaded)
+          document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality);
+        if (seller2loaded)
+          document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality);
+        if (seller3loaded)
+          document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality);
+      } else if (phase == 3) {
+        if (seller1loaded)
+          document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+        if (seller2loaded)
+          document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+        if (seller3loaded)
+          document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
+        if (sellerAudit == 1 && seller1loaded)
+          document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 2 && seller2loaded)
+          document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
+        else if (sellerAudit == 3 && seller3loaded)
+          document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
+      } else {
+        if (seller1loaded)
+          document.getElementById("seller1Quality").innerHTML = "<i>Hidden</i>";
+        if (seller2loaded)
+          document.getElementById("seller2Quality").innerHTML = "<i>Hidden</i>";
+        if (seller3loaded)
+          document.getElementById("seller3Quality").innerHTML = "<i>Hidden</i>";
+      }
 
-			function parsePrice(price) {
-				return parseFloat(Math.round(price * 100) / 100).toFixed(2);
-			}
-		</script>
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+    });
+
+    socket.on('stageUpdated', function(data) {
+      window.location.replace('/redirect');
+    });
+
+    socket.on('gameReset', _ => window.location.replace('/redirect'));
+
+    function parseQuality(quality) {
+      if (quality == 1)
+        return "<h style='color: orange'>Low Quality</h>";
+      else if (quality == 2)
+        return "<h style='color: salmon'>Medium Quality</h>";
+      else if (quality == 3)
+        return "<h style='color: crimson'>High Quality</h>";
+    }
+
+    function parsePrice(price) {
+      return parseFloat(Math.round(price * 100) / 100).toFixed(2);
+    }
+
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>

@@ -1,93 +1,96 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Game Room
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="start()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Game Room<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-				<h2>Games</h2>
-				<table class="table">
-					<thead>
-						<tr>
-							<th scope="col">Game ID</th>
-							<th scope="col">Game Name</th>
-							<th scope="col">Join</th>
-						</tr>
-					</thead>
-						<tbody id="games">
-					</tbody>
-				</table>
-				<button type="button" class="btn btn-info hidden" id="newGame" onclick='window.location.replace(`/game_initialization`)'>Create New Game</button>
-			</div>
-		</div>
+<head>
+  <title>
+    Game Room
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-   		<script src="/socket.io/socket.io.js"></script>
-   		<script>
-   			var socket = io.connect();
-			var role;
+<body onload="start()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Game Room<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <h2>Games</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Game ID</th>
+            <th scope="col">Game Name</th>
+            <th scope="col">Join</th>
+          </tr>
+        </thead>
+        <tbody id="games">
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-info hidden" id="newGame" onclick='window.location.replace(`/game_initialization`)'>Create New Game</button>
+    </div>
+  </div>
 
-			function start(){
-				socket.emit('getRole');
-			}
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect();
+    var role;
 
-			socket.on('userRole', function(data){
-				role = data;
-				console.log(role);
-				if(role == 3)
-					document.getElementById("newGame").className = "btn btn-info";	
-				socket.emit('loadGames');
-			});
+    function start() {
+      socket.emit('getRole');
+    }
 
-			socket.on('gamesLoaded', function(data){
-				var tbody = document.getElementById('games');
-				for(var i = 0; i < data.game_id.length; i++){
-					var row = tbody.insertRow();
+    socket.on('userRole', function(data) {
+      role = data;
+      console.log(role);
+      if (role == 3)
+        document.getElementById("newGame").className = "btn btn-info";
+      socket.emit('loadGames');
+    });
 
-					var cell1 = row.insertCell();
-					cell1.innerHTML = "Game <strong>" + data.game_id[i];
+    socket.on('gamesLoaded', function(data) {
+      var tbody = document.getElementById('games');
+      for (var i = 0; i < data.game_id.length; i++) {
+        var row = tbody.insertRow();
 
-					var cell2 = row.insertCell();
-					cell2.innerHTML = data.game_name[i];
+        var cell1 = row.insertCell();
+        cell1.innerHTML = "Game <strong>" + data.game_id[i];
 
-					var cell3 = row.insertCell();
-					cell3.innerHTML = '<button type="button" class="btn btn-success" onclick="joinGame(' + data.game_id[i] + ')">Join Game</button>';
-				}
-			});
+        var cell2 = row.insertCell();
+        cell2.innerHTML = data.game_name[i];
 
-			socket.on('gameSelected', function(data){
-				window.location.replace('/redirect');
-			});
+        var cell3 = row.insertCell();
+        cell3.innerHTML = '<button type="button" class="btn btn-success" onclick="joinGame(' + data.game_id[i] + ')">Join Game</button>';
+      }
+    });
 
-			socket.on('joinFail', function(data){
-				if(data == 'notOwner')
-					alert('Join failed. You are not the owner of the game you are trying to join.');
-				else if(data == 'gameFull')
-					alert('Join failed. The game you are trying to join is full.');
-				else if(data == 'buyersFull')
-					alert('Join failed. The game you are trying to join already has the maximum number of buyers.');
-				else if(data == 'sellersFull')
-					alert('Join failed. The game you are trying to join already has the maximum number of sellers.')
-			});
+    socket.on('gameSelected', function(data) {
+      window.location.replace('/redirect');
+    });
 
-			function joinGame(gameID) {
-				socket.emit('selectGame', gameID);
-			}
-   		</script>
-		
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+    socket.on('joinFail', function(data) {
+      if (data == 'notOwner')
+        alert('Join failed. You are not the owner of the game you are trying to join.');
+      else if (data == 'gameFull')
+        alert('Join failed. The game you are trying to join is full.');
+      else if (data == 'buyersFull')
+        alert('Join failed. The game you are trying to join already has the maximum number of buyers.');
+      else if (data == 'sellersFull')
+        alert('Join failed. The game you are trying to join already has the maximum number of sellers.')
+    });
+
+    function joinGame(gameID) {
+      socket.emit('selectGame', gameID);
+    }
+
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>

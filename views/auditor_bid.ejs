@@ -1,83 +1,84 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			Auditor Bid
-		</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	</head>
 
-	<body onload="start()">
-		<div class="container">
-			<div class="page-header">
-				<div class='btn-toolbar pull-right'>
-		            <div class='btn-group'>
-		                <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
-		            </div>
-		        </div>
-				<h1>Auditor Bid<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
-			</div>
-			<div class="jumbotron">
-				<div class="form-group" onsubmit="submitBid()">
-		   			<label>How much do you want to bid for the auditor?</label>
-		   			<form class="form-inline" id="price">
-					    <div class="input-group">
-					    	<div class="input-group-addon">$</div>
-					    	<input type="number" min="0.00" step="0.01" value="0.00" id="bid" class="form-control" placeholder="Price" onkeypress="return inputKeyPress(event)"/>
-					    </div>
-					</form>
-					<br>
-				    <button type="submit" class="btn btn-success" onclick="submitBid()">Submit</button>
-				</div>
-			</div>
-		</div>
-		<script src="/socket.io/socket.io.js"></script>
-		<script>
-			var socket = io.connect();
-			var countDecimals = function(value) {
-			    if (Math.floor(value) != value)
-			        return value.toString().split(".")[1].length || 0;
-			    return 0;
-			}
+<head>
+  <title>
+    Auditor Bid
+  </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
 
-			function inputKeyPress(e){
-				e=e||window.event;
-				var key = e.keyCode;
-				if(key==13)
-				{
-					return false;
-				}
-			}
+<body onload="start()">
+  <div class="container">
+    <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <div class='btn-group'>
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+        </div>
+      </div>
+      <h1>Auditor Bid<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+    </div>
+    <div class="jumbotron">
+      <div class="form-group" onsubmit="submitBid()">
+        <label>How much do you want to bid for the auditor?</label>
+        <form class="form-inline" id="price">
+          <div class="input-group">
+            <div class="input-group-addon">$</div>
+            <input type="number" min="0.00" step="0.01" value="0.00" id="bid" class="form-control" placeholder="Price" onkeypress="return inputKeyPress(event)" />
+          </div>
+        </form>
+        <br>
+        <button type="submit" class="btn btn-success" onclick="submitBid()">Submit</button>
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io.connect();
+    var countDecimals = function(value) {
+      if (Math.floor(value) != value)
+        return value.toString().split(".")[1].length || 0;
+      return 0;
+    }
 
-			function start(){
-				socket.emit('joinRoom');
-			}
+    function inputKeyPress(e) {
+      e = e || window.event;
+      var key = e.keyCode;
+      if (key == 13) {
+        return false;
+      }
+    }
 
-			//TODO: Check if user has already submitted bid and redirect
-			function submitBid(){
-				var bid = document.getElementById("bid").value;
-				if(countDecimals(bid)>2){
-					alert("Please bid a dollar amount");
-					return;
-				}
-				socket.emit('bidSubmitted', bid);
-			}
+    function start() {
+      socket.emit('joinRoom');
+    }
 
-			socket.on('gameReset', _ => window.location.replace('/redirect'));
+    //TODO: Check if user has already submitted bid and redirect
+    function submitBid() {
+      var bid = document.getElementById("bid").value;
+      if (countDecimals(bid) > 2) {
+        alert("Please bid a dollar amount");
+        return;
+      }
+      socket.emit('bidSubmitted', bid);
+    }
 
-			socket.on('bidWait', function(data) {
-				if(data == 1)
-					window.location.replace('/buyer_wait');
-				else
-					window.location.replace('/audit_wait');
-			});
+    socket.on('gameReset', _ => window.location.replace('/redirect'));
 
-			socket.on('stageUpdated', function(data) {
-				window.location.replace('/redirect');
-			});
+    socket.on('bidWait', function(data) {
+      if (data == 1)
+        window.location.replace('/buyer_wait');
+      else
+        window.location.replace('/audit_wait');
+    });
 
-		</script>
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	</body>
+    socket.on('stageUpdated', function(data) {
+      window.location.replace('/redirect');
+    });
+
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+
 </html>
