@@ -1,11 +1,25 @@
-//========================================================================================
-//Backend functionality for the admin game initialization page. Holds a singular function
-//that takes in inputs from the frontend page a simply creates a new instance of a game
-//in the game table, and submits all the specified prices.
-//========================================================================================
+// Back end functionality for the admin game initialization page. Holds a
+// singular function that takes in inputs from the frontend page a simply
+// creates a new instance of a game in the game table, and submits all the
+// specified prices.
 
-//Import express app and mysql connection
+// Import express app and mysql connection
 var serverfile = require("./server.js");
+
+const ROLES = Array(serverfile.NUM_PLAYERS)
+      .fill(1, 0, serverfile.NUM_BUYERS)
+      .fill(2, serverfile.NUM_BUYERS);
+
+// sample usernames
+const NAMES = [
+  'Killer Queen',
+  'Green Day',
+  'Crazy Diamond',
+  'Star Platinum',
+  'Echoes',
+  'Pearl Jam',
+  'Enigma'
+];
 
 var game_initialization = function(request) {
   serverfile.app.io.route("gameSubmit", function(req) {
@@ -60,6 +74,10 @@ var game_initialization = function(request) {
                     return;
                   }
                   req.io.emit("submitted");
+
+                  // XXX
+                  let teams = generateTeams(serverfile.NUM_PLAYERS);
+                  createTeamsForGame(game_id, teams);
                 }
               );
             }
@@ -69,5 +87,53 @@ var game_initialization = function(request) {
     });
   });
 };
+
+function swap(arr, a, b) {
+  let tmp = arr[a];
+  arr[a] = arr[b];
+  arr[b] = tmp;
+}
+
+function shuffle(items) {
+  let arr = items.slice();
+  let curr = items.length;
+  while (curr !== 0) {
+    let rand = Math.floor(Math.random() * curr);
+    curr--;
+    swap(arr, curr, rand);
+  }
+  return arr;
+}
+
+const generateTeamNames = n => shuffle(NAMES).slice(0, n);
+
+const generatePassword = () => '1234';
+
+function generateTeam(name, role) {
+  return {
+    teamname: name,
+    password: generatePassword(),
+    role: role
+  };
+}
+
+const generateTeams = n => generateTeamNames(n)
+      .map((name, idx) => generateTeam(name, ROLES[idx]));
+
+function createTeamForGame(gameId, team) {
+  const userDto = {
+    teamname: team.teamname,
+    password: team.password,
+    role_id: team.role,
+    game_id: gameId,
+    profits: 0,
+    audited: null,
+    buy_pos: null
+  };
+  return serverfile.query('INSERT INTO user SET ?', userDto);
+}
+
+const createTeamsForGame = (gameId, teams) =>
+      Promise.all(teams.map(team => createTeamForGame(gameId, team)));
 
 module.exports.game_initialization = game_initialization;

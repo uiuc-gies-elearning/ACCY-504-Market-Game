@@ -1,9 +1,18 @@
-//=================================================================================================================================
-//Contains all dependency requirements and setup for MySQL DB Querying, HTTP hosting, express sessions, and passport logins.
-//Also contains all express routing. Socket IO (express.io) is used for the majority of front-end to backend communication
-//using sockets, however socket listening and emittion is almost entirely contained in separate JS files that are called within
-//the routes.
-//=================================================================================================================================
+// Contains all dependency requirements and setup for MySQL DB Querying, HTTP
+// hosting, express sessions, and passport logins. Also contains all express
+// routing. Socket IO (express.io) is used for the majority of front-end to
+// backend communication using sockets, however socket listening and emittion is
+// almost entirely contained in separate JS files that are called within the
+// routes.
+
+// Number of players in a game
+const NUM_BUYERS = 4;
+const NUM_SELLERS = 3;
+const NUM_PLAYERS = NUM_BUYERS + NUM_SELLERS;
+
+exports.NUM_BUYERS = NUM_BUYERS;
+exports.NUM_SELLERS = NUM_SELLERS;
+exports.NUM_PLAYERS = NUM_PLAYERS;
 
 //======================
 //DEPENDENCIES==========
@@ -78,6 +87,14 @@ connection.connect(function(err) {
 exports.app = app;
 exports.mysql = mysql;
 exports.connection = connection;
+exports.query = (request, ...args) => new Promise((resolve, reject) => {
+  connection.query(request, ...args, (error, results, fields) => {
+    if (error)
+      reject(error);
+    else
+      resolve(results);
+  });
+});
 
 //Open local port
 app.listen(3000, function() {
@@ -119,8 +136,9 @@ app.get("/login", function(req, res) {
   });
 });
 
-//Process the login form. Uses the local-login function from passport, which was altered
-//in config/passport.js. Check there to see what the function is actually doing
+// Process the login form. Uses the local-login function from passport, which
+// was altered in config/passport.js. Check there to see what the function is
+// actually doing
 app.post(
   "/login",
   passport.authenticate("local-login", {
@@ -244,9 +262,10 @@ app.get("/redirect", isLoggedIn, function(req, res, next) {
   }
 });
 
-//Routing to different role specific pages. The first two middleware functions check for an
-//authenticated session and whether or not the user is the role. The last callback function
-//redirects the user and runs the javascript file that encapsulates most of the page functionality.
+// Routing to different role specific pages. The first two middleware functions
+// check for an authenticated session and whether or not the user is the role.
+// The last callback function redirects the user and runs the javascript file
+// that encapsulates most of the page functionality.
 
 app.get("/admin_control", isLoggedIn, isAdmin, function(req, res, next) {
   res.render(path.join(__dirname, "..", "views/admin_control.ejs"));
