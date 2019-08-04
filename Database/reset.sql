@@ -11,20 +11,5 @@ DELETE FROM `game owner`;
 DELETE FROM `user`;
 DELETE FROM `game`;
 
+# Professor account is the only one that needs to exist; player accounts are created with game.
 INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`) VALUES ('professor', '1234', '3');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('killer queen', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('crazy diamond', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('green day', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('onett', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('twoson', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('threed', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('fourside', '1234', '1', '0');
-
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`) VALUES ('professor', '1234', '3');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('seller1', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('seller2', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('seller3', '1234', '2', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('buyer1', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('buyer2', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('buyer3', '1234', '1', '0');
-# INSERT INTO `mydb`.`user` (`teamname`, `password`, `role_id`, `profits`) VALUES ('buyer4', '1234', '1', '0');

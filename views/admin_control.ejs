@@ -347,16 +347,18 @@
     }
 
     function forceForward() {
-      socket.emit('forceForward')
+      socket.emit('forceForward');
     }
 
     function reset() {
-      socket.emit('reset')
+      socket.emit('reset');
       window.location.replace('/admin_control');
     }
 
     function deleteGame() {
-      // TODO reset game
+      socket.emit('delete_game');
+      // TODO go to game creation window
+      window.location.replace('')
     }
 
   </script>
