@@ -92,7 +92,10 @@ exports.query = (request, ...args) => new Promise((resolve, reject) => {
     if (error)
       reject(error);
     else
-      resolve(results);
+      resolve({
+        results: results,
+        fields: fields
+      });
   });
 });
 

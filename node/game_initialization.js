@@ -75,9 +75,56 @@ var game_initialization = function(request) {
                   }
                   req.io.emit("submitted");
 
-                  // XXX
                   let teams = generateTeams(serverfile.NUM_PLAYERS);
-                  createTeamsForGame(game_id, teams);
+
+                  let buyerIdx = 1, sellerIdx = 1;
+                  teams.forEach(team => {
+                    let userDto = {
+                      teamname: team.teamname,
+                      password: team.password,
+                      role_id: team.role,
+                      game_id: game_id,
+                      profits: 0,
+                      audited: null,
+                      buy_pos: null
+                    };
+                    serverfile.connection.query('INSERT INTO user SET ?', userDto, (err2, res2) => {
+                      if (err2) console.error(err2);
+                      else {
+                        console.log('Updating side lists');
+                        console.log(res2);
+                        console.log(team);
+                        switch (team.role) {
+                        case 1: // Buyer
+                          let buyerDto = {
+                            buyer_number: buyerIdx,
+                            user_id: res2.insertId,
+                            game_id: game_id
+                          };
+                          serverfile.connection.query('INSERT INTO `buyer list` SET ?', buyerDto, (errb, resb) => {
+                            if (errb) console.error(errb);
+                            else console.log(resb);
+                          });
+                          buyerIdx++;
+                          break;
+                        case 2: // Seller
+                          let sellerDto = {
+                            seller_number: sellerIdx,
+                            user_id: res2.insertId,
+                            game_id: game_id
+                          };
+                          serverfile.connection.query('INSERT INTO `seller list` SET ?', sellerDto, (errs, ress) => {
+                            if (errs) console.error(errs);
+                            else console.log(ress);
+                          });
+                          sellerIdx++;
+                          break;
+                        default: // Admin
+                          break;
+                        }
+                      }
+                    });
+                  });
                 }
               );
             }
@@ -119,21 +166,5 @@ function generateTeam(name, role) {
 
 const generateTeams = n => generateTeamNames(n)
       .map((name, idx) => generateTeam(name, ROLES[idx]));
-
-function createTeamForGame(gameId, team) {
-  const userDto = {
-    teamname: team.teamname,
-    password: team.password,
-    role_id: team.role,
-    game_id: gameId,
-    profits: 0,
-    audited: null,
-    buy_pos: null
-  };
-  return serverfile.query('INSERT INTO user SET ?', userDto);
-}
-
-const createTeamsForGame = (gameId, teams) =>
-      Promise.all(teams.map(team => createTeamForGame(gameId, team)));
 
 module.exports.game_initialization = game_initialization;
