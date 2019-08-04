@@ -240,18 +240,52 @@ var admin_control = function(request) {
       'DELETE FROM `auditor bid` WHERE user_id IN (SELECT user_id FROM users WHERE game_id = ?)',
       'DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
       'DELETE FROM `buy history` WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
-      'UPDATE game SET stage_id = 0 WHERE game_id = ?',
+      'DELETE FROM `sale history` WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
       'DELETE FROM history WHERE NOT (cur_phase = 1 AND cur_period = 1) AND game_id = ?',
       'DELETE FROM offers WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
-      'DELETE FROM `sale history` WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
+      'UPDATE game SET stage_id = 0 WHERE game_id = ?',
       'UPDATE user SET profits = 0 WHERE role_id IN (1, 2) AND game_id = ?'
     ];
     queries.forEach(q => serverfile.connection.query(q, gameid, (_err, _res) => 0));
     req.io.room(req.session.game_id).broadcast("gameReset");
   });
 
+  function deletion_continuation(req, queries, ix) {
+    if (ix >= queries.length) {
+      req.io.room(req.session.game_id).broadcast('game_delete');
+      return;
+    }
+    serverfile.connection.query(queries[ix], gameid, (err, res) => {
+      console.log(res);
+      console.error(err);
+      deletion_continuation(queries, ++ix);
+    });
+  }
+
   serverfile.app.io.route('delete_game', req => {
-    // TODO
+    const queries = [
+      'DELETE FROM `auditor bid` WHERE user_id IN (SELECT user_id FROM user WHERE game_id = ?)',
+      'DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
+      'DELETE FROM `buy history` WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
+      'DELETE FROM `sale history` WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
+      'DELETE FROM history WHERE game_id = ?',
+      'DELETE FROM offers WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
+      'DELETE FROM `game owner` WHERE game_id = ?',
+      'DELETE FROM `buyer list` WHERE game_id = ?',
+      'DELETE FROM `seller list` WHERE game_id = ?',
+      'DELETE FROM user WHERE role_id IN (1, 2) AND game_id = ?',
+      'UPDATE user SET game_id = null WHERE role_id = 3 AND game_id = ?',
+      'DELETE FROM game WHERE game_id = ?'
+    ];
+    console.log('Game being deleted');
+    queries.forEach(q => serverfile.connection.query(q, gameid, (_err, _res) => {
+      if (_err) {
+        console.error('Failed', q);
+        console.error(_err);
+      }
+    }));
+    req.io.room(req.session.game_id).broadcast('game_delete');
+    // deletion_continuation(req, queries, 0);
   });
 };
 

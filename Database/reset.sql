@@ -1,6 +1,6 @@
 use mydb;
-DELETE FROM `bid`;
 DELETE FROM `auditor bid`;
+DELETE FROM `bid`;
 DELETE FROM `buy history`;
 DELETE FROM `sale history`;
 DELETE FROM `history`;

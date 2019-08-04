@@ -103,7 +103,6 @@ var game_initialization = function(request) {
                           };
                           serverfile.connection.query('INSERT INTO `buyer list` SET ?', buyerDto, (errb, resb) => {
                             if (errb) console.error(errb);
-                            else console.log(resb);
                           });
                           buyerIdx++;
                           break;
@@ -115,7 +114,6 @@ var game_initialization = function(request) {
                           };
                           serverfile.connection.query('INSERT INTO `seller list` SET ?', sellerDto, (errs, ress) => {
                             if (errs) console.error(errs);
-                            else console.log(ress);
                           });
                           sellerIdx++;
                           break;
