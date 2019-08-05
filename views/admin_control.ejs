@@ -134,6 +134,9 @@
     socket.on('phaseUpdate', function(data) {
       document.location.reload();
     });
+   socket.on('gameforced', function(data) {
+     document.location.reload();
+   });
 
     socket.on('stats', function(data) {
       document.getElementById("period").innerHTML = "The Current Period is " + data.period;

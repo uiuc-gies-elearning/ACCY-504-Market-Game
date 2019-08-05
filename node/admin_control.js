@@ -250,18 +250,6 @@ var admin_control = function(request) {
     req.io.room(req.session.game_id).broadcast("gameReset");
   });
 
-  function deletion_continuation(req, queries, ix) {
-    if (ix >= queries.length) {
-      req.io.room(req.session.game_id).broadcast('game_delete');
-      return;
-    }
-    serverfile.connection.query(queries[ix], gameid, (err, res) => {
-      console.log(res);
-      console.error(err);
-      deletion_continuation(queries, ++ix);
-    });
-  }
-
   serverfile.app.io.route('delete_game', req => {
     const queries = [
       'DELETE FROM `auditor bid` WHERE user_id IN (SELECT user_id FROM user WHERE game_id = ?)',
@@ -285,7 +273,76 @@ var admin_control = function(request) {
       }
     }));
     req.io.room(req.session.game_id).broadcast('game_delete');
-    // deletion_continuation(req, queries, 0);
+  });
+
+  serverfile.app.io.route('forceForward', req => {
+    serverfile.connection.query(
+      'SELECT stage_id FROM game WHERE game_id = ?',
+      gameid,
+      (err, res) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        let stageid = res[0].stage_id;
+        if (1 <= stageid && stageid <= 4) {
+          // Get buyer id
+          serverfile.connection.query(
+            'SELECT buyer_id FROM `buyer list` WHERE buyer_number = ? AND game_id = ?',
+            [stageid, gameid],
+            (err, res) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+              let buyerid = res[0].buyer_id;
+              serverfile.connection.query(
+                'SELECT MAX(history_id) FROM history WHERE game_id = ?',
+                gameid,
+                (err, res) => {
+                  if (err) {
+                    console.error(err);
+                    return;
+                  }
+                  let historyid = res[0]['MAX(history_id)'];
+                  const nobuy = {
+                    history_id: historyid,
+                    buyer_id: buyerid,
+                    buy_quality: 4,
+                    buy_price: 0
+                  };
+                  // Add a no-buy record to buy history for the buyer in question
+                  serverfile.connection.query(
+                    'INSERT INTO `buy history` SET ?',
+                    nobuy,
+                    (err, res) => {
+                      if (err) {
+                        console.error(err);
+                        return;
+                      }
+                      let nextstage = stageid === 4 ? 6 : stageid + 1;
+                      serverfile.connection.query(
+                        'UPDATE game SET stage_id = ? WHERE game_id = ?',
+                        [nextstage, gameid],
+                        (err, res) => {
+                          if (err) {
+                            console.error(err);
+                            return;
+                          }
+                          req.io
+                            .room(req.session.user.game_id)
+                            .broadcast('gameforced');
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      }
+    );
   });
 };
 

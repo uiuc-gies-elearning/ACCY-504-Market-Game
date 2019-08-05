@@ -78,6 +78,7 @@ var game_initialization = function(request) {
                   let teams = generateTeams(serverfile.NUM_PLAYERS);
 
                   let buyerIdx = 1, sellerIdx = 1;
+                  let buyerIxo = 1; // FML
                   teams.forEach(team => {
                     let userDto = {
                       teamname: team.teamname,
@@ -86,7 +87,7 @@ var game_initialization = function(request) {
                       game_id: game_id,
                       profits: 0,
                       audited: null,
-                      buy_pos: null
+                      buy_pos: team.role === 1 ? buyerIxo++ : null
                     };
                     serverfile.connection.query('INSERT INTO user SET ?', userDto, (err2, res2) => {
                       if (err2) console.error(err2);

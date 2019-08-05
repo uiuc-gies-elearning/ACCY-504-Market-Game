@@ -193,7 +193,10 @@
       window.location.reload(true);
     });
 
+   socket.on('gameforced', data => window.location.replace('/redirect'));
+
     socket.on('gameReset', _ => window.location.replace('/redirect'));
+   socket.on('game_delete', _ => window.location.replace('/login'));
 
     function parseQuality(quality) {
       if (quality == 1)
