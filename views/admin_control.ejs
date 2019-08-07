@@ -345,18 +345,24 @@
     }
 
     function forceForward() {
-      socket.emit('forceForward');
-      window.location.replace('/admin_control');
+      if (confirm("Forcing a game cannot be undone")) {
+        socket.emit('forceForward');
+        window.location.replace('/admin_control');
+      }
     }
 
     function reset() {
-      socket.emit('reset');
-      window.location.replace('/admin_control');
+      if (confirm("Resetting a game cannot be undone")) {
+        socket.emit('reset');
+        window.location.replace('/admin_control');
+      }
     }
 
     function deleteGame() {
-      socket.emit('delete_game');
-      window.location.replace('/game_room');
+      if (confirm("Deleting a game cannot be undone")) {
+        socket.emit('delete_game');
+        window.location.replace('/game_room');
+      }
     }
 
   </script>
