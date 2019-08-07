@@ -145,7 +145,7 @@
 
     socket.on('gameReset', _ => window.location.replace('/redirect'));
     socket.on('game_delete', _ => window.location.replace('/login'));
-   socket.on('gameforced', _ => window.location.replace('/redirect'));
+    socket.on('gameforced', _ => window.location.replace('/redirect'));
 
     socket.on('receivedInfo', function(data) {
       pos = data.pos;

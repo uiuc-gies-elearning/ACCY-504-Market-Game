@@ -128,15 +128,9 @@
       document.getElementById("periodButton").disabled = true;
     };
 
-    socket.on('periodUpdate', function(data) {
-      document.location.reload();
-    });
-    socket.on('phaseUpdate', function(data) {
-      document.location.reload();
-    });
-   socket.on('gameforced', function(data) {
-     document.location.reload();
-   });
+   socket.on('periodUpdate', data => window.location.replace('/redirect'));
+   socket.on('phaseUpdate', data => window.location.replace('/redirect'));
+   socket.on('gameforced', data => window.location.replace('/redirect'));
 
     socket.on('stats', function(data) {
       document.getElementById("period").innerHTML = "The Current Period is " + data.period;
@@ -352,6 +346,7 @@
 
     function forceForward() {
       socket.emit('forceForward');
+      window.location.replace('/admin_control');
     }
 
     function reset() {

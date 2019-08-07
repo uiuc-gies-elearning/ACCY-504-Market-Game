@@ -9,15 +9,15 @@ var admin_control = function(request) {
   const userGame = request.user.game_id;
   const gameid = userGame;
 
-  serverfile.app.io.route("reset", req => {
-    let semaphore = 6;
-    serverfile.connection.query('DELETE FROM bid INNER JOIN `seller list` ON seller_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
-    serverfile.connection.query('DELETE FROM `auditor bid` INNER JOIN user ON user_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
-    serverfile.connection.query('DELETE FROM `buy history` INNER JOIN history ON history_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
-    serverfile.connection.query('DELETE FROM `sale history` INNER JOIN history ON history_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
-    serverfile.connection.query('DELETE FROM history WHERE game_id = ?', gameid, (err, res) => semaphore--);
-    serverfile.connection.query('UPDATE user SET profits = 0, audited = NULL, buy_pos = NULL WHERE game_id = ? AND role_id != 3', gameid, (err, res) => semaphore--);
-  });
+  // serverfile.app.io.route("reset", req => {
+  //   let semaphore = 6;
+  //   serverfile.connection.query('DELETE FROM bid INNER JOIN `seller list` ON seller_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
+  //   serverfile.connection.query('DELETE FROM `auditor bid` INNER JOIN user ON user_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
+  //   serverfile.connection.query('DELETE FROM `buy history` INNER JOIN history ON history_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
+  //   serverfile.connection.query('DELETE FROM `sale history` INNER JOIN history ON history_id WHERE game_id = ?', gameid, (err, res) => semaphore--);
+  //   serverfile.connection.query('DELETE FROM history WHERE game_id = ?', gameid, (err, res) => semaphore--);
+  //   serverfile.connection.query('UPDATE user SET profits = 0, audited = NULL, buy_pos = NULL WHERE game_id = ? AND role_id != 3', gameid, (err, res) => semaphore--);
+  // });
 
   //The 'Stats' loaded include the current phase, period, and stage
   serverfile.app.io.route("statLoad", function(req) {
@@ -332,6 +332,7 @@ var admin_control = function(request) {
                           req.io
                             .room(req.session.user.game_id)
                             .broadcast('gameforced');
+                          console.log('broadcast game force');
                         }
                       );
                     }
