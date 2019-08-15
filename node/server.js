@@ -1,7 +1,7 @@
 // Contains all dependency requirements and setup for MySQL DB Querying, HTTP
 // hosting, express sessions, and passport logins. Also contains all express
 // routing. Socket IO (express.io) is used for the majority of front-end to
-// backend communication using sockets, however socket listening and emittion is
+// backend communication using sockets, however socket listening and emission is
 // almost entirely contained in separate JS files that are called within the
 // routes.
 
@@ -124,9 +124,11 @@ const wait = require("./wait.js");
 const auditor_bid = require("./auditor_bid.js");
 const game_room = require("./game_room.js");
 const profits = require("./profits.js");
-const current_stage = require("./current_stage.js");
+const player_directory = require('./player_directory.js');
 
-//redirect / to our index.ejs file
+app.get('/directory', isLoggedIn, isAdmin, player_directory.player_directory);
+
+// redirect / to our index.ejs file
 app.get("/", function(req, res, next) {
   res.render(path.join(__dirname, "..", "views/index.ejs"));
 });

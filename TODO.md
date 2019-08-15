@@ -17,8 +17,8 @@
 - [x]	Removing the professor radio button from the create user screen
 - [ ]	Protecting URLs
 - [x]	Fixing U of I logo scaling
-- [ ] Reset Game Button
-- [ ] Add warning message when resetting a game
+- [x] Reset Game Button
+- [x] Add warning message when resetting a game
 
 ## To Fix
 - [ ] Race condition on buyers buying quickly. Does not redirect buyer page when in the middle of refresh.
@@ -36,7 +36,7 @@
 - [ ]	Average price for each quality (axis for price, axis for quality)
 - [ ]	Increase number of buyers/sellers
   - [x] Timer Force
-  - [ ] Restructure Login
+  - [x] Restructure Login
 
 ## Later
 - [ ]	(Option for) show asking prices all at once

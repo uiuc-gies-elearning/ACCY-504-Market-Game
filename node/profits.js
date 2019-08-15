@@ -28,7 +28,7 @@ module.exports.profits = (request, response) => {
             console.error(err);
             return;
           }
-          if (res.length == 0) return;
+          if (res.length === 0) return;
           let nbuyers = 4;
           let nperiods = res.length / nbuyers;
 

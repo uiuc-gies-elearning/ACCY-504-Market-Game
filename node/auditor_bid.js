@@ -35,7 +35,7 @@ var auditor_bid = function(request) {
               console.error(err);
               return;
             }
-            if (result.length == maxBids) {
+            if (result.length === maxBids) {
               //TODO: Randomize on matching max bids or not, currently selects fastest bidder
               var bidAmounts = [];
               var userIDs = [];

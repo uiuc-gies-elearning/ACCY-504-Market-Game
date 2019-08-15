@@ -13,95 +13,96 @@
     <div class="page-header">
       <div class='btn-toolbar pull-right'>
         <div class='btn-group'>
+          <button type='button' class='btn btn-link' onclick='window.location.replace("/redirect")'>Refresh</button>
           <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
         </div>
       </div>
       <h1>Buyer Selection Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
     </div>
-    <div class="jumbotron">
-      <h4 id="message" class="alert alert-info">Please make an offer.</h4>
-      <h4 hidden id="message" class="alert alert-success"></h4>
-      <h2>Asking Prices</h2>
-      <h4 id="position"></h4>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Seller</th>
-            <th>Quality</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody id="tbody">
-          <tr>
-            <th id="seller1Name"></th>
-            <td id="seller1Quality"></td>
-            <td id="seller1Price"></td>
-          </tr>
-          <tr>
-            <th id="seller2Name"></th>
-            <td id="seller2Quality"></td>
-            <td id="seller2Price"></td>
-          </tr>
-          <tr>
-            <th id="seller3Name"></th>
-            <td id="seller3Quality"></td>
-            <td id="seller3Price"></td>
-          </tr>
-        </tbody>
-      </table>
+    <h4 id="message" class="alert alert-info">Please make an offer.</h4>
+    <h4 hidden id="message" class="alert alert-success"></h4>
+    <h2>Asking Prices</h2>
+    <p>These are the prices you can buy the product at from the sellers.</p>
+    <h4 id="position"></h4>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Seller</th>
+        <th>Quality</th>
+        <th>Price</th>
+      </tr>
+      </thead>
+      <tbody id="tbody">
+      <tr>
+        <th id="seller1Name"></th>
+        <td id="seller1Quality"></td>
+        <td id="seller1Price"></td>
+      </tr>
+      <tr>
+        <th id="seller2Name"></th>
+        <td id="seller2Quality"></td>
+        <td id="seller2Price"></td>
+      </tr>
+      <tr>
+        <th id="seller3Name"></th>
+        <td id="seller3Quality"></td>
+        <td id="seller3Price"></td>
+      </tr>
+      </tbody>
+    </table>
 
-      <h2>Prices</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Quality</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="color:orange">Low Quality</td>
-            <td id="LQSale"></td>
-          </tr>
-          <tr>
-            <td style="color:salmon">Medium Quality</td>
-            <td id="MQSale"></td>
-          </tr>
-          <tr>
-            <td style="color:crimson">High Quality</td>
-            <td id="HQSale"></td>
-          </tr>
-        </tbody>
-      </table>
-      <h2>Submitted Offers</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Buyer</th>
-            <th scope="col">Seller Offer</th>
-          </tr>
-        </thead>
-        <tbody id="bids">
-        </tbody>
-      </table>
-      <h2>Buy Selection</h2>
-      <form>
-        <div class="radio-inline">
-          <input type="radio" name="sellerSelect" id="Seller1"><label for="Seller1" id="SellerLabel1">Seller 1</label>
-        </div>
-        <div class="radio-inline">
-          <input type="radio" name="sellerSelect" id="Seller2"><label for="Seller2" id="SellerLabel2">Seller 2</label>
-        </div>
-        <div class="radio-inline">
-          <input type="radio" name="sellerSelect" id="Seller3"><label for="Seller3" id="SellerLabel3">Seller 3</label>
-        </div>
-        <div class="radio-inline">
-          <label><input type="radio" name="sellerSelect" id="NoBuy">No Buy</label>
-        </div>
-      </form>
-      <br/>
-      <button type="button" class="btn btn-success" onclick="submitBuy()">Submit</button>
-    </div>
+    <h2>Resale Prices</h2>
+    <p>These prices are what you can sell a product of a given quality for.</p>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Quality</th>
+        <th>Price</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td style="color:orange">Low Quality</td>
+        <td id="LQSale"></td>
+      </tr>
+      <tr>
+        <td style="color:salmon">Medium Quality</td>
+        <td id="MQSale"></td>
+      </tr>
+      <tr>
+        <td style="color:crimson">High Quality</td>
+        <td id="HQSale"></td>
+      </tr>
+      </tbody>
+    </table>
+    <h2>Submitted Offers</h2>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Buyer</th>
+        <th scope="col">Seller Offer</th>
+      </tr>
+      </thead>
+      <tbody id="bids">
+      </tbody>
+    </table>
+    <h2>Buy Selection</h2>
+    <form>
+      <div class="radio-inline">
+        <input type="radio" name="sellerSelect" id="Seller1"><label for="Seller1" id="SellerLabel1">Seller 1</label>
+      </div>
+      <div class="radio-inline">
+        <input type="radio" name="sellerSelect" id="Seller2"><label for="Seller2" id="SellerLabel2">Seller 2</label>
+      </div>
+      <div class="radio-inline">
+        <input type="radio" name="sellerSelect" id="Seller3"><label for="Seller3" id="SellerLabel3">Seller 3</label>
+      </div>
+      <div class="radio-inline">
+        <label><input type="radio" name="sellerSelect" id="NoBuy">No Buy</label>
+      </div>
+    </form>
+    <br/>
+    <button type="button" class="btn btn-success" onclick="submitBuy()">Submit</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

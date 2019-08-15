@@ -13,77 +13,76 @@
     <div class="page-header">
       <div class='btn-toolbar pull-right'>
         <div class='btn-group'>
+          <button type='button' class='btn btn-link' onclick='window.location.replace("/redirect")'>Refresh</button>
           <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
         </div>
       </div>
       <h1>Buyer Wait Screen<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
     </div>
-    <div class="jumbotron">
-      <h4 id="message" class="alert alert-success"></h4>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Teamname</th>
-            <th scope="col">Buy Position</th>
-          </tr>
-        </thead>
-        <tbody id="position">
-        </tbody>
-      </table>
-      <h2>Sale History</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Period</th>
-            <th scope="col" id="historySeller1">Seller 1</th>
-            <th scope="col" id="historySeller2">Seller 2</th>
-            <th scope="col" id="historySeller3">Seller 3</th>
-          </tr>
-        </thead>
-        <tbody id="history">
-        </tbody>
-      </table>
-      <br/>
-      <h2>Asking Prices</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Seller</th>
-            <th>Quality</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody id="tbody">
-          <tr>
-            <td id="seller1Name"></td>
-            <td id="seller1Quality"></td>
-            <td id="seller1Price"></td>
-          </tr>
-          <tr>
-            <td id="seller2Name"></td>
-            <td id="seller2Quality"></td>
-            <td id="seller2Price"></td>
-          </tr>
-          <tr>
-            <td id="seller3Name"></td>
-            <td id="seller3Quality"></td>
-            <td id="seller3Price"></td>
-          </tr>
-        </tbody>
-      </table>
-      <br/>
-      <h2>Submitted Offers</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Buyer</th>
-            <th scope="col">Seller Offer</th>
-          </tr>
-        </thead>
-        <tbody id="bids">
-        </tbody>
-      </table>
-    </div>
+    <h4 id="message" class="alert alert-success"></h4>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Teamname</th>
+        <th scope="col">Buy Position</th>
+      </tr>
+      </thead>
+      <tbody id="position">
+      </tbody>
+    </table>
+    <h2>Sale History</h2>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Period</th>
+        <th scope="col" id="historySeller1">Seller 1</th>
+        <th scope="col" id="historySeller2">Seller 2</th>
+        <th scope="col" id="historySeller3">Seller 3</th>
+      </tr>
+      </thead>
+      <tbody id="history">
+      </tbody>
+    </table>
+    <br/>
+    <h2>Asking Prices</h2>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Seller</th>
+        <th>Quality</th>
+        <th>Price</th>
+      </tr>
+      </thead>
+      <tbody id="tbody">
+      <tr>
+        <td id="seller1Name"></td>
+        <td id="seller1Quality"></td>
+        <td id="seller1Price"></td>
+      </tr>
+      <tr>
+        <td id="seller2Name"></td>
+        <td id="seller2Quality"></td>
+        <td id="seller2Price"></td>
+      </tr>
+      <tr>
+        <td id="seller3Name"></td>
+        <td id="seller3Quality"></td>
+        <td id="seller3Price"></td>
+      </tr>
+      </tbody>
+    </table>
+    <br/>
+    <h2>Submitted Offers</h2>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Buyer</th>
+        <th scope="col">Seller Offer</th>
+      </tr>
+      </thead>
+      <tbody id="bids">
+      </tbody>
+    </table>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script>
