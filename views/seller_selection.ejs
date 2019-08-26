@@ -79,8 +79,7 @@
     function start() {
       socket.emit('joinRoom');
       socket.emit('loadPrices');
-    };
-
+    }
     function submitQuality() {
       var second;
       var price = document.getElementById("price-input").value;
@@ -122,10 +121,9 @@
         });
       } else {
         alert("Please pick a product quality to sell");
-        return;
-      }
-    };
 
+      }
+    }
     socket.on('gameReset', _ => window.location.replace('/redirect'));
    socket.on('game_delete', _ => window.location.replace('/login'));
 

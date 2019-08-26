@@ -16,8 +16,8 @@
     <div class="page-header">
       <div class='btn-toolbar pull-right'>
         <div class='btn-group'>
-          <button type='button' class='btn btn-link' onclick='window.location.replace("/redirect")'>Refresh</button>
-          <button type='button' class='btn btn-info' onclick="window.location.replace('/logout')">Logout</button>
+          <button type='button' class='btn btn-info' onclick='window.location.replace("/redirect")'>Force update</button>
+          <button type='button' class='btn btn-warning' onclick="window.location.replace('/logout')">Logout</button>
         </div>
       </div>
       <h1>Professor Control Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
@@ -34,6 +34,7 @@
         <button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
         <p id="phase"></p>
         <div class="btn-group">
+          <a type="button" class="btn btn-info" href="/directory">Players</a>
           <button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>
           <button type='button' class='btn btn-warning' onclick='forceForward()'>Force Buyer Selection</button>
           <button type='button' class='btn btn-danger' onclick='reset()'>Reset Game</button>
@@ -126,15 +127,13 @@
       socket.emit('updatePeriod');
       document.getElementById("periodButton").disabled = true;
       document.getElementById("phaseButton").disabled = true;
-    };
-
+    }
     function updatePhase() {
       socket.emit('updatePhase');
       document.getElementById("phaseButton").disabled = true;
       document.getElementById("periodButton").disabled = true;
-    };
-
-   socket.on('periodUpdate', data => window.location.replace('/redirect'));
+    }
+    socket.on('periodUpdate', data => window.location.replace('/redirect'));
    socket.on('phaseUpdate', data => window.location.replace('/redirect'));
    socket.on('gameforced', data => window.location.replace('/redirect'));
 

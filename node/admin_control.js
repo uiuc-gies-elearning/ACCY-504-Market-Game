@@ -132,7 +132,7 @@ var admin_control = function(request) {
           function(err, result) {
             if (err) {
               console.error(err);
-              return;
+
             }
           }
         );
@@ -190,7 +190,7 @@ var admin_control = function(request) {
           function(err, result) {
             if (err) {
               console.error(err);
-              return;
+
             }
           }
         );
@@ -407,7 +407,7 @@ function clearPeriodData(userGame) {
     function(err, result) {
       if (err) {
         console.error(err);
-        return;
+
       }
     }
   );
@@ -417,7 +417,7 @@ function clearPeriodData(userGame) {
     function(err, result) {
       if (err) {
         console.error(err);
-        return;
+
       }
     }
   );

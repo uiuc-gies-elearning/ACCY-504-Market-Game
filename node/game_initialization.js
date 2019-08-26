@@ -3,6 +3,8 @@
 // creates a new instance of a game in the game table, and submits all the
 // specified prices.
 
+const fs = require('fs');
+
 // Import express app and mysql connection
 var serverfile = require("./server.js");
 
@@ -151,9 +153,15 @@ function shuffle(items) {
   return arr;
 }
 
-const generateTeamNames = n => shuffle(NAMES).slice(0, n);
+const generateTeamNames = n => {
+  let names = fs.readFileSync(fs.realpathSync('./res/teamnames.txt'))
+    .toString()
+    .trim()
+    .split('\n');
+  return shuffle(names).slice(0, n);
+};
 
-const generatePassword = () => '1234';
+const generatePassword = () => Math.random().toString(36).substring(2);
 
 function generateTeam(name, role) {
   return {

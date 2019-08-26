@@ -526,7 +526,7 @@ function buyerProfitUpdate(buyHistory, userGame) {
                 function(err, result) {
                   if (err) {
                     console.error(err);
-                    return;
+
                   }
                 }
               );
@@ -582,7 +582,7 @@ function sellerProfitUpdate(saleHistory, userGame) {
                 function(err, result) {
                   if (err) {
                     console.error(err);
-                    return;
+
                   }
                 }
               );
@@ -601,7 +601,7 @@ function saleHistoryInsert(saleHistory) {
     function(err, result) {
       if (err) {
         console.error(err);
-        return;
+
       }
     }
   );
@@ -614,7 +614,7 @@ function buyHistoryInsert(buyHistory) {
     function(err, result) {
       if (err) {
         console.error(err);
-        return;
+
       }
     }
   );
