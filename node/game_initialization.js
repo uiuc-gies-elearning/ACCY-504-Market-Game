@@ -77,7 +77,7 @@ var game_initialization = function(request) {
                   }
                   req.io.emit("submitted");
 
-                  let teams = generateTeams(serverfile.NUM_PLAYERS);
+                  let teams = generateTeams(serverfile.NUM_PLAYERS, game_id);
 
                   let buyerIdx = 1, sellerIdx = 1;
                   let buyerIxo = 1; // FML
@@ -161,17 +161,17 @@ const generateTeamNames = n => {
   return shuffle(names).slice(0, n);
 };
 
-const generatePassword = () => Math.random().toString(36).substring(2);
+const generatePassword = gameid => Math.random().toString(36).substring(2) + gameid.toString(36);
 
-function generateTeam(name, role) {
+function generateTeam(name, role, gameid) {
   return {
     teamname: name,
-    password: generatePassword(),
+    password: generatePassword(gameid),
     role: role
   };
 }
 
-const generateTeams = n => generateTeamNames(n)
-      .map((name, idx) => generateTeam(name, ROLES[idx]));
+const generateTeams = (n, gameid) => generateTeamNames(n)
+      .map((name, idx) => generateTeam(name, ROLES[idx], gameid));
 
 module.exports.game_initialization = game_initialization;
