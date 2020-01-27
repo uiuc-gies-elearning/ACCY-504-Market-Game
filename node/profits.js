@@ -6,13 +6,19 @@ module.exports.profits = (request, response) => {
   let gameid = request.user.game_id;
 
   server.connection.query(
-    "SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = ?",
+    "SELECT price_low, price_med, price_high, resale_low, resale_med, resale_high FROM game WHERE game_id = ?",
     gameid,
     (err, res) => {
       if (err) {
         console.error(err);
         return;
       }
+
+      let prices = [
+        res[0]["price_low"],
+        res[0]["price_med"],
+        res[0]["price_high"]
+      ]
 
       let resale = [
         res[0]["resale_low"],
@@ -21,7 +27,13 @@ module.exports.profits = (request, response) => {
       ];
 
       server.connection.query(
-        "SELECT user.teamname, `buy history`.buy_quality, `buy history`.buy_price, history.cur_period FROM `buy history` INNER JOIN history ON `buy history`.history_id = history.history_id INNER JOIN `buyer list` ON `buyer list`.buyer_id = `buy history`.buyer_id INNER JOIN user ON user.user_id = `buyer list`.user_id WHERE `user`.game_id = ? ORDER BY `buyer list`.user_id, history.cur_period",
+        "SELECT u.teamname, bh.buy_quality, bh.buy_price, hh.audit_amount FROM `buy history` bh\n" +
+        "    INNER JOIN `buyer list` bl ON bh.buyer_id = bl.buyer_id\n" +
+        "    INNER JOIN user u ON bl.user_id = u.user_id\n" +
+        "    INNER JOIN history h ON bh.history_id = h.history_id\n" +
+        "    LEFT JOIN history hh ON u.teamname = hh.audit_winner AND bh.history_id = hh.history_id\n" +
+        "WHERE u.game_id = ?\n" +
+        "ORDER BY u.user_id, h.cur_period",
         gameid,
         (err, res) => {
           if (err) {
@@ -45,7 +57,7 @@ module.exports.profits = (request, response) => {
               let datavec = res[buyerBaseIdx + period];
               let buyQuality = datavec["buy_quality"] - 1;
               let profit =
-                buyQuality == 3 ? 0 : resale[buyQuality] - datavec["buy_price"];
+                buyQuality === 3 ? 0 : resale[buyQuality] - datavec["buy_price"] - datavec['audit_amount'];
               totalProfits += profit;
               buyerProfits.profits.push(financial(profit));
               buyerProfits.totalProfits.push(financial(totalProfits));
