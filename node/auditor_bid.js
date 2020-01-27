@@ -87,8 +87,8 @@ var auditor_bid = function(request) {
                                     return;
                                   }
                                   serverfile.connection.query(
-                                    "UPDATE history SET audit_winner = (SELECT teamname FROM user WHERE user_id = ?) WHERE game_id = ? ORDER BY cur_period DESC LIMIT 1",
-                                    [audittedUser, userGame],
+                                    "UPDATE history SET audit_winner = (SELECT teamname FROM user WHERE user_id = ?), audit_amount = ? WHERE game_id = ? ORDER BY cur_period DESC LIMIT 1",
+                                    [audittedUser, bidPrice, userGame],
                                     function(err, result) {
                                       if (err) {
                                         console.error(err);

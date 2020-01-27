@@ -165,13 +165,13 @@
       var tbody = document.getElementById('bids');
       tbody.innerHTML = "";
       if (data.buyer_number.length == 0) {
-        var row = tbody.insertRow();
-        var cell = row.insertCell();
+        let row = tbody.insertRow();
+        let cell = row.insertCell();
         cell.innerHTML = "<strong>No Offers</strong>";
       }
 
       for (var i = 0; i < data.buyer_number.length; i++) {
-        var row = tbody.insertRow();
+        let row = tbody.insertRow();
 
         var cell1 = row.insertCell();
         cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
@@ -222,12 +222,12 @@
         document.getElementById("seller3Price").innerHTML = "$" + parsePrice(data.seller3.price);
       } else
         document.getElementById("seller3Name").innerHTML = "Seller 3: <strong>Not yet submitted</strong>";
-      if (curPhase == 3) {
-        if (sellerAudit == 1 && seller1loaded)
+      if (curPhase === 3) {
+        if (sellerAudit === 1 && seller1loaded)
           document.getElementById("seller1Quality").innerHTML = parseQuality(data.seller1.quality) + " <strong>(Audited)</strong>";
-        else if (sellerAudit == 2 && seller2loaded)
+        else if (sellerAudit === 2 && seller2loaded)
           document.getElementById("seller2Quality").innerHTML = parseQuality(data.seller2.quality) + " <strong>(Audited)</strong>";
-        else if (sellerAudit == 3 && seller3loaded)
+        else if (sellerAudit === 3 && seller3loaded)
           document.getElementById("seller3Quality").innerHTML = parseQuality(data.seller3.quality) + " <strong>(Audited)</strong>";
       }
     });
@@ -250,7 +250,7 @@
         if (data.phase[i] != 3)
           th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i];
         else
-          th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i];
+          th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i] + '<br>Amount: ' + data.auditedAmount[i];
         row.appendChild(th);
 
         var cell1 = row.insertCell();
@@ -287,12 +287,12 @@
         if (curPhase != 3)
           document.getElementById("phaseButton").disabled = false;
       } else if (data == 1) {
-        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
+        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submitting their offer."
         socket.emit('sellerUpdate');
       } else {
         socket.emit('loadBids');
         socket.emit('buyerUpdate');
-        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submmiting their offer."
+        document.getElementById("message").innerHTML = "Buyer <strong>" + data + "</strong> is currently submitting their offer."
       }
       socket.emit('loadOffers');
     });
