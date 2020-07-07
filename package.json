@@ -23,7 +23,7 @@
   "devDependencies": {
     "coffeescript": "^2.4.1",
     "connect": "^3.7.0",
-    "npm": "^6.9.0"
+    "npm": "^6.14.6"
   },
   "jshintConfig": {
     "esversion": 6
