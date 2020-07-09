@@ -21,6 +21,7 @@ var admin_control = function(request) {
 
   //The 'Stats' loaded include the current phase, period, and stage
   serverfile.app.io.route("statLoad", function(req) {
+    var auditwinner;
     serverfile.connection.query(
       "SELECT cur_period FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1",
       userGame,
@@ -29,6 +30,7 @@ var admin_control = function(request) {
           console.error(err);
           return;
         }
+        auditwinner = result[0]["audit_winner"]
         var period = result[0]["cur_period"];
         serverfile.connection.query(
           "SELECT cur_phase FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1",
@@ -59,7 +61,11 @@ var admin_control = function(request) {
                   "SELECT teamname, role_id FROM user WHERE game_id = ? AND audited = 1",
                   userGame,
                   function(err, result) {
-                    if (result.length > 0) {
+                    if (auditwinner == null) {
+                      stats.audited_name = null;
+                      stats.audited_role = null;
+                    }
+                    else if (result.length > 0) {
                       stats.audited_name = result[0]["teamname"];
                       stats.audited_role = result[0]["role_id"];
                     }
