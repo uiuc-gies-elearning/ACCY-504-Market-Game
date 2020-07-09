@@ -253,6 +253,10 @@
           th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i] + '<br>Amount: ' + data.auditedAmount[i];
         row.appendChild(th);
 
+        if (parsePrice(data.seller1price[i]) == "NaN") {
+                  location.reload()
+        }
+        
         var cell1 = row.insertCell();
         cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
         var cell2 = row.insertCell();
