@@ -23,7 +23,7 @@ var admin_control = function(request) {
   serverfile.app.io.route("statLoad", function(req) {
     var auditwinner;
     serverfile.connection.query(
-      "SELECT cur_period FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1",
+      "SELECT cur_period, audit_winner FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1",
       userGame,
       function(err, result) {
         if (err) {
