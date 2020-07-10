@@ -101,7 +101,7 @@ var admin_control = function(request) {
   //TODO: Use table joins to check game id as well
   serverfile.app.io.route("buyerUpdate", function(req) {
     serverfile.connection.query(
-      "SELECT COUNT(*) FROM `buy history` WHERE history_id IN (SELECT MAX(history_id) FROM history WHERE game_id = ?);",
+      "select COUNT(*) from bid",
       userGame,
       function(err, result) {
         if (err) {
