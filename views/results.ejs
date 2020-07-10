@@ -76,6 +76,10 @@
         th.innerHTML = "Period: " + data.period[i];
         row.appendChild(th);
 
+        if (parsePrice(data.seller1price[i]) == "NaN") {
+          location.reload()
+        }
+        
         var cell1 = row.insertCell();
         cell1.innerHTML = "Price: <strong>$" + parsePrice(data.seller1price[i]) + "</strong><br>" + "Quality: <strong>" + parseQuality(data.seller1quality[i]) + "</strong><br>" + "Units Sold: <strong>" + data.seller1units[i] + "</strong>";
         if (playerData.role == 1) {
