@@ -112,6 +112,8 @@
     var socket = io.connect();
     var curPhase, sellerAudit;
     var isResults = false;
+    var currentPeriod = 0;
+    var Countbids = 0;
 
     function statLoad() {
       socket.emit('joinRoom');
@@ -138,6 +140,7 @@
    socket.on('gameforced', data => window.location.replace('/redirect'));
 
     socket.on('stats', function(data) {
+      currentPeriod = data.period;
       document.getElementById("period").innerHTML = "The Current Period is " + data.period;
       document.getElementById("phase").innerHTML = "The Current Phase is " + data.phase;
       if (data.phase == 3) {
@@ -164,6 +167,7 @@
     socket.on('bidsLoaded', function(data) {
       var tbody = document.getElementById('bids');
       tbody.innerHTML = "";
+      Countbids = data.buyer_number.length
       if (data.buyer_number.length == 0) {
         let row = tbody.insertRow();
         let cell = row.insertCell();
@@ -233,7 +237,7 @@
     });
     socket.on('historyLoaded', function(data) {
       var tbody = document.getElementById('saleHistory');
-      var historyLength = data.phase.length - 1;
+      var historyLength = data.period.length - 1;
       console.log(isResults)
       if (isResults)
         historyLength++;
@@ -253,10 +257,17 @@
           th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i] + '<br>Amount: ' + data.auditedAmount[i];
         row.appendChild(th);
 
+        console.log('Current Period');
+        console.log(currentPeriod);
         if (parsePrice(data.seller1price[i]) == "NaN") {
-                  location.reload()
+          location.reload()
+        } else if (currentPeriod != 0) {
+          if (currentPeriod !=(historyLength) && (Countbids == 4)) {
+            location.reload()
+          }
         }
-        
+
+
         var cell1 = row.insertCell();
         cell1.innerHTML = "Price: $" + parsePrice(data.seller1price[i]) + "<br>" + "Quality: " + parseQuality(data.seller1quality[i]) + "<br>" + "Units Sold: " + data.seller1units[i];
         var cell2 = row.insertCell();
