@@ -282,76 +282,13 @@ var admin_control = function(request) {
   });
 
   serverfile.app.io.route('forceForward', req => {
-    serverfile.connection.query(
-      'SELECT stage_id FROM game WHERE game_id = ?',
-      gameid,
-      (err, res) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        let stageid = res[0].stage_id;
-        if (1 <= stageid && stageid <= 4) {
-          // Get buyer id
-          serverfile.connection.query(
-            'SELECT buyer_id FROM `buyer list` WHERE buyer_number = ? AND game_id = ?',
-            [stageid, gameid],
-            (err, res) => {
-              if (err) {
-                console.error(err);
-                return;
-              }
-              let buyerid = res[0].buyer_id;
-              serverfile.connection.query(
-                'SELECT MAX(history_id) FROM history WHERE game_id = ?',
-                gameid,
-                (err, res) => {
-                  if (err) {
-                    console.error(err);
-                    return;
-                  }
-                  let historyid = res[0]['MAX(history_id)'];
-                  const nobuy = {
-                    history_id: historyid,
-                    buyer_id: buyerid,
-                    buy_quality: 4,
-                    buy_price: 0
-                  };
-                  // Add a no-buy record to buy history for the buyer in question
-                  serverfile.connection.query(
-                    'INSERT INTO `buy history` SET ?',
-                    nobuy,
-                    (err, res) => {
-                      if (err) {
-                        console.error(err);
-                        return;
-                      }
-                      let nextstage = stageid === 4 ? 6 : stageid + 1;
-                      serverfile.connection.query(
-                        'UPDATE game SET stage_id = ? WHERE game_id = ?',
-                        [nextstage, gameid],
-                        (err, res) => {
-                          if (err) {
-                            console.error(err);
-                            return;
-                          }
-                          req.io
-                            .room(req.session.user.game_id)
-                            .broadcast('gameforced');
-                          console.log('broadcast game force');
-                        }
-                      );
-                    }
-                  );
-                }
-              );
-            }
-          );
-        }
-      }
-    );
-  });
-};
+    req.io
+      .room(req.session.user.game_id)
+      .broadcast('gameforced', req.session.user.user_id);
+    console.log('broadcast game force');
+    }
+  );
+}
 
 //Buy order must be randomized at the start of every period/phase
 //This function uses a shuffle helper function to insert a randomized
