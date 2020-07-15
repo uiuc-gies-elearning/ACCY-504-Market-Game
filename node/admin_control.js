@@ -291,36 +291,24 @@ var admin_control = function(request) {
           return;
         }
         let stageid = res[0].stage_id;
-        if (1 <= stageid && stageid <= 4) {
+        if ((1 <= stageid) && (stageid <= 4)) {
           // Get buyer id
           serverfile.connection.query(
-            'SELECT buyer_id FROM `buyer list` WHERE buyer_number = ? AND game_id = ?',
+            'select buyer_id FROM `user` inner join `buyer list` ON `user`.user_id = `buyer list`.user_id where `user`.buy_pos = ? AND `user`.game_id = ?',
             [stageid, gameid],
             (err, res) => {
               if (err) {
                 console.error(err);
                 return;
               }
-              let buyerid = res[0].buyer_id;
-              serverfile.connection.query(
-                'SELECT MAX(history_id) FROM history WHERE game_id = ?',
-                gameid,
-                (err, res) => {
-                  if (err) {
-                    console.error(err);
-                    return;
-                  }
-                  let historyid = res[0]['MAX(history_id)'];
-                  const nobuy = {
-                    history_id: historyid,
-                    buyer_id: buyerid,
-                    buy_quality: 4,
-                    buy_price: 0
-                  };
+              let buyerid = res[0]['buyer_id'];
+
+                  const bid = { buyer_id: buyerid }
+
                   // Add a no-buy record to buy history for the buyer in question
                   serverfile.connection.query(
-                    'INSERT INTO `buy history` SET ?',
-                    nobuy,
+                    'INSERT INTO bid SET ?',
+                    bid,
                     (err, res) => {
                       if (err) {
                         console.error(err);
@@ -335,6 +323,10 @@ var admin_control = function(request) {
                             console.error(err);
                             return;
                           }
+                          if (nextstage == 6) {
+                              updateHistory(gameid);
+                          }
+
                           req.io
                             .room(req.session.user.game_id)
                             .broadcast('gameforced');
@@ -343,8 +335,8 @@ var admin_control = function(request) {
                       );
                     }
                   );
-                }
-              );
+        //        }
+          //    );
             }
           );
         }
@@ -420,6 +412,263 @@ function clearPeriodData(userGame) {
   serverfile.connection.query(
     "DELETE offers FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?",
     userGame,
+    function(err, result) {
+      if (err) {
+        console.error(err);
+
+      }
+    }
+  );
+}
+
+function updateHistory(userGame) {
+  serverfile.connection.query(
+    "SELECT history_id FROM history WHERE game_id = ? ORDER BY history_id DESC LIMIT 1",
+    userGame,
+    function(err, result) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      var curHistory = result[0]["history_id"];
+      serverfile.connection.query(
+        "SELECT offers.*, `seller list`.seller_number FROM offers INNER JOIN `seller list` on offers.seller_id = `seller list`.seller_id WHERE game_id = ?",
+        userGame,
+        function(err, result) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          var sellerIDs = [
+            result[0]["seller_id"],
+            result[1]["seller_id"],
+            result[2]["seller_id"]
+          ];
+          var sellerNums = [
+            result[0]["seller_number"],
+            result[1]["seller_number"],
+            result[2]["seller_number"]
+          ];
+          var qualities = [
+            result[0]["quality_id"],
+            result[1]["quality_id"],
+            result[2]["quality_id"]
+          ];
+          var prices = [
+            result[0]["price"],
+            result[1]["price"],
+            result[2]["price"]
+          ];
+
+          serverfile.connection.query(
+            "SELECT bid.* FROM bid INNER JOIN `buyer list` on bid.buyer_id = `buyer list`.buyer_id WHERE game_id = ?",
+            userGame,
+            function(err, result) {
+              if (err) {
+                console.error(err);
+                return;
+              }
+
+              var allSaleHistories = [];
+
+              for (i = 0; i < 3; i++) {
+                var count = 0;
+                for (n = 0; n < result.length; n++) {
+                  if (result[n]["seller_id"] == sellerIDs[i]) count++;
+                }
+
+                var saleHistory = {
+                  history_id: curHistory,
+                  seller_id: sellerIDs[i],
+                  units_sold: count,
+                  price_sold: prices[i],
+                  quality_id: qualities[i]
+                };
+
+                allSaleHistories.push(saleHistory);
+              }
+
+              allSaleHistories.forEach(function(element) {
+                saleHistoryInsert(element);
+              });
+
+              allSaleHistories.forEach(function(element) {
+                sellerProfitUpdate(element, userGame);
+              });
+
+              var allBuyHistories = [];
+              for (i = 0; i < result.length; i++) {
+                var curSeller = result[i]["seller_id"];
+                var sellQuality, sellPrice, sellNum;
+                if (curSeller == null) {
+                  sellPrice = 0;
+                  sellQuality = 4;
+                } else {
+                  for (n = 0; n < 3; n++) {
+                    if (curSeller == sellerIDs[n]) {
+                      sellQuality = qualities[n];
+                      sellPrice = prices[n];
+                      sellNum = sellerNums[n];
+                      break;
+                    }
+                  }
+                }
+
+                var buyHistory = {
+                  history_id: curHistory,
+                  buyer_id: result[i]["buyer_id"],
+                  buy_quality: sellQuality,
+                  buy_price: sellPrice,
+                  seller_number: sellNum
+                };
+
+                allBuyHistories.push(buyHistory);
+              }
+
+              allBuyHistories.forEach(function(element) {
+                buyHistoryInsert(element);
+              });
+
+              allBuyHistories.forEach(function(element) {
+                buyerProfitUpdate(element, userGame);
+              });
+            }
+          );
+        }
+      );
+    }
+  );
+}
+
+//HELPER FUNCTIONS: buyerProfitUpdate, sellerProfitUpdate, saleHistoryInsert, buyHistoryInsert
+//--------------------------------------------------------------------------------------------
+
+function buyerProfitUpdate(buyHistory, userGame) {
+  serverfile.connection.query(
+    "SELECT resale_low, resale_med, resale_high FROM game WHERE game_id = ?",
+    userGame,
+    function(err, result) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      var resale = [
+        result[0]["resale_low"],
+        result[0]["resale_med"],
+        result[0]["resale_high"],
+        0
+      ];
+      var profit = resale[buyHistory.buy_quality - 1] - buyHistory.buy_price;
+      serverfile.connection.query(
+        "SELECT user_id FROM `buyer list` WHERE buyer_id = ? AND game_id = ?",
+        [buyHistory.buyer_id, userGame],
+        function(err, result) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          var user = result[0]["user_id"];
+          serverfile.connection.query(
+            "SELECT profits FROM user WHERE user_id = ? AND game_id = ?",
+            [user, userGame],
+            function(err, result) {
+              if (err) {
+                console.error(err);
+                return;
+              }
+              newProfit = profit + result[0]["profits"];
+              serverfile.connection.query(
+                "UPDATE user SET profits = ? WHERE user_id = ?",
+                [newProfit, user],
+                function(err, result) {
+                  if (err) {
+                    console.error(err);
+
+                  }
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+}
+
+function sellerProfitUpdate(saleHistory, userGame) {
+  serverfile.connection.query(
+    "SELECT price_low, price_med, price_high FROM game WHERE game_id = ?",
+    userGame,
+    function(err, result) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      var prices = [
+        result[0]["price_low"],
+        result[0]["price_med"],
+        result[0]["price_high"]
+      ];
+      var productionCost = prices[saleHistory.quality_id - 1];
+      var productionTotal;
+      var units = saleHistory.units_sold;
+      if (units == 2) productionTotal = productionCost * 2 + 1;
+      else productionTotal = productionCost * units;
+      var profit = units * saleHistory.price_sold - productionTotal;
+      serverfile.connection.query(
+        "SELECT user_id FROM `seller list` WHERE seller_id = ?",
+        saleHistory.seller_id,
+        function(err, result) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          var user = result[0]["user_id"];
+          serverfile.connection.query(
+            "SELECT profits FROM user WHERE user_id = ?",
+            user,
+            function(err, result) {
+              if (err) {
+                console.error(err);
+                return;
+              }
+              var newProfit = profit + result[0]["profits"];
+              serverfile.connection.query(
+                "UPDATE user SET profits = ? WHERE user_id = ?",
+                [newProfit, user],
+                function(err, result) {
+                  if (err) {
+                    console.error(err);
+
+                  }
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+}
+
+function saleHistoryInsert(saleHistory) {
+  serverfile.connection.query(
+    "INSERT INTO `sale history` SET ?",
+    saleHistory,
+    function(err, result) {
+      if (err) {
+        console.error(err);
+
+      }
+    }
+  );
+}
+
+function buyHistoryInsert(buyHistory) {
+  serverfile.connection.query(
+    "INSERT INTO `buy history` SET ?",
+    buyHistory,
     function(err, result) {
       if (err) {
         console.error(err);

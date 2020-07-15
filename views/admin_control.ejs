@@ -257,8 +257,6 @@
           th.innerHTML = "Phase: " + data.phase[i] + "<br>" + "Period: " + data.period[i] + "<br>Audited: " + data.auditedUser[i] + '<br>Amount: ' + data.auditedAmount[i];
         row.appendChild(th);
 
-        console.log('Current Period');
-        console.log(currentPeriod);
         if (parsePrice(data.seller1price[i]) == "NaN") {
           location.reload()
         } else if (currentPeriod != 0) {
