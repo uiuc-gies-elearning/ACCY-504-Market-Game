@@ -284,7 +284,7 @@ var admin_control = function(request) {
   serverfile.app.io.route('forceForward', req => {
     req.io
       .room(req.session.user.game_id)
-      .broadcast('gameforced', req.session.user.user_id);
+      .broadcast('gameforced');
     console.log('broadcast game force');
     }
   );

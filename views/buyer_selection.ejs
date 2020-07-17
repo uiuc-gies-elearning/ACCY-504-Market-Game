@@ -148,11 +148,11 @@
       socket.emit('buy', 0);
       window.location.replace('/buyer_wait');
     }
-    
     socket.on('gameReset', _ => window.location.replace('/redirect'));
     socket.on('game_delete', _ => window.location.replace('/login'));
-    socket.on('gameforced', function(data) { console.log(data);
-    socket.emit('buy', 0);window.location.replace('/buyer_wait')});
+    socket.on('gameforced', function() {
+    socket.emit('buy', 0);
+    window.location.replace('/buyer_wait')})
 
     socket.on('receivedInfo', function(data) {
       pos = data.pos;
