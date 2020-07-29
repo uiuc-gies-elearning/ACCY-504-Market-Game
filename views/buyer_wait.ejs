@@ -162,8 +162,8 @@
         var row = tbody.insertRow();
 
         var cell1 = row.insertCell();
-        cell1.innerHTML = "Buyer " + data.buyer_number[i] + ": <strong>" + data.buyer_name[i] + "</strong>";
 
+        cell1.innerHTML = "<strong>" + data.buyer_name[i] + "</strong>";
         var cell2 = row.insertCell();
         var seller = data.seller_number[i];
         if (seller == null)
