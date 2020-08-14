@@ -17,7 +17,8 @@ var mysql = require('mysql');
     database: 'marketgame_mydb'
 });*/
 
-var connection = mysql.createConnection({
+var connection = mysql.createPool({
+    connectionLimit: 10,
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',

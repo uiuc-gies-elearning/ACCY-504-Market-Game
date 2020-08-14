@@ -70,7 +70,8 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // Connection for DigitalOcean
-var connection = mysql.createConnection({
+var connection = mysql.createPool({
+  connectionLimit: 10,
   host: "206.189.205.150",
   user: "marketgameAdmin",
   password: "JVwwkjp6SpsxGlZX",
@@ -78,7 +79,7 @@ var connection = mysql.createConnection({
 });
 
 //Try connection
-connection.connect(function(err) {
+connection.getConnection(function(err) {
   if (err) throw err;
   console.log("Connected to MySQL!");
 });
