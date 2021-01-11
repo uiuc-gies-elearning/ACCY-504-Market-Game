@@ -71,7 +71,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 // Connection for DigitalOcean
 var connection = mysql.createPool({
-  connectionLimit: 10,
+  connectionLimit: 20,
   host: "206.189.205.150",
   user: "marketgameAdmin",
   password: "JVwwkjp6SpsxGlZX",

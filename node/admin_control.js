@@ -258,17 +258,17 @@ var admin_control = function(request) {
 
   serverfile.app.io.route('delete_game', req => {
     const queries = [
-      'DELETE FROM `auditor bid` WHERE user_id IN (SELECT user_id FROM user WHERE game_id = ?)',
-      'DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
-      'DELETE FROM `buy history` WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
-      'DELETE FROM `sale history` WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
-      'DELETE FROM history WHERE game_id = ?',
-      'DELETE FROM offers WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
-      'DELETE FROM `game owner` WHERE game_id = ?',
-      'DELETE FROM `buyer list` WHERE game_id = ?',
-      'DELETE FROM `seller list` WHERE game_id = ?',
-      'DELETE FROM user WHERE role_id IN (1, 2) AND game_id = ?',
-      'UPDATE user SET game_id = null WHERE role_id = 3 AND game_id = ?',
+      'DELETE FROM `auditor bid`',
+      'DELETE FROM `buy history`',
+      'DELETE FROM bid',
+      'DELETE FROM `sale history`',
+      'DELETE FROM history',
+      'DELETE FROM offers',
+      'DELETE FROM `game owner`',
+      'DELETE FROM `buyer list`',
+      'DELETE FROM `seller list`',
+      'DELETE FROM user WHERE role_id IN (1, 2)',
+      'UPDATE user SET game_id = null WHERE role_id = 3',
       'DELETE FROM game WHERE game_id = ?'
     ];
     console.log('Game being deleted');
