@@ -53,6 +53,17 @@
         <tbody id="bids">
         </tbody>
       </table>
+      <h2>Buyer Order Position</h2>
+      <table class="table">
+        <thead>
+        <tr>
+          <th scope="col">Teamname</th>
+          <th scope="col">Buy Position</th>
+        </tr>
+        </thead>
+        <tbody id="position">
+        </tbody>
+      </table>
       <h2>Current Asking Prices</h2>
       <table class="table">
         <thead>
@@ -124,6 +135,7 @@
       socket.emit('stageUpdate');
       socket.emit('loadBids');
       socket.emit('loadLeaderboard');
+      socket.emit('loadWaitInfo');
     }
 
     function updatePeriod() {
@@ -332,6 +344,29 @@
     socket.on('updateOffers', function(data) {
       socket.emit('loadOffers');
       socket.emit('sellerUpdate');
+    });
+
+    socket.on('waitInfo', function(data) {
+      //pos = data.buyPos;
+      stage = data.stage;
+      //document.getElementById("position").innerHTML = "Your buy position is: <strong>" + pos + "</strong>";
+      var tbody = document.getElementById('position');
+      for (var i = 0; i < data.allBuyPos.length; i++) {
+        var row = tbody.insertRow();
+        var cell1 = row.insertCell();
+        cell1.innerHTML = data.allBuyPos[i]['teamname'];
+
+        var cell2 = row.insertCell();
+        cell2.innerHTML = data.allBuyPos[i]['buy_pos'];
+      }
+      if (stage == 0)
+        document.getElementById("message").innerHTML = "Please wait for sellers to finalize their asking prices.";
+      else if (stage == 6)
+        window.location.replace('/results');
+      else if (stage == 5)
+        document.getElementById("message").innerHTML = "Please wait for players to finalize their auditor bids.";
+      else
+        document.getElementById("message").innerHTML = "Please wait for Buyer <strong>" + stage + "</strong> to finish their buy order.";
     });
 
     function parsePrice(price) {

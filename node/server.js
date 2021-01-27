@@ -283,6 +283,7 @@ app.get("/admin_control", isLoggedIn, isAdmin, function(req, res, next) {
   load_history.load_history(req);
   seller_selection.seller_select(req);
   buyer_selection.buyer_select(req);
+  wait.wait(req);
   joinRoom(req);
 });
 
