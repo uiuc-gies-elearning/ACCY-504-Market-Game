@@ -18,7 +18,7 @@ var mysql = require('mysql');
 });*/
 
 var connection = mysql.createPool({
-    connectionLimit: 20,
+    connectionLimit: 75,
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
@@ -50,9 +50,24 @@ module.exports = function(passport) {
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
         connection.query("SELECT * FROM user WHERE user_id = ? ",[id], function(err, rows){
-            done(err, rows[0]);
+            if (err)
+            {
+				console.log('err in passport de');
+                console.log(err);
+        return done(null,err);
+ 
+            }
+			console.log(rows[0]);
+			if (typeof rows[0] !== 'undefined')
+            {done(null, rows[0]);}
+		    else{
+				return null;
+			}
+			
         });
     });
+
+
 
     // =========================================================================
     // LOCAL SIGNUP ============================================================
@@ -136,8 +151,9 @@ module.exports = function(passport) {
         },
         function(req, username, password, done) { // callback with email and password from our form
             connection.query("SELECT * FROM user WHERE teamname = ? or teamname Like Concat(? , '_')",[username , username], function(err, rows){
-                if (err)
-                    return done(err);
+                if (err){
+					console.log('1');
+				return done(err);}
                 if (!rows.length) {
                     return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
                 }

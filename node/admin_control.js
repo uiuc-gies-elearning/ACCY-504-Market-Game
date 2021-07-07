@@ -257,30 +257,42 @@ var admin_control = function(request) {
   });
 
   serverfile.app.io.route('delete_game', req => {
-    const queries = [
-      'DELETE FROM `auditor bid`',
-      'DELETE FROM `buy history`',
-      'DELETE FROM bid',
-      'DELETE FROM `sale history`',
-      'DELETE FROM history',
-      'DELETE FROM offers',
-      'DELETE FROM `game owner`',
-      'DELETE FROM `buyer list`',
-      'DELETE FROM `seller list`',
-      'DELETE FROM user WHERE role_id IN (1, 2)',
-      'UPDATE user SET game_id = null WHERE role_id = 3',
-      'DELETE FROM game WHERE game_id = ?'
-    ];
+  
     console.log('Game being deleted');
-    queries.forEach(q => serverfile.connection.query(q, gameid, (_err, _res) => {
+	
+    serverfile.connection.query('UPDATE user SET game_id = null WHERE role_id = 3 and game_id= ?', gameid, (_err, _res) => {
       if (_err) {
-        console.error('Failed', q);
+        console.error('Failed','UPDATE user SET game_id = null WHERE role_id = 3 and game_id= ?');
         console.error(_err);
       }
-    }));
-    req.io.room(req.session.game_id).broadcast('game_delete');
-  });
+      console.log('Update done');
+    
+    });
+    
 
+for( var i=0 ;i<10000000;i++)
+{
+var a=i;
+	
+}
+
+ serverfile.connection.query('DELETE FROM game WHERE game_id = ?', gameid, (_err, _res) => {
+      if (_err) {
+        console.error('Failed','DELETE FROM game WHERE game_id = ?');
+        console.error(_err);
+      }
+      console.log('delete done');
+    
+    });
+  });
+  
+  
+  serverfile.app.io.route('gameDelete', req =>{
+	  req.io.room(req.session.game_id).broadcast('game_delete');
+
+  });
+  
+  
   serverfile.app.io.route('forceForward', req => {
     req.io
       .room(req.session.user.game_id)

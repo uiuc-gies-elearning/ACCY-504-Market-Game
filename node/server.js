@@ -70,13 +70,17 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // Connection for DigitalOcean
+
 var connection = mysql.createPool({
-  connectionLimit: 20,
+  connectionLimit: 75,
   host: "206.189.205.150",
   user: "marketgameAdmin",
   password: "JVwwkjp6SpsxGlZX",
   database: "mydb"
 });
+
+
+
 
 //Try connection
 connection.getConnection(function(err) {
@@ -180,10 +184,22 @@ app.post(
   })
 );
 
+
 app.get("/logout", function(req, res) {
-  req.logout();
+	
+  req.session.destroy();
   res.redirect("/");
 });
+
+/*
+
+app.get('/logout', function (req, res){
+  req.session.destroy(function (err) {
+    res.redirect('/'); //Inside a callback… bulletproof!
+  });
+});
+
+*/
 
 //Bulk of redirect logic. This route loads no front-end page, and used solely to redirect users
 //based on role and stage within the game. The database is queried to check the stage of the
@@ -199,6 +215,7 @@ app.get("/redirect", isLoggedIn, function(req, res, next) {
       userGame,
       function(err, result) {
         if (err) {
+          console.log('a');
           console.error(err);
           return;
         }

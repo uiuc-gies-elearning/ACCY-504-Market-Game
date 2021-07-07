@@ -381,6 +381,13 @@
 
     function deleteGame() {
       if (confirm("Deleting a game cannot be undone")) {
+	    socket.emit('gameDelete');
+		
+for( var i=0 ;i<10000000;i++)
+{
+var a=i;
+	
+}
         socket.emit('delete_game');
         window.location.replace('/game_room');
       }
