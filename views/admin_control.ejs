@@ -40,6 +40,7 @@
 -->
           <button type='button' class='btn btn-danger' onclick='reset()'>Reset Game</button>
           <button type='button' class='btn btn-danger' onclick='deleteGame()'>Delete Game</button>
+		  <button type='button' class='btn btn-danger' onclick='GameRoom()'>View Games</button>
         </div>
       </div>
       <h2>Submitted Offers</h2>
@@ -115,6 +116,8 @@
     var isResults = false;
     var currentPeriod = 0;
     var Countbids = 0;
+
+
 
     function statLoad() {
       socket.emit('joinRoom');
@@ -356,6 +359,8 @@
         return "Error";
     }
 
+    
+	
     function parseColor(id, quality) {
       if (quality == 1)
         document.getElementById(id).style = "color:cornflowerblue"
@@ -379,8 +384,21 @@
       }
     }
 
+function GameRoom()
+{
+window.location.replace('/game_room');
+}
+
+
     function deleteGame() {
       if (confirm("Deleting a game cannot be undone")) {
+	    socket.emit('gameDelete');
+		
+for( var i=0 ;i<10000000;i++)
+{
+var a=i;
+	
+}
         socket.emit('delete_game');
         window.location.replace('/game_room');
       }

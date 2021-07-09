@@ -125,7 +125,7 @@
       }
     }
     socket.on('gameReset', _ => window.location.replace('/redirect'));
-   socket.on('game_delete', _ => window.location.replace('/login'));
+   socket.on('game_delete', _ => window.location.replace('/logout'));
 
     socket.on('auditChecked', function(data) {
       if (data.phase == 3) {

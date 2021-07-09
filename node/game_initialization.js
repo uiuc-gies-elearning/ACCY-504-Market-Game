@@ -83,7 +83,7 @@ var game_initialization = function(request) {
                   let buyerIxo = 1; // FML
                   teams.forEach(team => {
                     let userDto = {
-                      teamname: team.teamname,
+                      teamname: team.teamname.concat('_', game_id),
                       password: team.password,
                       role_id: team.role,
                       game_id: game_id,
