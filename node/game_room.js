@@ -50,8 +50,11 @@ var game_room = function(request) {
                 console.error(err);
                 return;
               }
+			  console.log(result.length);
+			  console.log(game_id);
               if (result.length >= 8) req.io.emit("joinFail", "gameFull");
               else {
+				
                 var buyerCount = 0;
                 var sellerCount = 0;
                 for (var i = 0; i < result.length; i++) {
@@ -74,7 +77,9 @@ var game_room = function(request) {
                       var role = req.session.user.role_id;
                       var game = game_id;
                       var userID = req.session.user.user_id;
-
+                      if (role==3)
+					  {req.io.emit("gameSelected");
+					  }
                       if (role == 1) {
                         serverfile.connection.query(
                           "SELECT buyer_number FROM `buyer list` WHERE game_id = ? ORDER BY buyer_id DESC LIMIT 1",
