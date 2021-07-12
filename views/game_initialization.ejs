@@ -43,7 +43,7 @@
         <label>Price for High Quality</label>
         <input class="form-control" id="resaleHQ" type="text">
         <br>
-        <button type="submit" form="name" class="btn btn-success" onclick="gameSubmit()">Submit</button>
+        <button type="submit" form="name" id="submit1" class="btn btn-success" onclick="gameSubmit()">Submit</button>
       </div>
 
     </div>
@@ -62,6 +62,7 @@
     var socket = io.connect();
 
     function gameSubmit() {
+	document.getElementById("submit1").disabled = 'true';
       var isDollarAmount = true;
       var priceList = [];
 
