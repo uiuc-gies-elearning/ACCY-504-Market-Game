@@ -48,7 +48,7 @@
         </div>
       </form>
       <br>
-      <button type="button" class="btn btn-success" onclick="submitQuality()">Submit</button>
+      <button type="button" class="btn btn-success" id="SubMit" onclick="submitQuality()">Submit</button>
       <br><br>
       <pr id="low-quality-price"></pr><br>
       <pr id="med-quality-price"></pr><br>
@@ -81,6 +81,8 @@
       socket.emit('loadPrices');
     }
     function submitQuality() {
+	document.getElementById("SubMit").disabled = 'true';
+    
       var second;
       var price = document.getElementById("price-input").value;
 

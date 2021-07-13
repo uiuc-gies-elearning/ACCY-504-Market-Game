@@ -102,7 +102,7 @@
       </div>
     </form>
     <br/>
-    <button type="button" class="btn btn-success" onclick="submitBuy()">Submit</button>
+    <button type="button" class="btn btn-success" id="SuBmit" onclick="submitBuy()">Submit</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -129,6 +129,9 @@
     }
 
     function submitBuy() {
+	
+	document.getElementById("SuBmit").disabled = 'true';
+    
       if (document.getElementById("Seller1").checked) {
         socket.emit('buy', 1);
       } else if (document.getElementById("Seller2").checked) {
