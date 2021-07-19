@@ -1,4 +1,5 @@
 //============================================
+//============================================
 //Backend functionality for the admin control.
 //============================================
 
@@ -256,6 +257,7 @@ var admin_control = function(request) {
     req.io.room(req.session.game_id).broadcast("gameReset");
   });
 
+
   serverfile.app.io.route('delete_game', req => {
   
     console.log('Game being deleted');
@@ -288,7 +290,8 @@ var a=i;
   
   
   serverfile.app.io.route('gameDelete', req =>{
-	  req.io.room(req.session.game_id).broadcast('game_delete');
+	  console.log(req.session.user.game_id);
+	  req.io.room(req.session.user.game_id).broadcast('game_delete');
 
   });
   

@@ -389,20 +389,40 @@ function GameRoom()
 window.location.replace('/game_room');
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}   
+
+const Log_del_user = async () => {
+
+    
+socket.emit('gameDelete') ;
+await sleep(6000);
+return true;        
+}
+
+const done = async () => {
+ const val= await Log_del_user();
+ if (val==true){
+ socket.emit('delete_game');}
+}
+
 
     function deleteGame() {
       if (confirm("Deleting a game cannot be undone")) {
-	    socket.emit('gameDelete');
-		
-for( var i=0 ;i<100000000;i++)
-{
-var a=i;
-	
-}
-        socket.emit('delete_game');
-        window.location.replace('/game_room');
+	    
+done().then(res => {
+  window.location.replace('/game_room');	
+})
+
+
+   }     
+        
+   
       }
-    }
+    
   </script>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
