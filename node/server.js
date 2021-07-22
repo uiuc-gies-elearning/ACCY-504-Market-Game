@@ -160,7 +160,7 @@ app.post(
     if (req.body.remember) {
       req.session.cookie.maxAge = 1000 * 60 * 3; //Session lasts 3 hours
     } else {
-      req.session.cookie.expires = false;
+      req.session.cookie.expires = true;
     }
     res.redirect("/");
   }
