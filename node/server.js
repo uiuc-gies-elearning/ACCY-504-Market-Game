@@ -186,6 +186,16 @@ app.post(
 
 
 app.get("/logout", function(req, res) {
+  var U= req.user.user_id;
+  connection.query(
+      "update user  set `user`=0 where user_id=?",
+      U,
+      function(err, result) {
+        if (err) {
+          console.log('a');
+          console.error(err);
+          return;
+	  }});
 	
   req.session.destroy();
   res.redirect("/");
@@ -207,9 +217,20 @@ app.get('/logout', function (req, res){
 //TODO: Add auditor functionality/routing
 app.get("/redirect", isLoggedIn, function(req, res, next) {
   var userGame = req.user.game_id;
-
+  var U= req.user.user_id;
   if (userGame == null) res.redirect("game_room");
   else {
+	 connection.query(
+      "update user  set `user`=1 where user_id=?",
+      U,
+      function(err, result) {
+        if (err) {
+          console.log('a');
+          console.error(err);
+          return;
+	  }});
+	
+	    
     connection.query(
       "SELECT stage_id FROM game WHERE game_id = ?",
       userGame,

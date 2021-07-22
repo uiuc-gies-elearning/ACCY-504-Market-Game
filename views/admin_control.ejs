@@ -20,7 +20,7 @@
           <button type='button' class='btn btn-warning' onclick="window.location.replace('/logout')">Logout</button>
         </div>
       </div>
-      <h1>Professor Control Interface<img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
+      <h1 id="Game_name"><img src="Gies-Logo.jpg" alt="Gies Logo" style="width:15%;" class="pull-right img-fluid"></h1>
     </div>
     <div class="jumbotron">
       <div class="form-group">
@@ -35,9 +35,8 @@
         <p id="phase"></p>
         <div class="btn-group">
           <a type="button" class="btn btn-info" href="/directory">Players</a>
-          <button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>
-<!--        <button type='button' class='btn btn-warning' onclick='forceForward()'>Force Buyer Selection</button>
--->
+          <button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>    
+		  <button type='button' class='btn btn-warning' onclick='forceForward()'>Force Buyer Selection</button>
           <button type='button' class='btn btn-danger' onclick='reset()'>Reset Game</button>
           <button type='button' class='btn btn-danger' onclick='deleteGame()'>Delete Game</button>
 		  <button type='button' class='btn btn-danger' onclick='GameRoom()'>View Games</button>
@@ -330,6 +329,7 @@
         var cell2 = row.insertCell();
         cell2.innerHTML = "$" + parsePrice(data.profits[i]);
       }
+	  document.getElementById("Game_name").innerHTML="Professor Control Interface"+data.teamname[0].split('_')[1];
     });
 
     socket.on('updateOffers', function(data) {
