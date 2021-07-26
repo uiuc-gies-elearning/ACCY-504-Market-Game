@@ -52,7 +52,7 @@ var game_room = function(request) {
               }
 			  console.log(result.length);
 			  console.log(game_id);
-              if (result.length >= 8) req.io.emit("joinFail", "gameFull");
+              if (result.length >= 8) req.io.emit("gameSelected");
               else {
 				
                 var buyerCount = 0;
