@@ -57,6 +57,7 @@ module.exports = function(passport) {
         return done(null,err);
  
             }
+			console.log('a');
 			console.log(rows[0]);
 			if (typeof rows[0] !== 'undefined')
             {done(null, rows[0]);}
