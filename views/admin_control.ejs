@@ -34,12 +34,12 @@
         <button type="button" class="btn btn-success" onclick="updatePhase()" id="phaseButton"><strong>Next Phase</strong> (Ends results and also goes to next period)</button>
         <p id="phase"></p>
         <div class="btn-group">
-          <a type="button" class="btn btn-info" href="/directory">Players</a>
-          <button type='button' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>    
-		  <button type='button' class='btn btn-warning' onclick='forceForward()'>Force Buyer Selection</button>
-          <button type='button' class='btn btn-danger' onclick='reset()'>Reset Game</button>
-          <button type='button' class='btn btn-danger' onclick='deleteGame()'>Delete Game</button>
-		  <button type='button' class='btn btn-danger' onclick='GameRoom()'>View Games</button>
+          <a type="button" id='play' class="btn btn-info" href="/directory">Players</a>
+          <button type='button' id='play_viz' class='btn btn-info' onclick="window.location.replace('/viz')">Profit Visualization</button>    
+		  <button type='button' id='FBuy' class='btn btn-warning' onclick='forceForward()'>Force Buyer Selection</button>
+          <button type='button' id='reset' class='btn btn-danger' onclick='reset()'>Reset Game</button>
+          <button type='button' id='Del_game' class='btn btn-danger' onclick='deleteGame()'>Delete Game</button>
+		  <button type='button' id='GRoom' class='btn btn-danger' onclick='GameRoom()'>View Games</button>
         </div>
       </div>
       <h2>Submitted Offers</h2>
@@ -389,27 +389,22 @@ function GameRoom()
 window.location.replace('/game_room');
 }
 
+/*
 function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }   
-
+*/
+const delay = time => new Promise(res=>setTimeout(res,time));
 const Log_del_user = async () => {
 
     
 socket.emit('gameDelete') ;
 
 
-for( var i=0 ;i<10000000000;i++)
-{
-var a=i;
-	
-}
 
-
-
-//await sleep(10000);
+await delay(10000);
 return true;        
 }
 
@@ -422,7 +417,14 @@ const done = async () => {
 
     function deleteGame() {
       if (confirm("Deleting a game cannot be undone")) {
-	    alert('Deleting the game please wait for 10 seconds');
+	    alert('Deleting the game please wait for 10 seconds ');
+		document.getElementById("play").disabled = 'true';
+		document.getElementById("play_viz").disabled = 'true';
+		document.getElementById("FBuy").disabled = 'true';
+		document.getElementById("reset").disabled = 'true';
+		document.getElementById("Del_game").disabled = 'true';
+		document.getElementById("GRoom").disabled = 'true';
+        
 done().then(res => {
   window.location.replace('/game_room');	
 })
