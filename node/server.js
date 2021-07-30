@@ -157,6 +157,7 @@ app.post(
     failureFlash: true // allow flash messages
   }),
   function(req, res) {
+	  console.log(req.body.remember);
     if (req.body.remember) {
       req.session.cookie.maxAge = 1000 * 60 * 3; //Session lasts 3 hours
     } else {
