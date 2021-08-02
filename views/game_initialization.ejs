@@ -73,7 +73,17 @@
       priceList.push(document.getElementById("resaleLQ").value);
       priceList.push(document.getElementById("resaleMQ").value);
       priceList.push(document.getElementById("resaleHQ").value);
-
+  
+  
+     
+    if (priceList[0]<0 || 0> priceList[3] || priceList[1]<0|| 0> priceList[4] || priceList[2]>0 || 0<priceList[5])
+	
+	
+	{
+	alert("Please enter  a higher resale value then production cost");
+          return;
+	}
+	 
 
 	if (priceList[0]> priceList[3] || priceList[1]> priceList[4] || priceList[2]> priceList[5])
 	
