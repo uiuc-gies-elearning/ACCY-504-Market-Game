@@ -60,9 +60,9 @@ module.exports = function(passport) {
 			console.log('a');
 			console.log(rows[0]);
 			if (typeof rows[0] !== 'undefined')
-            {done(null, rows[0]);}
+            {return done(null, rows[0]);}
 		    else{
-				return null;
+				return done();
 			}
 			
         });
