@@ -76,7 +76,7 @@
   
   
      
-    if (priceList[0]<0 || 0> priceList[3] || priceList[1]<0|| 0> priceList[4] || priceList[2]<0 || 0>priceList[5])
+    if (Number(priceList[0])<0 || 0> Number(priceList[3]) || Number(priceList[1])<0|| 0> Number(priceList[4]) || Number(priceList[2])<0 || 0>Number(priceList[5]))
 	
 	
 	{
@@ -84,8 +84,8 @@
           return;
 	}
 	 
-
-	if ((document.getElementById("costLQ").value > document.getElementById("resaleLQ").value) || (document.getElementById("costMQ").value > document.getElementById("resaleMQ").value) || (document.getElementById("costHQ").value > document.getElementById("resaleHQ").value))
+	
+	if ((Number(document.getElementById("costLQ").value) > Number(document.getElementById("resaleLQ").value)) || (Number(document.getElementById("costMQ").value) > Number(document.getElementById("resaleMQ").value)) || (Number(document.getElementById("costHQ").value) > Number(document.getElementById("resaleHQ").value)))
 	
 	
 	{
