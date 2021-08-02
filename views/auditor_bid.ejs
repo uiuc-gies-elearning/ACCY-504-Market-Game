@@ -29,7 +29,7 @@
           </div>
         </form>
         <br>
-        <button type="submit" class="btn btn-success" onclick="submitBid()">Submit</button>
+        <button type="submit" class="btn btn-success" id='submitT' onclick="submitBid()">Submit</button>
       </div>
     </div>
   </div>
@@ -61,6 +61,15 @@
         alert("Please bid a dollar amount");
         return;
       }
+	 
+
+ if (bid < 0) {
+        alert("Please bid in positive amount");
+        return;
+      }
+	 	 
+document.getElementById("submitT").disabled = 'true';
+
       socket.emit('bidSubmitted', bid);
     }
 

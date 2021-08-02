@@ -62,7 +62,8 @@
     var socket = io.connect();
 
     function gameSubmit() {
-	document.getElementById("submit1").disabled = 'true';
+	
+	
       var isDollarAmount = true;
       var priceList = [];
 
@@ -72,6 +73,16 @@
       priceList.push(document.getElementById("resaleLQ").value);
       priceList.push(document.getElementById("resaleMQ").value);
       priceList.push(document.getElementById("resaleHQ").value);
+
+
+	if (priceList[0]> priceList[3] || priceList[1]> priceList[4] || priceList[2]> priceList[5])
+	
+	
+	{
+	alert("Please enter  a higher resale value then production cost");
+          return;
+	}
+
 
       for (var i = 0; i < priceList.length; i++) {
         var price = priceList[i];
@@ -84,7 +95,8 @@
           return;
         }
       }
-
+       document.getElementById("submit1").disabled = 'true';
+	
       socket.emit('gameSubmit', {
         name: document.getElementById("game-name").value,
         costLQ: document.getElementById("costLQ").value,
