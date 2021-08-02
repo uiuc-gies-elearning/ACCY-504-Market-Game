@@ -198,8 +198,11 @@ app.get("/logout", function(req, res) {
           return;
 	  }});
 	
-  req.session.destroy();
-  req.logout();
+	
+	  req.session.destroy(function (err) {
+    res.redirect('/'); //Inside a callback… bulletproof!
+	
+  });
   res.redirect("/login");
 });
 
