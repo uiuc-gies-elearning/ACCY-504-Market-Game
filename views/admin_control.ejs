@@ -409,6 +409,8 @@ var a=i;
 	
 }
 
+socket.emit('delete_game');
+
 return true;        
 }
 
@@ -429,15 +431,28 @@ const done = async () => {
 		document.getElementById("Del_game").disabled = 'true';
 		document.getElementById("GRoom").disabled = 'true';
         
-done().then(res => {
+
+    
+socket.emit('gameDelete') ;
+
+
+for( var i=0 ;i<100000000;i++)
+{
+var a=i;
+	
+}
+
+socket.emit('delete_game');
+
+
   window.location.replace('/game_room');	
-})
+}
 
 
    }     
         
    
-      }
+      
     
   </script>
 
