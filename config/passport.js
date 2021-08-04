@@ -62,7 +62,7 @@ module.exports = function(passport) {
 			if (typeof rows[0] !== 'undefined')
             {return done(null, rows[0]);}
 		    else{
-				return;
+				done(null, false);
 			}
 			
         });
