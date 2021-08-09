@@ -63,10 +63,17 @@
 
         var cell2 = row.insertCell();
         cell2.innerHTML = data.game_name[i];
-
-        var cell3 = row.insertCell();
+		
+	
+		if (data.user_id[i]==data.user_n[i])
+		{
+		var cell3 = row.insertCell();
         cell3.innerHTML = '<button type="button" class="btn btn-success" onclick="joinGame(' + data.game_id[i] + ')">Join Game</button>';
-      }
+     
+		}
+		
+
+         }
     });
 
     socket.on('gameSelected', function(data) {
