@@ -105,8 +105,8 @@ exports.query = (request, ...args) => new Promise((resolve, reject) => {
 });
 
 //Open local port
-app.listen(3000, function() {
-  console.log("listening on *:3000");
+app.listen(5000, function() {
+  console.log("listening on *:5000");
 });
 
 app.use(express.static(path.join(__dirname, "..", "images")));
@@ -187,6 +187,7 @@ app.post(
 
 
 app.get("/logout", function(req, res) {
+  
   var U= req.user.user_id;
   connection.query(
       "update user  set `user`=0 where user_id=?",
