@@ -6,7 +6,7 @@ var game_room = function(request) {
   });
 
   serverfile.app.io.route("loadGames", function(req) {
-    serverfile.connection.query("select ga.game_id, game_name,user_id from game ga join `game owner` own on ga.game_id=own.game_id", function(
+    serverfile.connection.query("select ga.game_id, game_name,own.user_id,teamname from game ga join `game owner` own on ga.game_id=own.game_id join user u on u.user_id=own.user_id", function(
       err,
       result
     ) {
@@ -18,13 +18,15 @@ var game_room = function(request) {
         game_id: [],
         game_name: [],
 		user_id: [],
-		user_n: []
+		user_n: [],
+		teamname:[]
       };
       for (var i = 0; i < result.length; i++) {
         gameList.game_id.push(result[i]["game_id"]);
         gameList.game_name.push(result[i]["game_name"]);
 		gameList.user_id.push(result[i]["user_id"]);
 		gameList.user_n.push(req.session.user.user_id);
+		gameList.teamname.push(result[i]["teamname"]);
 		}
       req.io.emit("gamesLoaded", gameList);
     });

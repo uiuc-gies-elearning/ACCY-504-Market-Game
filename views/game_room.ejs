@@ -26,6 +26,7 @@
           <tr>
             <th scope="col">Game ID</th>
             <th scope="col">Game Name</th>
+			<th scope="col">Game Owner</th>
             <th scope="col">Join</th>
           </tr>
         </thead>
@@ -64,7 +65,9 @@
         var cell2 = row.insertCell();
         cell2.innerHTML = data.game_name[i];
 		
-	
+	    var cell3 = row.insertCell();
+        cell3.innerHTML = data.teamname[i];
+		
 		if (data.user_id[i]==data.user_n[i])
 		{
 		var cell3 = row.insertCell();
