@@ -188,6 +188,7 @@ app.post(
 
 app.get("/logout", function(req, res) {
   
+  try{
   var U= req.user.user_id;
   connection.query(
       "update user  set `user`=0 where user_id=?",
@@ -202,7 +203,12 @@ app.get("/logout", function(req, res) {
 	
   req.logout();
   res.redirect('/');
-});
+}
+catch(err)
+{
+	 res.redirect('/');
+}}
+);
 
 /*
 
