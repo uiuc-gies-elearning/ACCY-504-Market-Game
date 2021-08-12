@@ -47,10 +47,9 @@ var path = require("path");
 
 
 var ip = require("ip");
-console.log(ip.address());
 
 //heroku connection
-if(typeof(process.env.PORT)!=='undefined')
+if(ip.address()!=='159.203.179.150')
 {
 	var connection = mysql.createPool({
     connectionLimit: 5,
