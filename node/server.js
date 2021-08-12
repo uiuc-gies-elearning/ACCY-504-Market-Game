@@ -46,8 +46,11 @@ var bodyParser = require("body-parser");
 var path = require("path");
 
 
+var os = require('os');
 
+var networkInterfaces = os.networkInterfaces();
 
+console.log(networkInterfaces);
 
 //heroku connection
 if(typeof(process.env.PORT)!=='undefined')
