@@ -17,6 +17,8 @@ var mysql = require('mysql');
     database: 'marketgame_mydb'
 });*/
 
+//digital ocean
+/*
 var connection = mysql.createPool({
     connectionLimit: 75,
     host: '206.189.205.150',
@@ -24,6 +26,18 @@ var connection = mysql.createPool({
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
 });
+*/
+//heroku
+
+var connection = mysql.createPool({
+    connectionLimit: 5,
+    host: 'us-cdbr-east-04.cleardb.com',
+    user: 'bf7dcd2c6aa59f',
+    password: 'd1e87740',
+    database: 'heroku_b7929700dccb0ee'
+});
+
+
 
 // required for password encryption
 
@@ -60,7 +74,10 @@ module.exports = function(passport) {
 			console.log('a');
 			console.log(rows[0]);
 			if (typeof rows[0] !== 'undefined')
-            {return done(null, rows[0]);}
+				
+            {
+				return done(null, rows[0]);}
+		
 		    else{
 				return done(null, false);
 			}

@@ -70,7 +70,7 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // Connection for DigitalOcean
-
+/*
 var connection = mysql.createPool({
   connectionLimit: 75,
   host: "206.189.205.150",
@@ -79,8 +79,21 @@ var connection = mysql.createPool({
   database: "mydb"
 });
 
+*/
 
+//heroku connection
 
+var connection = mysql.createPool({
+    connectionLimit: 5,
+    host: 'us-cdbr-east-04.cleardb.com',
+    user: 'bf7dcd2c6aa59f',
+    password: 'd1e87740',
+    database: 'heroku_b7929700dccb0ee'
+});
+
+var os = require("os");
+var hostname = os.hostname();
+console.log(hostname);
 
 //Try connection
 connection.getConnection(function(err) {

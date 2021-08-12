@@ -102,7 +102,7 @@ var admin_control = function(request) {
   //TODO: Use table joins to check game id as well
   serverfile.app.io.route("buyerUpdate", function(req) {
     serverfile.connection.query(
-      "SELECT count(*) FROM mydb.bid b join mydb.`seller list` s on b.seller_id=s.seller_id where s.game_id= ?",
+      "SELECT count(*) FROM bid b join `seller list` s on b.seller_id=s.seller_id where s.game_id= ?",
       userGame,
       function(err, result) {
         if (err) {
