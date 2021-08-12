@@ -18,13 +18,23 @@ var mysql = require('mysql');
 });*/
 
 //digital ocean
-
+/*
 var connection = mysql.createPool({
     connectionLimit: 75,
     host: '206.189.205.150',
     user: 'marketgameAdmin',
     password: 'JVwwkjp6SpsxGlZX',
     database: 'mydb'
+});
+*/
+//heroku
+
+var connection = mysql.createPool({
+    connectionLimit: 5,
+    host: 'us-cdbr-east-04.cleardb.com',
+    user: 'bf7dcd2c6aa59f',
+    password: 'd1e87740',
+    database: 'heroku_b7929700dccb0ee'
 });
 
 

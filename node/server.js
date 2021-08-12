@@ -41,10 +41,47 @@ var cookieParser = require("cookie-parser");
 //Required for HTML POST requests, which
 var bodyParser = require("body-parser");
 
+
 //Used for path.join() to locate files
 var path = require("path");
 
-require("../config/passport")(passport); // pass passport for configuration
+
+
+
+
+//heroku connection
+if(typeof(process.env.PORT)!=='undefined')
+{
+	var connection = mysql.createPool({
+    connectionLimit: 5,
+    host: 'us-cdbr-east-04.cleardb.com',
+    user: 'bf7dcd2c6aa59f',
+    password: 'd1e87740',
+    database: 'heroku_b7929700dccb0ee'
+});
+require("../config/passport1")(passport); // pass passport for configuration
+
+
+}
+
+else{
+	// Connection for DigitalOcean
+
+var connection = mysql.createPool({
+  connectionLimit: 75,
+  host: "206.189.205.150",
+  user: "marketgameAdmin",
+  password: "JVwwkjp6SpsxGlZX",
+  database: "mydb"
+});
+
+	require("../config/passport")(passport); // pass passport for configuration
+
+	
+}
+
+
+
 
 //Setting and using dependencies
 //  Set up ejs for templating. Used to parse flash messages on login/signup pretty much (for the <% %> syntax)
@@ -69,29 +106,6 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-// Connection for DigitalOcean
-/*
-var connection = mysql.createPool({
-  connectionLimit: 75,
-  host: "206.189.205.150",
-  user: "marketgameAdmin",
-  password: "JVwwkjp6SpsxGlZX",
-  database: "mydb"
-});
-
-*/
-
-//heroku connection
-
-var connection = mysql.createPool({
-    connectionLimit: 5,
-    host: 'us-cdbr-east-04.cleardb.com',
-    user: 'bf7dcd2c6aa59f',
-    password: 'd1e87740',
-    database: 'heroku_b7929700dccb0ee'
-});
-
-console.log(typeof(process.env.PORT));
 
 //Try connection
 connection.getConnection(function(err) {
