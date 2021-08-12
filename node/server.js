@@ -91,9 +91,7 @@ var connection = mysql.createPool({
     database: 'heroku_b7929700dccb0ee'
 });
 
-var os = require("os");
-var hostname = os.hostname();
-console.log(hostname);
+console.log(process.env.PORT);
 
 //Try connection
 connection.getConnection(function(err) {
