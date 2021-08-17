@@ -4,7 +4,7 @@ const financial = d => Number.parseFloat(d).toFixed(2);
 
 module.exports.Aaudit = (request, response) => {
   let gameid = request.user.game_id;
-
+   try{
   server.connection.query(
     "SELECT u.teamname,bid_amount FROM `auditor bid history` ah join user u on ah.user_id=u.user_id and u.game_id=? order by bid_id",gameid,
     (err, res) => {
@@ -13,7 +13,7 @@ module.exports.Aaudit = (request, response) => {
             return;
           }
           if (res.length === 0) return;
-          let players = 2;
+          let players = 7;
           let nperiods = Math.ceil(res.length / players);
           let Aaudit=[];
 		  console.log(res);
@@ -37,4 +37,11 @@ module.exports.Aaudit = (request, response) => {
           response.end();
         }
       );
+   }
+   
+catch(err)
+{
+	 res.redirect('/');
+}
     };
+	
