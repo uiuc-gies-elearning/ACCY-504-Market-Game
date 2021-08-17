@@ -14,6 +14,7 @@ module.exports.Aaudit = (request, response) => {
           }
           if (res.length === 0) return;
           let players = 7;
+		  if (res.length % 7 !==0) return;
           let nperiods = Math.ceil(res.length / players);
           let Aaudit=[];
 		  console.log(res);
