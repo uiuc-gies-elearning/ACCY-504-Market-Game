@@ -26,6 +26,16 @@ var auditor_bid = function(request) {
         }
 
         var maxBids = 7;
+		
+		serverfile.connection.query(
+      "INSERT INTO `auditor bid history` SET ?",
+      bid,
+      function(err, result) {
+        if (err) {
+          console.error(err);
+          return;
+	  }});
+
 
         serverfile.connection.query(
           "SELECT `auditor bid`.user_id, `auditor bid`.bid_amount FROM `auditor bid` INNER JOIN user on `auditor bid`.user_id = user.user_id WHERE game_id = ?",

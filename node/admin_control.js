@@ -98,6 +98,21 @@ var admin_control = function(request) {
     );
   });
 
+
+serverfile.app.io.route("loadBuyPos", function(req) {
+    serverfile.connection.query(
+      "SELECT teamname, buy_pos FROM user WHERE game_id = ? AND role_id = 1",
+      userGame,
+      function(err, result) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+         req.io.emit("BuyPosloaded", result);
+      }
+    );
+  });
+
   //Uses count of buyers in bid to query # of bids submitted
   //TODO: Use table joins to check game id as well
   serverfile.app.io.route("buyerUpdate", function(req) {

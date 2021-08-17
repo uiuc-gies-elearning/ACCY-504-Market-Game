@@ -56,7 +56,7 @@ module.exports.profits = (request, response) => {
 			//console.log(res);
             for (let period = 0; period < nperiods; ++period) {
               let datavec = res[buyerBaseIdx + period];
-			  //console.log(datavec);
+			  console.log(datavec);
               let buyQuality = datavec["buy_quality"] - 1;
               let profit =
                 buyQuality === 3 ? 0 : resale[buyQuality] - datavec["buy_price"] - datavec['audit_amount'];

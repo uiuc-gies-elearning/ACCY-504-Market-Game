@@ -19,8 +19,14 @@
 <div class="container">
     <div class="jumbotron">
         <h1>Profits</h1>
-        <p>This chart shows the rolling profits of each team over time periods.</p>
+        <p>This chart shows the rolling profits of buying team over time periods.</p>
         <div id='chart'></div>
+		
+		<p>This chart shows the rolling profits of selling team over time periods.</p>
+        <div id='chart1'></div>
+		
+		<p>This chart shows the audit price.</p>
+        <div id='chart2'></div>
     </div>
 </div>
 <script>
@@ -30,6 +36,31 @@
         data.forEach(row => cols.push(row.totalProfits))
         let chart = c3.generate({
             bindto: '#chart',
+            data: {
+                columns: cols
+            }
+        })
+    })
+	
+    d3.json('/sale_profit').then(data => {
+        let cols = []
+        data.map(row => row.totalProfits.unshift(row.team))
+        data.forEach(row => cols.push(row.totalProfits))
+        let chart = c3.generate({
+            bindto: '#chart1',
+            data: {
+                columns: cols
+            }
+        })
+    })
+	
+	
+	 d3.json('/audit_price').then(data => {
+        let cols = []
+        data.map(row => row.audit.unshift(row.team))
+        data.forEach(row => cols.push(row.audit))
+        let chart = c3.generate({
+            bindto: '#chart2',
             data: {
                 columns: cols
             }

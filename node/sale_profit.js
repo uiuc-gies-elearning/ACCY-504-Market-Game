@@ -27,13 +27,7 @@ module.exports.profits = (request, response) => {
       ];
 
       server.connection.query(
-        "SELECT u.teamname, bh.buy_quality, bh.buy_price, hh.audit_amount FROM `buy history` bh\n" +
-        "    INNER JOIN `buyer list` bl ON bh.buyer_id = bl.buyer_id\n" +
-        "    INNER JOIN user u ON bl.user_id = u.user_id\n" +
-        "    INNER JOIN history h ON bh.history_id = h.history_id\n" +
-        "    LEFT JOIN history hh ON u.teamname = hh.audit_winner AND bh.history_id = hh.history_id\n" +
-        "WHERE u.game_id = ?\n" +
-        "ORDER BY u.user_id, h.cur_period",
+        "SELECT u.teamname, bh.quality_id, bh.price_sold, units_sold,hh.audit_amount, units_sold FROM `sale history` bh INNER JOIN `seller list` bl ON bh.seller_id = bl.seller_id INNER JOIN user u ON bl.user_id = u.user_id INNER JOIN history h ON bh.history_id = h.history_id LEFT JOIN history hh ON u.teamname = hh.audit_winner AND bh.history_id = hh.history_id WHERE u.game_id = ? ORDER BY u.user_id, h.cur_period",
         gameid,
         (err, res) => {
           if (err) {
@@ -41,7 +35,7 @@ module.exports.profits = (request, response) => {
             return;
           }
           if (res.length === 0) return;
-          let nbuyers = 4;
+          let nbuyers = 3;
           let nperiods = res.length / nbuyers;
 
           let profits = [];
@@ -53,14 +47,21 @@ module.exports.profits = (request, response) => {
               totalProfits: [0]
             };
             let totalProfits = 0;
-			//console.log(res);
             for (let period = 0; period < nperiods; ++period) {
               let datavec = res[buyerBaseIdx + period];
-			  //console.log(datavec);
-              let buyQuality = datavec["buy_quality"] - 1;
+              let buyQuality = datavec["quality_id"] - 1;
               let profit =
-                buyQuality === 3 ? 0 : resale[buyQuality] - datavec["buy_price"] - datavec['audit_amount'];
-              totalProfits += profit;
+                buyQuality === 3 ? 0 : datavec["price_sold"] - prices[buyQuality] - datavec['audit_amount'];
+              if (datavec["units_sold"]===2)
+			  {
+				  profit=profit*2-1
+			  }
+			  if (datavec["units_sold"]===0)
+			  {
+				  profit=0
+			  }
+			  totalProfits += profit;
+			  
               buyerProfits.profits.push(financial(profit));
               buyerProfits.totalProfits.push(financial(totalProfits));
             }

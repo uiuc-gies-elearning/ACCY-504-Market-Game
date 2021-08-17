@@ -81,7 +81,6 @@ var connection = mysql.createPool({
 
 
 
-
 //Setting and using dependencies
 //  Set up ejs for templating. Used to parse flash messages on login/signup pretty much (for the <% %> syntax)
 app.set("view engine", "ejs");
@@ -153,6 +152,8 @@ const wait = require("./wait.js");
 const auditor_bid = require("./auditor_bid.js");
 const game_room = require("./game_room.js");
 const profits = require("./profits.js");
+const sale_profit = require("./sale_profit.js");
+const audit_price = require("./audit_price.js");
 const player_directory = require('./player_directory.js');
 
 app.get('/directory', isLoggedIn, isAdmin, player_directory.player_directory);
@@ -494,6 +495,11 @@ app.get("/game_room", isLoggedIn, function(req, res, next) {
 });
 
 app.get("/profits", isLoggedIn, profits.profits);
+
+
+app.get("/sale_profit", isLoggedIn, sale_profit.profits);
+
+app.get("/audit_price", isLoggedIn, audit_price.Aaudit);
 
 function joinRoom(request) {
   app.io.route("joinRoom", function(req) {

@@ -105,6 +105,18 @@
         <tbody id="saleHistory">
         </tbody>
       </table>
+	  <h2>Buyers Position</h2>
+	  <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Buyer</th>
+            <th scope="col">Buying Position</th>
+          </tr>
+        </thead>
+        <tbody id="buyPos">
+        </tbody>
+      </table>
+      
     </div>
   </div>
 
@@ -126,6 +138,7 @@
       socket.emit('stageUpdate');
       socket.emit('loadBids');
       socket.emit('loadLeaderboard');
+	  socket.emit('loadBuyPos');
     }
 
     function updatePeriod() {
@@ -279,6 +292,26 @@
         cell3.innerHTML = "Price: $" + parsePrice(data.seller3price[i]) + "<br>" + "Quality: " + parseQuality(data.seller3quality[i]) + "<br>" + "Units Sold: " + data.seller3units[i];
       }
     });
+	
+	socket.on('BuyPosloaded', function(data) {
+      var bpos = document.getElementById('buyPos');
+      bpos.innerHTML = "";
+	  console.log(data)
+      for (i = 0; i < data.length; i++) {
+        var row = bpos.insertRow();
+        var th = document.createElement('th');
+        th.innerHTML = data[i].teamname;
+        row.appendChild(th);
+
+        var cell1 = row.insertCell();
+        cell1.innerHTML = data[i].buy_pos;
+          }
+	 
+	
+	
+	
+	});
+    
 
     socket.on('sellerUpdated', function(data) {
       document.getElementById("sellers").innerHTML = "<strong>Submitted asking prices:</strong> " + data + "/3";
@@ -436,7 +469,7 @@ const done = async () => {
 socket.emit('gameDelete') ;
 
 
-for( var i=0 ;i<100000000;i++)
+for( var i=0 ;i<10000000000;i++)
 {
 var a=i;
 	
