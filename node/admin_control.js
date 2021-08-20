@@ -261,7 +261,9 @@ serverfile.app.io.route("loadBuyPos", function(req) {
   serverfile.app.io.route("reset", req => {
     const queries = [
       'DELETE FROM `auditor bid` WHERE user_id IN (SELECT user_id FROM users WHERE game_id = ?)',
-      'DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
+	  'DELETE FROM `auditor bid history` WHERE user_id IN (SELECT user_id FROM users WHERE game_id = ?)',
+     
+	 'DELETE FROM bid WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
       'DELETE FROM `buy history` WHERE buyer_id IN (SELECT buyer_id FROM `buyer list` WHERE game_id = ?)',
       'DELETE FROM `sale history` WHERE seller_id IN (SELECT seller_id FROM `seller list` WHERE game_id = ?)',
       'DELETE FROM history WHERE NOT (cur_phase = 1 AND cur_period = 1) AND game_id = ?',
