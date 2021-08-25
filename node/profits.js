@@ -4,7 +4,7 @@ const financial = d => Number.parseFloat(d).toFixed(2);
 
 module.exports.profits = (request, response) => {
   let gameid = request.user.game_id;
-
+try{
   server.connection.query(
     "SELECT price_low, price_med, price_high, resale_low, resale_med, resale_high FROM game WHERE game_id = ?",
     gameid,
@@ -25,9 +25,10 @@ module.exports.profits = (request, response) => {
         res[0]["resale_med"],
         res[0]["resale_high"]
       ];
-
+       
+try{
       server.connection.query(
-        "SELECT u.teamname, bh.buy_quality, bh.buy_price, hh.audit_amount FROM `buy history` bh\n" +
+        "SELECT distinct u.user_id, u.teamname, bh.buy_quality, bh.buy_price, hh.audit_amount,h.cur_phase,h.cur_period FROM `buy history` bh\n" +
         "    INNER JOIN `buyer list` bl ON bh.buyer_id = bl.buyer_id\n" +
         "    INNER JOIN user u ON bl.user_id = u.user_id\n" +
         "    INNER JOIN history h ON bh.history_id = h.history_id\n" +
@@ -41,12 +42,20 @@ module.exports.profits = (request, response) => {
             return;
           }
           if (res.length === 0) return;
+		  if (res.length % 4!==0) return;
+          
           let nbuyers = 4;
           let nperiods = res.length / nbuyers;
 
           let profits = [];
           for (let buyerid = 0; buyerid < nbuyers; ++buyerid) {
             let buyerBaseIdx = buyerid * nperiods;
+			
+			if (typeof res[buyerBaseIdx]==='undefined')
+			{
+				continue;
+			}
+			
             let buyerProfits = {
               team: res[buyerBaseIdx]["teamname"],
               profits: [0],
@@ -71,6 +80,21 @@ module.exports.profits = (request, response) => {
           response.end();
         }
       );
+	  
+}
+
+catch(err)
+{
+	 res.redirect('/');
+}
+
     }
   );
+  
+}
+
+catch(err)
+{
+	 res.redirect('/');
+}
 };

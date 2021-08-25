@@ -4,7 +4,7 @@ const financial = d => Number.parseFloat(d).toFixed(2);
 
 module.exports.profits = (request, response) => {
   let gameid = request.user.game_id;
-
+try{
   server.connection.query(
     "SELECT price_low, price_med, price_high, resale_low, resale_med, resale_high FROM game WHERE game_id = ?",
     gameid,
@@ -27,7 +27,7 @@ module.exports.profits = (request, response) => {
       ];
 
       server.connection.query(
-        "SELECT u.teamname, bh.quality_id, bh.price_sold, units_sold,hh.audit_amount, units_sold FROM `sale history` bh INNER JOIN `seller list` bl ON bh.seller_id = bl.seller_id INNER JOIN user u ON bl.user_id = u.user_id INNER JOIN history h ON bh.history_id = h.history_id LEFT JOIN history hh ON u.teamname = hh.audit_winner AND bh.history_id = hh.history_id WHERE u.game_id = ? ORDER BY u.user_id, h.cur_period",
+        "SELECT distinct u.user_id,u.teamname, bh.quality_id, bh.price_sold, units_sold,hh.audit_amount, units_sold,h.cur_phase,h.cur_period FROM `sale history` bh INNER JOIN `seller list` bl ON bh.seller_id = bl.seller_id INNER JOIN user u ON bl.user_id = u.user_id INNER JOIN history h ON bh.history_id = h.history_id LEFT JOIN history hh ON u.teamname = hh.audit_winner AND bh.history_id = hh.history_id WHERE u.game_id = ? ORDER BY u.user_id, h.cur_period",
         gameid,
         (err, res) => {
           if (err) {
@@ -35,6 +35,8 @@ module.exports.profits = (request, response) => {
             return;
           }
           if (res.length === 0) return;
+		  if (res.length % 3!==0) return;
+          
           let nbuyers = 3;
           let nperiods = res.length / nbuyers;
 
@@ -74,4 +76,10 @@ module.exports.profits = (request, response) => {
       );
     }
   );
+  
+}
+catch(err)
+{
+	 res.redirect('/');
+}
 };
