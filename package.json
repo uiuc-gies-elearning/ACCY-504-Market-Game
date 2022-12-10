@@ -11,7 +11,7 @@
     "cookie-parser": "^1.4.5",
     "cookie-session": "^2.0.0-rc.1",
     "ejs": "^2.7.4",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.17.2",
     "express.io": "^1.1.13",
     "ip": "^1.1.5",
